@@ -1,0 +1,27 @@
+- down
+- up
+x down
+x up
+- down
+- up
+alt down
+9 down
+9 up
+alt up
+x down
+x up
+
+o down
+o up
+alt down
+shift down
+meta down
+control down
+x down
+x up
+shift up
+meta up
+control up
+alt up
+x down
+x up

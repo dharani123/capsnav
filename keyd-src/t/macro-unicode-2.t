@@ -1,0 +1,21 @@
+3 down
+\ down
+\ up
+3 up
+
+control down
+control up
+1 down
+1 up
+cancel down
+cancel up
+o down
+o up
+y down
+y up
+6 down
+6 up
+2 down
+2 up
+control down
+control up

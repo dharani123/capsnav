@@ -1,0 +1,23 @@
+control down
+shift down
+alt down
+h down
+h up
+control up
+shift up
+alt up
+
+control down
+shift down
+alt down
+alt up
+shift up
+control up
+left down
+left up
+alt down
+shift down
+control down
+control up
+shift up
+alt up

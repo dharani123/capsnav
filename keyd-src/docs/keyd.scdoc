@@ -1,0 +1,1008 @@
+keyd(1)
+
+# NAME
+
+*keyd* - A key remapping daemon.
+
+# SYNOPSIS
+
+*keyd* [command] [options]
+
+# COMMANDS
+
+*monitor [-t]*
+	Print key events. If -t is supplied, also prints time since the last event in ms. Useful for discovering key names/device ids and debugging.
+
+*listen*
+	Print layer state changes of the running keyd daemon to stdout. Useful for scripting.
+
+*bind reset|<binding> [<binding>...]*
+	Apply the supplied bindings. See _Bindings_ for details.
+
+*reload*
+	Reload config files.
+
+*list-keys*
+	List valid key names.
+
+*input [-t <timeout>] <text> [<text>...]*
+	Input the supplied text. If no arguments are given, read the input from STDIN.
+	A timeout in microseconds may optionally be supplied corresponding to the time
+	between emitted events.
+
+*do [-t <timeout>] [<exp>]*
+	Execute the supplied expression. See MACROS for the format of <exp>. If no arguments are given, the expression is read from STDIN. If supplied, <timeout> corresponds to the macro_sequence_timeout.
+
+*check [<config file>...]*
+	Validate the supplied config files. If no files are supplied, all files in the config directory are checked.
+	This exits with a non-zero return code if and only if any files fail validation.
+
+# OPTIONS
+
+*-v, --version*
+	Print the current version and exit.
+
+*-h, --help*
+	Print help and exit.
+
+# DESCRIPTION
+
+keyd is a system wide key remapping daemon which supports features like
+layering, oneshot modifiers, and macros. In its most basic form it can be used
+to define a custom key layout that persists across display server boundaries
+(e.g wayland/X/tty).
+
+The program runs in the foreground, printing diagnostic information to the
+standard output streams, and is intended to be run as a single instance managed
+by the init system.
+
+*NOTE:*
+
+Because keyd modifies your primary input device, it is possible to render your
+machine unusable with a bad config file. If you find yourself in this situation
+the panic sequence *<backspace>+<escape>+<enter>* will force keyd to
+terminate.
+
+# CONFIGURATION
+
+Configuration files loosely follow an INI style format consisting of headers of
+the form _[section_name]_ followed by a set of _bindings_.  Lines beginning
+with a hash are ignored.
+
+Config files are stored in _/etc/keyd/_ and loaded upon initialization.
+The reload command can be used to update the working set of config
+files (e.g sudo keyd reload).
+
+A valid config file has the extension _.conf_ and *must* begin with an _[ids]_
+section that has one of the following forms:
+
+```
+	[ids]
+
+	<id 1 (obtained via keyd monitor)>
+	<id 2>
+	...
+```
+
+or
+
+```
+	[ids]
+
+	*
+	-<id 1>
+	-<id 2>
+	...
+```
+
+The first form specifies a list of ids to be explicitly matched, while the
+second matches any id which has not been explicitly excluded.
+
+For example:
+
+```
+	[ids]
+	*
+	-0123:4567
+```
+
+
+Will match all keyboards which *do not*(2) have the id _0123:4567_, while:
+
+```
+	[ids]
+
+	0123:4567
+```
+
+will exclusively match any devices which do. Device ids can be obtained from
+the monitor command (see _COMMANDS_). Note that a device id may only be
+listed in a single config file.
+
+Each subsequent section of the file corresponds to a _layer_ (with the exception
+of _[global]_ (see _GLOBALS_).
+
+Config errors will appear in the log output and can be accessed in the usual
+way using your system's service manager (e.g sudo journalctl -eu keyd).
+
+If an id matches more than one device type, the prefix k: may
+be used to exclusively match keyboards and the prefix m: may be used to
+exclusively match mice. (E.g m:046d:b01d)
+
+Note: All keyboards defined within a given config file will share the
+same state. This is useful for linking separate input devices together
+(e.g foot pedals).
+
+Note 2: The wildcard will only match devices which keyd identifies as keyboards.
+keyd is also capable of *managing mice* (e.g to facilitate clearing
+of oneshot modifiers on click), but their ids must be explicitly listed.
+
+Note 3: *Mouse support is currently experimental*, and is mostly confined to
+traditional mice (e.g touchpads). Adding some mice to
+your ids section may break your pointer. *It may also be necessary
+to explicitly blacklist mice which are misidentified as keyboards
+(e.g if you find your moused misbehaving).*
+
+## Layers
+
+A layer is a collection of _bindings_, each of which specifies the behaviour of
+a particular key. Multiple layers may be active at any given time, forming a
+stack of occluding keymaps consulted in activation order. The default layer is
+called _main_ and is where common bindings should be defined.
+
+For example, the following config snippet defines a layer called _nav_
+and creates a toggle for it in the _main_ layer:
+
+```
+	[main]
+
+	capslock = layer(nav)
+
+	[nav]
+
+	h = left
+	k = up
+	j = down
+	l = right
+```
+
+When capslock is held, the _nav_ layer occludes the _main_ layer
+causing _hjkl_ to function as the corresponding arrow keys.
+
+Unlike most other remapping tools, keyd provides first class support for
+modifiers. A layer name may optionally end with a ':' followed by a
+set of modifiers to emulate in the absence of an explicit mapping.
+*Layer names may consist of a maximum of 64 characters* (including
+all modifiers).
+
+These layers play nicely with other modifiers and preserve existing stacking
+semantics.
+
+For example:
+
+```
+	[main]
+
+	capslock = layer(capslock)
+
+	[capslock:C]
+
+	j = down
+```
+
+will cause _capslock_ to behave as _control_, except in the case of _capslock+j_, which will
+emit _down_. This makes it trivial to define custom modifiers which don't interfere with
+one another.
+
+Note that bindings are not affected by the modifiers of the layer in which they
+are defined. Thus *capslock+j* will produce an unmodified *down* keypress, while
+*shift+capslock+j* will produce *shift+down* as expected.
+
+
+Formally, each layer heading has the following form:
+
+```
+	"[" <layer name>[:<modifier set>] "]"
+```
+
+Where _<modifier_set>_ has the form:
+
+	_<modifier1>[-<modifier2>]..._
+
+and each modifier is one of:
+
+	*C* - Control++
+*M* - Meta/Super++
+*A* - Alt++
+*S* - Shift++
+*G* - AltGr
+
+Finally, each layer heading is followed by a set of bindings which take the form:
+
+	<key> | <alias> = <key>|<macro>|<action>
+
+for a description of <action> and <macro> see _ACTIONS_ and _MACROS_.
+
+By default, each key is bound to itself within the main layer. The exception to this
+are the modifier keys, which are instead bound to eponymously named layers with the
+corresponding modifiers.
+
+For example, _meta_ is actually bound to _layer(meta)_, where _meta_ is
+internally defined as _meta:M_.
+
+The full set of modifier bindings are as follows:
+
+```
+	control = layer(control)
+	meta = layer(meta)
+	shift = layer(shift)
+	leftalt = layer(alt)
+	rightalt = layer(altgr)
+```
+
+A consequence of this is that overriding modifier keys is a simple matter of
+adding the desired bindings to an appropriate pre-defined layer.
+
+Thus
+
+```
+	[ids]
+	*
+
+	[control]
+	j = down
+```
+
+is a completely valid config, which does what the benighted user might expect. Internally,
+the full config actually looks something like this:
+
+```
+	[ids]
+	*
+
+	[main]
+	leftcontrol = layer(control)
+	rightcontrol = layer(control)
+
+	[control:C]
+	j = down
+```
+
+If multiple bindings for the same key are present, the most recent one takes precedence.
+
+A layer heading may also appear multiple times, in which case the layer will
+contain the sum of all bindings. Note that the layer type may not be reassigned.
+
+That is:
+
+```
+[mylayer:A]
+a = b
+c = d
+
+[mylayer:C]
+a = x
+b = c
+```
+
+is equivalent to:
+
+```
+[mylayer:A]
+a = x
+b = c
+c = d
+```
+
+## Composite Layers
+
+A special kind of layer called a *composite layer* can be defined by creating a
+layer with a name consisting of existing layers delimited by _+_. The resultant
+layer will be activated and given precedence when all of its constituents are
+activated. Composite layers are not allowed to have modifiers attached and
+cannot be explicitly assigned.
+
+E.g.
+
+```
+	[control+alt]
+	h = left
+```
+
+will cause the sequence _control+alt+h_ to produce _left_ (ignoring the control
+and alt modifiers attached to the active control and alt layers), while pressing
+_control+alt+f1_ preserves those modifiers, emitting exactly what was pressed,
+as there is no explicit binding for _f1_ on the composite layer.
+
+
+```
+	[main]
+	capslock = layer(capslock)
+
+	[capslock:C]
+
+	[capslock+shift]
+	h = left
+```
+
+Will cause the sequence _capslock+shift+h_ to produce _left_, while preserving the expected functionality of _capslock_ and _shift_ in isolation.
+
+*Note:* composite layers *must* always be defined _after_ the layers of which they
+are comprised.
+
+That is:
+
+```
+[layer1]
+[layer2]
+[layer1+layer2]
+```
+
+and not
+
+```
+[layer1+layer2]
+[layer1]
+[layer2]
+```
+
+## Layouts
+
+A layout is a special kind of layer intended for modifying alpha keys. Unlike
+layers, layouts cannot have any associated modifiers, and only one layout may
+be active at a given time. The default layout is called 'main', and can be
+changed using the _setlayout()_ action.
+
+For convenience, keyd ships with a number of common letter layouts in
+/usr/share/keyd/layouts. Before including these, it is instructive to inspect them.
+Non-english layouts include a dedicated shift layer (making order of inclusion
+important) and *require the use of keyd's compose definitions* (see *Unicode
+Support*)
+
+E.g.
+
+```
+# Include the shipped colemak layout.
+include layouts/colemak
+
+[global]
+default_layout = mylayout
+
+[mylayout:layout]
+a = b
+b = c
+#etc...
+
+[control]
+1 = setlayout(customlayout)
+2 = setlayout(colemak)
+```
+
+
+## Chording
+
+_Chords_ are groups of keys which are treated as a unit when simultaneously
+depressed. A chord can be defined by using a group of + delimited key names as
+a left hand value. The corresponding action will be activated if all keys are
+struck within the chording interval (_chord_timeout_).
+
+E.g
+
+```
+j+k = esc
+```
+
+will cause _esc_ to be produced if both _j_ and _k_ are simultaneously depressed.
+
+Note: It may be desirable to change the default chording interval (50ms) to
+account for the physical characteristics of your keyboard.
+
+## Unicode Support
+
+If keyd encounters a valid UTF8 sequence as a right hand value, it will try and
+translate that sequence into a macro which emits a keyd-specific XKB sequence.
+
+In order for this to work, the sequences defined in the compose file shipped
+with keyd (_/usr/share/keyd/keyd.compose_) must be accessible. This can be achieved
+globally by copying the file to the appropriate location in
+_/usr/share/X11/locale_, or on a per-user basis by symlinking it to
+~/.XCompose.
+
+E.g.
+
+	ln -s /usr/share/keyd/keyd.compose ~/.XCompose
+
+**Additionally you will need to be using the default US layout on your
+display server.** Users of non-english layouts are advised to set their layout
+within keyd (see **Layouts**) to avoid conflicts between the display server
+layout and keyd's unicode functionality.
+
+**Note:** You may have to restart your applications for this to take effect.
+
+**Note 2:** The generated compose sequences are affected by modifiers in the
+normal way. If you want shift to produce a different symbol, you will need to
+define a custom shift layer (see the included layout files for an example).
+
+**Note 3:**
+GTK4 currently has a bug which causes it to crash in the presence of large XCompose files
+(like /usr/share/keyd/keyd.compose).
+
+## Aliases
+
+Each key may optionally be assigned an *alias*. This alias may be used in place
+of the key as a valid left hand value. Multiple keys may be bound to the same alias,
+but only one alias may be assigned to a key at a given time.
+
+For example, the keys 'leftmeta' and 'rightmeta' are bound to the alias *meta*
+by default. Thus the binding 'meta = a' is equivalent to the bindings 'leftmeta
+= a' and 'rightmeta = a'.
+
+Aliases are defined in a special section called 'aliases' where each line takes
+the form:
+
+	<key> = <name>
+
+where _<key>_ must be a valid key name.
+
+Note that <name> may itself be a valid key name, in which case all references
+to the key within the config file will be replaced with the new key.
+Additionally, if the assigned alias is a valid key name, the corresponding
+keycode will be assigned to the key by default. This makes it possible to
+redefine keys before any bindings are applied and is particularly useful in
+conjunction with the include mechanism to account for variations in hardware.
+
+For example:
+
+```
+/etc/keyd/common:
+	meta = oneshot(meta)
+	alt = oneshot(alt)
+
+	a = a
+	s = o
+	# etc..
+
+/etc/keyd/default.conf:
+	[ids]
+	*
+
+	[main]
+	include common
+
+/etc/keyd/magic_keyboard.conf:
+	[ids]
+	004c:0267
+
+	[aliases]
+	leftalt = meta
+	rightalt = meta
+	rightmeta = alt
+	leftmeta = alt
+
+	[main]
+	include common
+```
+
+Allows the user to define a set of universal bindings in /etc/keyd/common
+without having to explicitly account for the transposed meta and alt keys within
+the included config snippet.
+
+## File Inclusion
+
+Config files may include other files located within the config directory using
+the _include_ keyword. A line of the form *include <file>* may appear at any
+point after the [ids] section. The resultant config will behave as though the
+contents of the included file appear in place of the include statement.
+
+Making strategic use of these statements makes it possible to share common
+functionality between configs.
+
+Include paths are relative and must be placed in one of the following
+directories:
+
+	- /etc/keyd/
+	- /usr/share/keyd/
+
+E.g.
+
+```
+/etc/keyd/default.conf:
+	[ids]
+	*
+
+	# Add our shared custom bindings.
+	include common
+
+	# Appends bindings to the main layer
+	# defined in /etc/keyd/common (order matters)
+	[main]
+	capslock = layer(capslock)
+
+	[capslock]
+	1 = setlayout(colemak)
+	2 = setlayout(dvorak)
+
+/etc/keyd/common:
+	[main]
+
+	rightmeta = layer(nav)
+
+	[nav]
+
+	h = left
+	j = down
+	k = up
+	l = right
+
+/usr/share/keyd/layouts/dvorak:
+	a = a
+	s = o
+	...
+
+```
+
+Limitations:
+
+	- All include statements should appear after the [ids] section in the including file.
+	- Included files should not contain an ids section.
+	- Included files should not include other files (inclusion is non-recursive).
+	- Included files should not end in .conf.
+
+
+# GLOBALS
+
+A special section called _[global]_ may be defined in the file and can contain
+any of the following options:
+
+	*macro_timeout:* The time (in milliseconds) separating the initial execution of a macro
+	sequence and the first repetition.
+	(default: 600)
+
+	*macro_repeat_timeout:* The time separating successive executions of a macro.
+	(default: 50)
+
+	*layer_indicator:* If set, this will turn the capslock light on whenever a layer is active.
+	Note: Some wayland compositors will aggressively toggle LED state rendering this option
+	unusable.
+
+	(default: 0)
+
+	*macro_sequence_timeout:* If set, this will add a timeout (*in
+	microseconds*) between each emitted key in a macro sequence. This is
+	useful to avoid overflowing the input buffer on some systems.
+
+	*chord_timeout:* The maximum time between successive keys
+	interpreted as part of a chord.
+	(default: 50)
+
+	*chord_hold_timeout:* The length of time a chord
+	must be held before being activated.
+	(default: 0)
+
+	*oneshot_timeout:* If non-zero, timeout a oneshot layer
+	activation after the supplied number of milliseconds.
+	(default: 0)
+
+	*disable_modifier_guard:* By default, keyd will inject additional
+	control keypresses where necessary in order to prevent programs from
+	seeing additional modifier taps (E.g alt in firefox). If set, this
+	option disables that behaviour.
+	(default: 0)
+
+	*overload_tap_timeout:* If non-zero, ignore the tap behaviour of an
+	overloaded key if it is held for the given number of miliseconds.
+	(default: 0).
+
+
+*Note:* Unicode characters and key sequences are treated as macros, and
+are consequently affected by the corresponding timeout options.
+
+# MACROS
+
+Various keyd actions accept macro expressions.
+
+A macro expression has one of the following forms:
+
+	. macro(<exp>)
+	. [<modifier 1>[-<modifier 2>...]-<key>
+	. <char>
+
+Where _<char>_ is a valid unicode character and _<exp>_ has the form _<token1> [<token2>...]_ and each token is one of:
+
+	- A valid key code.
+	- A type 2 macro.
+	- A contiguous group of unicode characters.
+	- A group of key codes delimited by + to be depressed as a unit.
+	- A timeout of the form _<time>ms_ (where _<time>_ < 1024).
+
+The following are all valid macro expressions:
+
+	- C-a
+	- macro(C-a)
+	- macro(leftcontrol+leftmeta) # simultaneously taps the left meta and left control keys
+	- A-M-x
+	- macro(Hello space World)
+	- macro(h e l l o space w o r ld) (identical to the above)
+	- macro(C-t 100ms google.com enter)
+
+Splitting into smaller tokens serves as an escaping mechanism: _macro(space)_
+inserts a space but _macro(s pace)_ writes "space". Likewise, _macro(3+5)_
+depresses the 3 and 5 keys as a unit while _macro(3 + 5)_ writes "3+5".
+
+Some prerequisites are needed for non-ASCII characters to work, see _Unicode Support_.
+
+# ACTIONS
+
+A key may optionally be bound to an _action_ which accepts zero or more arguments.
+
+*layer(<layer>)*
+	Activate the given layer for the duration of the keypress.
+
+*oneshot(<layer>)*
+
+	If tapped, activate the supplied layer for the duration of the next keypress.
+
+*swap(<layer>)*
+	Swap the currently active layer with the supplied one. If the current
+	layer is toggled, it is deactivated and the supplied layer is toggled
+	instead. Otherwise, the active layer is deactivated and the supplied
+	layer remains active for the duration of the depression of the
+	activating key. The behaviour of this action is undefined for
+	composite layers.
+
+```
+	[control]
+
+	x = swap(xlayer)
+
+	[xlayer]
+
+	s = C-s
+	b = S-insert
+```
+
+	NOTE:
+
+	You probably don't need to use this unless you are trying to do something quite
+	involved. Think hard about whether or not what you are trying to achieve
+	can be done by other means, as it is easy to end up in states which
+	are impossible to exit.
+
+*setlayout(<layout>)*
+	Set the current layout.
+
+*clear()*
+	Clear any toggled or oneshot layers.
+
+*toggle(<layer>)*
+	Permanently toggle the state of the given layer.
+
+*layerm(<layer>, <macro>)*
+	Identical to *layer*, but executes the supplied macro before the layer change.
+
+*oneshotm(<layer>, <macro>)*
+	Identical to *oneshot*, but executes the supplied macro before the layer change.
+
+*oneshotk(<layer>, <key>)*
+	Identical to *oneshot*, but also functions as the supplied key while held. This is
+	mainly useful for temporarily altering the behaviour of immediately successive
+	letter keys.
+
+*swapm(<layer>, <macro>)*
+	Identical to *swap*, but accepts a macro to be executed immediately
+	after the layer change.
+
+*togglem(<layer>, <macro>)*
+	Equivalent to *toggle*, but additionally executes the supplied macro before
+	toggling the layer.
+
+*clearm(<macro>)*
+	Identical to *clear*, but executes the supplied macro before clearing layers.
+
+*repeat()*
+	Repeat the last key or macro sequence.
+
+## Key overloading
+
+*overload(<layer>, <action>)*
+	Activates the given layer while held and executes <action> on tap.
+
+*overloadt(<layer>, <action>, <timeout>)*
+	Identical to overload, but only activates the layer if the bound key is
+	held for \<timeout\> milliseconds. This is mainly useful for overloading keys
+	which are commonly struck in sequence (e.g letter keys).
+
+	Note that this will add a visual delay when typing, since overlapping
+	keys will be queued until the timeout expires or the bound key is
+	released.
+
+*overloadt2(<layer>, <action>, <timeout>)*
+	Identical to overloadt, but additionally resolves as a hold in the
+	event of an intervening key tap.
+
+*overloadi(<action 1>, <action 2>, <idle timeout>)*
+	Activate <action 1> if the last non-action (i.e symbol) key was struck less
+	than <timeout> milliseconds ago, otherwise activate <action 2>.
+
+	This can be used in combination with other overload timeouts and is particularly
+	useful for overloading letter keys (often called 'homerow mods').
+
+	For example:
+
+```
+	a = overloadi(a, overloadt2(control, a, 200), 150)
+```
+
+	will produce _a_ if and only if:
+
+		- _a_ is struck within 150ms of another non-action key.
+		- _a_ is struck more than 150ms after the last non-action key but held for less than 200ms
+		  and there are no intervening key taps.
+
+	This reduces the visual latency by immediately resolving the key as a letter when
+	typed midword, but also facilitates its use as a layer trigger if it is held for a long 
+	enough period with no intervening symbols.
+
+	Since this is a common usecase, a macro called *lettermod* (defined below) has been
+	defined to facilitate such definitions.
+
+*lettermod(<layer>, <key>, <idle timeout>, <hold timeout>)*
+	An alias for:
+
+		*overloadi(<key>, overloadt2(<layer>, <key>, <hold timeout>), <idle timeout>)*
+
+*timeout(<action 1>, <timeout>, <action 2>)*
+	If no key events occur within _<timeout> ms_, execute <action1>, otherwise
+	execute <action1>.
+
+	E.g.
+
+	timeout(a, 500, layer(control))
+
+	Will cause the assigned key to behave as control if it is held for more than
+	500 ms without any keys being struck in the interval.
+
+	*NOTE:* This is an older option with numerous subtle implications. It is
+	mainly intended to be used in combination with other actions to achieve
+	things which are not otherwise possible. Most users will want to use
+	one of overload functions for simple tap/hold behaviour.
+
+*macro2(<timeout>, <repeat timeout>, <macro>)*
+	Creates a macro with the given timeout and repeat timeout. If a timeout value of 0 is used,
+	macro repeat is disabled.
+
+	Note that <macro> must be a valid macro expression.
+
+	E.g.
+```
+	macro2(400, 50, macro(Hello space World))
+	macro2(120, 80, left)
+```
+*command(<shell command>)*
+	Execute the given shell command.
+
+	E.g.
+
+	command(brightness down)
+
+*NOTE:* Commands are executed by the user running the keyd process (probably root),
+use this feature judiciously.
+
+*noop*
+	Do nothing.
+
+# IPC
+
+To facilitate extensibility, keyd employs a client-server model accessible
+through the use of *-e*. The keymap can thus be conceived of as a
+living entity that can be modified at run time.
+
+In addition to allowing the user to try new bindings on the fly, this
+enables the user to fully leverage keyd's expressive power from other programs
+without incurring a performance penalty.
+
+For instance, the user may use this functionality to write a script which
+alters the keymap when they switch between different tmux sessions.
+
+The application remapping tool (*keyd-application-mapper(1)*) which ships with keyd
+is a good example of this. It is a small python script which performs event
+detection for the various display servers (e.g X/sway/gnome, etc) and feeds the
+desired mappings to the core using _-e_.
+
+*NOTE:* Users with access to the keyd socket should be considered privileged
+(i.e assumed to have access to the entire system.).
+
+## Bindings
+
+The _bind_ command accepts one or more _bindings_, each of which must have the following form:
+
+	\[<layer>.\]<key> = <key>|<macro>|<action>
+
+Where _<layer>_ is the name of an (existing) layer in which the key is to be bound.
+
+As a special case, the string "reset" may be used in place of a binding, in
+which case the current keymap will revert to its original state (all
+dynamically applied bindings will be dropped).
+
+Examples:
+
+```
+	$ keyd bind '- = C-c'
+	$ keyd bind reset '+ = C-c' # Reset the keyboard before applying the '+' binding (drops the previous '-' binding)
+```
+
+By default expressions apply to the most recently active keyboard.
+
+# EXAMPLES
+
+## Example 1
+
+Make _esc+q_ toggle the dvorak letter layout.
+
+```
+	[ids]
+	*
+
+	[main]
+	esc = layer(esc)
+
+	[dvorak]
+
+	a = a
+	s = o
+	...
+
+	[esc]
+
+	q = toggle(dvorak)
+```
+
+## Example 2
+
+Invert the behaviour of the shift key without breaking modifier behaviour.
+
+```
+	[ids]
+	*
+
+	[main]
+	1 = !
+	2 = @
+	3 = #
+	4 = $
+	5 = %
+	6 = ^
+	7 = &
+	8 = *
+	9 = (
+	0 = )
+
+	[shift]
+	0 = 0
+	1 = 1
+	2 = 2
+	3 = 3
+	4 = 4
+	5 = 5
+	6 = 6
+	7 = 7
+	8 = 8
+	9 = 9
+```
+
+## Example 3
+
+Tapping control once causes it to apply to the next key, tapping it twice
+activates it until it is pressed again, and holding it produces expected
+behaviour.
+
+```
+	[main]
+
+	control = oneshot(control)
+
+	[control]
+
+	control = toggle(control)
+```
+
+## Example 4
+
+Meta behaves as normal except when \` is pressed, after which the alt_tab layer
+is activated for the duration of the leftmeta keypress. Subsequent actuations
+_will thus produce A-tab instead of M-\\_.
+
+```
+	[meta]
+
+	` = swap(alt_tab, A-tab)
+
+	[alt_tab:A]
+
+	tab = A-S-tab
+	` = A-tab
+```
+
+## Example 5
+
+```
+	# Uses the compose key functionality of the display server to generate
+	# international glyphs.  # For this to work 'setxkbmap -option  compose:menu'
+	# must be run after keyd has started (see NOTES).
+
+	# A list of sequences can be found in /usr/share/X11/locale/en_US.UTF-8/Compose
+	# on most systems.
+
+
+	[main]
+
+	rightalt = layer(dia)
+
+	[dia]
+
+	# Map o to ö
+	o = macro(compose o ")
+
+	# Map e to €
+	e = macro(compose c =)
+```
+
+## Example 6
+
+```
+	# Tapping both shift keys will activate capslock.
+
+	[shift]
+
+	leftshift = capslock
+	rightshift = capslock
+```
+
+## Example 7
+
+Capslock will behave as control in all instances except when used
+in conjunction with 'h/j/k/l' in which case it will produce arrow
+keys. If tapped, it will function as escape.
+
+```
+	[main]
+	capslock = overload(capslock, esc)
+	esc = capslock
+
+	[capslock:C]
+	h = left
+	k = up
+	j = down
+	l = right
+```
+
+## Example 8
+
+Disables the esc and end keys.
+
+```
+	[main]
+	esc = noop
+	end = noop
+```
+
+# NOTES
+
+Since keyd creates a virtual input device, settings applied using higher level
+input tools like _setxkbmap_, _xset_ may be lost when the daemon is
+(re)started. See _https://github.com/rvaiya/keyd/issues/183_ for details.
+
+# ENVIRONMENT VARIABLES
+
+*KEYD_DEBUG*
+	Debug log level. _0_,_1_,_2_ can be specified (default: 0).
+
+# AUTHOR
+
+Written by Raheman Vaiya (2017-).
+
+# BUGS
+
+Please file any bugs or feature requests at the following url:
+
+<https://github.com/rvaiya/keyd/issues>

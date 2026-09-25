@@ -1,0 +1,23 @@
+[ down
+[ up
+k down
+k up
+[ down
+[ up
+
+o down
+o up
+n down
+n up
+e down
+e up
+control down
+k down
+k up
+o down
+o up
+n down
+n up
+e down
+e up
+control up
