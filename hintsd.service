@@ -1,5 +1,5 @@
 [Unit]
-Description=Hints daemon (Caps+f)
+Description=Hints daemon (Caps+g)
 StartLimitIntervalSec=0
 [Service]
 Type=simple

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Install everything capsnav needs: system packages, keyd (built from
 # keyd-src) and its config, the smooth-scroll helper, the Caps+p
-# switch-monitor script, hints for Caps+f, and the GNOME shortcuts.
+# switch-monitor script, hints for Caps+g, and the GNOME shortcuts.
 # Run as your normal user; it uses sudo where needed. Safe to re-run.
 set -e
 cd "$(dirname "$0")"
@@ -48,7 +48,7 @@ sudo systemctl restart capsnav-scroll
 
 sudo install -m755 capsnav-switch-monitor.sh /usr/local/bin/capsnav-switch-monitor
 
-# hints (Caps+f), installed per user with uv into ~/.local. Skipped when the
+# hints (Caps+g), installed per user with uv into ~/.local. Skipped when the
 # pinned version is already there.
 if [ "$("$HOME/.local/bin/hints" --version 2>/dev/null)" != "$HINTS_VERSION" ]; then
 	uv=$(command -v uv || true)
@@ -118,12 +118,12 @@ gnome_shortcut() { # name command binding
 }
 
 if gsettings list-schemas 2>/dev/null | grep -qx "$schema"; then
-	# Caps+p sends Super+Alt+O, Caps+f sends Super+Alt+F.
+	# Caps+p sends Super+Alt+O, Caps+g sends Super+Alt+F.
 	gnome_shortcut 'capsnav: switch monitor' /usr/local/bin/capsnav-switch-monitor '<Super><Alt>o'
 	gnome_shortcut 'capsnav: hints' "$HOME/.local/bin/hints" '<Super><Alt>f'
 else
 	echo "GNOME not found: bind Super+Alt+O to /usr/local/bin/capsnav-switch-monitor"
-	echo "and Super+Alt+F to ~/.local/bin/hints yourself for Caps+p and Caps+f."
+	echo "and Super+Alt+F to ~/.local/bin/hints yourself for Caps+p and Caps+g."
 fi
 
 sleep 1

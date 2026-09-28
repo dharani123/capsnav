@@ -21,12 +21,12 @@ Hold Caps Lock for vim-style navigation, using keyd (v2.6.0, built from source).
 | j      | Smooth scroll up (hold)   |
 | k      | Smooth scroll down (hold) |
 | p      | Move pointer + focus to the other monitor |
-| f      | Click hints: label everything clickable, type a label to click it |
+| g      | Click hints: label everything clickable, type a label to click it |
 | Alt+h  | Ctrl+PageUp (previous tab)  |
 | Alt+l  | Ctrl+PageDown (next tab)    |
 
 ## Install
-Requires Linux with systemd; the Caps+p and Caps+f shortcuts need GNOME on X11.
+Requires Linux with systemd; the Caps+p and Caps+g shortcuts need GNOME on X11.
 Ubuntu/Debian and Fedora are supported:
 
 ```bash
@@ -37,7 +37,7 @@ cd capsnav && ./install.sh
 Run it as your normal user; it asks for your `sudo` password. It installs the
 system packages (build tools, xdotool, hints' build deps), builds keyd, installs
 the config, the smooth-scroll helper, the switch-monitor script and
-[hints](#click-hints-capsf), starts the services, and adds the GNOME shortcuts.
+[hints](#click-hints-capsg), starts the services, and adds the GNOME shortcuts.
 Reboot once when it says so. Re-running it is safe and applies any changes.
 
 On other distros, install the equivalent of the apt package list at the top of
@@ -70,7 +70,7 @@ For smooth Caps+j/k scrolling in VS Code, add these to your VS Code
 - `scroll.conf`: scroll speed, easing and event rate. The live copy is `/etc/capsnav/scroll.conf`.
 - `capsnav-switch-monitor.sh`: Caps+p helper, installed as `/usr/local/bin/capsnav-switch-monitor` (see below).
 - `hintsd.service`: systemd user unit for the hints daemon, installed to `~/.config/systemd/user/`.
-- `hints-config.json`: hints settings for Caps+f, installed to `~/.config/hints/config.json`.
+- `hints-config.json`: hints settings for Caps+g, installed to `~/.config/hints/config.json`.
 - `tools/scroll-curve.py`: previews scroll settings as a speed curve; no root needed.
 - `system/keyd-restart.conf`: systemd drop-in that restarts keyd if it crashes (not after the emergency stop).
 - `system/capsnav.quirks`, `system/50-capsnav-scroll.conf`: the libinput and X settings for continuous scrolling (see below).
@@ -133,8 +133,8 @@ next monitor and focuses the topmost window there. It reads the layout from
 `xrandr` each time, so it follows monitor changes. X11 only; on another
 desktop, bind Super+Alt+O to the script yourself.
 
-## Click hints (Caps+f)
-Caps+f sends Super+Alt+F, which `install.sh` binds to
+## Click hints (Caps+g)
+Caps+g sends Super+Alt+F, which `install.sh` binds to
 [hints](https://github.com/AlfredoSequeida/hints) (Vimium for the whole
 desktop). Every clickable element gets a label; type it to click.
 Shift+label right-clicks, Ctrl+label hovers, Esc cancels.
