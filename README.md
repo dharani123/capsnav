@@ -14,6 +14,10 @@ Hold Caps Lock for vim-style navigation, using keyd (v2.6.0, built from source).
 | y      | Home (start of line)       |
 | o      | End (end of line)          |
 | i      | Esc         |
+| d      | F12 (VS Code: go to definition) |
+| ;      | Ctrl+Shift+O (VS Code: go to symbol in file) |
+| 8      | Ctrl+Alt+- (VS Code: go back)    |
+| 9      | Ctrl+Shift+- (VS Code: go forward) |
 | j      | Smooth scroll up (hold)   |
 | k      | Smooth scroll down (hold) |
 
