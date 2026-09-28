@@ -1,0 +1,12 @@
+[Unit]
+Description=capsnav smooth scrolling (Caps+j / Caps+k)
+After=keyd.service
+Wants=keyd.service
+
+[Service]
+ExecStart=/usr/bin/python3 /usr/local/bin/capsnav-scroll
+Restart=always
+RestartSec=1
+
+[Install]
+WantedBy=multi-user.target
