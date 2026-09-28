@@ -21,6 +21,7 @@ Hold Caps Lock for vim-style navigation, using keyd (v2.6.0, built from source).
 | j      | Smooth scroll up (hold)   |
 | k      | Smooth scroll down (hold) |
 | p      | Move pointer + focus to the other monitor |
+| f      | Click hints: label everything clickable, type a label to click it |
 | Alt+h  | Ctrl+PageUp (previous tab)  |
 | Alt+l  | Ctrl+PageDown (next tab)    |
 
@@ -35,8 +36,9 @@ cd capsnav && ./install.sh
 
 On Fedora, use `sudo dnf install -y git gcc make python3 xdotool xprop xrandr` for the first line.
 `install.sh` builds keyd, installs the config, the smooth-scroll helper and the
-switch-monitor script, starts both services, and adds the GNOME shortcut for
-Caps+p. It asks for your `sudo` password.
+switch-monitor script, starts both services, and adds the GNOME shortcuts for
+Caps+p and Caps+f. It asks for your `sudo` password. Caps+f also needs
+[hints](#click-hints-capsf), installed separately.
 
 Before installing:
 - **Existing keyd config is replaced.** `/etc/keyd/default.conf` is
@@ -64,6 +66,7 @@ For smooth Caps+j/k scrolling in VS Code, add these to your VS Code
 - `capsnav-scroll.service`: systemd unit that runs the helper.
 - `scroll.conf`: scroll speed, easing and event rate. The live copy is `/etc/capsnav/scroll.conf`.
 - `capsnav-switch-monitor.sh`: Caps+p helper, installed as `/usr/local/bin/capsnav-switch-monitor` (see below).
+- `hints-config.json`: hints settings for Caps+f, installed to `~/.config/hints/config.json`.
 - `tools/scroll-curve.py`: previews scroll settings as a speed curve; no root needed.
 - `system/capsnav.quirks`, `system/50-capsnav-scroll.conf`: the libinput and X settings for continuous scrolling (see below).
 
@@ -125,9 +128,38 @@ next monitor and focuses the topmost window there. It reads the layout from
 `xrandr` each time, so it follows monitor changes. X11 only; on another
 desktop, bind Super+Alt+O to the script yourself.
 
+## Click hints (Caps+f)
+Caps+f sends Super+Alt+F, which `install.sh` binds to
+[hints](https://github.com/AlfredoSequeida/hints) (Vimium for the whole
+desktop). Every clickable element gets a label; type it to click.
+Shift+label right-clicks, Ctrl+label hovers, Esc cancels.
+
+`hints-config.json` (installed to `~/.config/hints/config.json`) turns off
+Alt+label drag. Drag holds the mouse button down and silently captures the
+keyboard until Esc, which looks like a frozen desktop if you hit it by accident
+(easy after Caps+Alt tab switching).
+
+**If the desktop seems stuck:** press Esc. If that fails, press Ctrl+Alt+F3,
+log in, run `pkill -f hints; systemctl --user restart hintsd`, and return with
+Ctrl+Alt+F2 (or F1).
+
+hints is not vendored here. Install it once (tested with 0.1.1):
+
+```bash
+sudo apt install -y libcairo2-dev pkg-config cmake libdbus-1-dev libgirepository1.0-dev gcc
+curl -fsSL https://raw.githubusercontent.com/AlfredoSequeida/hints/main/install.sh | bash -s -- --version 0.1.1
+sudo env XDG_SESSION_TYPE=$XDG_SESSION_TYPE XDG_CURRENT_DESKTOP=$XDG_CURRENT_DESKTOP ~/.local/bin/hints --setup
+```
+
+Then reboot. `--setup` turns on accessibility in `/etc/environment` and
+`~/.xprofile` so apps report their buttons, adds you to the `input` group (any
+program you run can then read raw keyboard input), and starts the `hintsd` user
+service. Apps that expose no accessibility info fall back to image detection,
+which is less precise.
+
 ## Common tasks
 - Apply config edits: `sudo cp default.conf /etc/keyd/default.conf && sudo keyd reload`
-- Uninstall: `sudo systemctl disable --now capsnav-scroll keyd && sudo rm -r /etc/systemd/system/capsnav-scroll.service /usr/local/bin/capsnav-scroll /etc/capsnav /etc/X11/xorg.conf.d/50-capsnav-scroll.conf /usr/local/bin/capsnav-switch-monitor && sudo make -C keyd-src uninstall`, then delete the `[capsnav smooth scroll]` section from `/etc/libinput/local-overrides.quirks` and the "capsnav: switch monitor" shortcut in Settings → Keyboard → Custom Shortcuts
+- Uninstall: `sudo systemctl disable --now capsnav-scroll keyd && sudo rm -r /etc/systemd/system/capsnav-scroll.service /usr/local/bin/capsnav-scroll /etc/capsnav /etc/X11/xorg.conf.d/50-capsnav-scroll.conf /usr/local/bin/capsnav-switch-monitor && sudo make -C keyd-src uninstall`, then delete the `[capsnav smooth scroll]` section from `/etc/libinput/local-overrides.quirks` and the "capsnav: switch monitor" and "capsnav: hints" shortcuts in Settings → Keyboard → Custom Shortcuts
 - If the keyboard locks up: press Backspace+Escape+Enter together to stop keyd.
 
 ## keyd version
