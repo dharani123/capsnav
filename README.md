@@ -20,6 +20,8 @@ Hold Caps Lock for vim-style navigation, using keyd (v2.6.0, built from source).
 | 9      | Ctrl+Shift+- (VS Code: go forward) |
 | j      | Smooth scroll up (hold)   |
 | k      | Smooth scroll down (hold) |
+| Alt+h  | Ctrl+PageUp (previous tab)  |
+| Alt+l  | Ctrl+PageDown (next tab)    |
 
 ## Install
 Requires Linux with systemd. On Ubuntu/Debian:
