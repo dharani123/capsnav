@@ -1,0 +1,10 @@
+[Unit]
+Description=Hints daemon (Caps+f)
+StartLimitIntervalSec=0
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/hintsd
+Restart=always
+RestartSec=1s
+[Install]
+WantedBy=default.target

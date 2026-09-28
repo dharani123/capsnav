@@ -1,11 +1,32 @@
 #!/usr/bin/env bash
-# Build/install keyd from keyd-src, apply the capsnav config, and install the
-# smooth-scroll helper and the Caps+p / Caps+f shortcuts.
+# Install everything capsnav needs: system packages, keyd (built from
+# keyd-src) and its config, the smooth-scroll helper, the Caps+p
+# switch-monitor script, hints for Caps+f, and the GNOME shortcuts.
+# Run as your normal user; it uses sudo where needed. Safe to re-run.
 set -e
 cd "$(dirname "$0")"
+HINTS_VERSION=0.1.1
+need_reboot=
+
+# System packages: build tools, xdotool/xprop/xrandr (Caps+p), hints build deps.
+if command -v apt-get >/dev/null; then
+	# A broken third-party repo shouldn't stop the install.
+	sudo apt-get update || true
+	sudo apt-get install -y git curl build-essential python3 python3-dev \
+		xdotool x11-utils x11-xserver-utils \
+		libcairo2-dev pkg-config cmake libdbus-1-dev libgirepository1.0-dev gir1.2-gtk-3.0
+elif command -v dnf >/dev/null; then
+	sudo dnf install -y git curl gcc make python3 python3-devel xdotool xprop xrandr \
+		cairo-gobject-devel pkgconf-pkg-config cmake dbus-devel gobject-introspection-devel gtk3
+else
+	echo "No apt-get or dnf: install the packages listed in README.md yourself."
+fi
+
 make -C keyd-src
 sudo make -C keyd-src install
 sudo cp default.conf /etc/keyd/default.conf
+sudo install -Dm644 system/keyd-restart.conf /etc/systemd/system/keyd.service.d/capsnav-restart.conf
+sudo systemctl daemon-reload
 sudo systemctl enable --now keyd
 sudo keyd reload
 sudo install -Dm644 scroll.conf /etc/capsnav/scroll.conf
@@ -24,6 +45,51 @@ sudo install -m644 capsnav-scroll.service /etc/systemd/system/capsnav-scroll.ser
 sudo systemctl daemon-reload
 sudo systemctl enable capsnav-scroll
 sudo systemctl restart capsnav-scroll
+
+sudo install -m755 capsnav-switch-monitor.sh /usr/local/bin/capsnav-switch-monitor
+
+# hints (Caps+f), installed per user with uv into ~/.local. Skipped when the
+# pinned version is already there.
+if [ "$("$HOME/.local/bin/hints" --version 2>/dev/null)" != "$HINTS_VERSION" ]; then
+	uv=$(command -v uv || true)
+	if [ -z "$uv" ]; then
+		uv_dir=$(mktemp -d)
+		curl -LsSf https://astral.sh/uv/install.sh | UV_NO_MODIFY_PATH=1 UV_INSTALL_DIR="$uv_dir" sh
+		uv=$uv_dir/uv
+	fi
+	# hints' setup.py writes the hintsd unit using this; ours below replaces it.
+	HINTS_EXPECTED_BIN_DIR="$HOME/.local/bin" "$uv" tool install --force \
+		"git+https://github.com/AlfredoSequeida/hints@$HINTS_VERSION"
+	if [ -n "$uv_dir" ]; then rm -r "$uv_dir"; fi
+fi
+
+# What `hints --setup` does, but idempotent (it appends duplicate lines to
+# /etc/environment on every run). Accessibility makes apps report their
+# buttons; uinput + the input group let hints click.
+a11y="ACCESSIBILITY_ENABLED=1 GTK_MODULES=gail:atk-bridge OOO_FORCE_DESKTOP=gnome
+GNOME_ACCESSIBILITY=1 QT_ACCESSIBILITY=1 QT_LINUX_ACCESSIBILITY_ALWAYS_ON=1"
+for kv in $a11y; do
+	if ! grep -q "^${kv%%=*}=" /etc/environment; then
+		echo "$kv" | sudo tee -a /etc/environment >/dev/null
+		need_reboot=1
+	fi
+	# Display managers source ~/.xprofile for X sessions.
+	if ! grep -qs "${kv%%=*}=" "$HOME/.xprofile"; then
+		echo "export $kv" >>"$HOME/.xprofile"
+	fi
+done
+echo uinput | sudo tee /etc/modules-load.d/uinput.conf >/dev/null
+sudo modprobe uinput
+echo 'KERNEL=="uinput", GROUP="input", MODE:="0660"' | sudo tee /etc/udev/rules.d/80-hints.rules >/dev/null
+if ! id -nG "$USER" | grep -qw input; then
+	sudo usermod -aG input "$USER"
+	need_reboot=1
+fi
+install -Dm644 hints-config.json "$HOME/.config/hints/config.json"
+install -Dm644 hintsd.service "$HOME/.config/systemd/user/hintsd.service"
+systemctl --user daemon-reload
+systemctl --user enable hintsd
+systemctl --user restart hintsd
 
 # GNOME custom shortcuts for Caps keys that run a program: keyd (root, no X
 # access) sends a key combo, and GNOME runs the command. Runs as you, not root:
@@ -51,29 +117,25 @@ gnome_shortcut() { # name command binding
 	gsettings set $schema.custom-keybinding:"$path" binding "$3"
 }
 
-sudo install -m755 capsnav-switch-monitor.sh /usr/local/bin/capsnav-switch-monitor
 if gsettings list-schemas 2>/dev/null | grep -qx "$schema"; then
-	# Caps+p sends Super+Alt+O
+	# Caps+p sends Super+Alt+O, Caps+f sends Super+Alt+F.
 	gnome_shortcut 'capsnav: switch monitor' /usr/local/bin/capsnav-switch-monitor '<Super><Alt>o'
-	# Caps+f sends Super+Alt+F. hints is a separate install (see README).
 	gnome_shortcut 'capsnav: hints' "$HOME/.local/bin/hints" '<Super><Alt>f'
 else
 	echo "GNOME not found: bind Super+Alt+O to /usr/local/bin/capsnav-switch-monitor"
 	echo "and Super+Alt+F to ~/.local/bin/hints yourself for Caps+p and Caps+f."
 fi
-if ! command -v xdotool >/dev/null; then
-	echo "Caps+p needs xdotool: sudo apt install xdotool"
-fi
-if [ -x "$HOME/.local/bin/hints" ]; then
-	# Turns off Alt+label drag (see README), then reload the daemon.
-	install -Dm644 hints-config.json "$HOME/.config/hints/config.json"
-	systemctl --user restart hintsd 2>/dev/null || true
-else
-	echo "Caps+f needs hints: see the Click hints section of README.md"
-fi
 
 sleep 1
+if ! systemctl is-active --quiet keyd; then
+	echo "keyd is not running: check 'journalctl -u keyd -b' and run 'sudo systemctl restart keyd'."
+fi
 if sudo journalctl -u capsnav-scroll -n 50 -o cat | grep "scroll mode" | tail -1 | grep -q wheel; then
-	echo
-	echo "Reboot once to finish smooth-scroll setup (libinput loads its settings at login)."
+	need_reboot=1
+fi
+echo
+if [ -n "$need_reboot" ]; then
+	echo "Done. Reboot once to finish (smooth scroll, accessibility and the input group load at login)."
+else
+	echo "Done."
 fi
