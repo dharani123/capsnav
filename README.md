@@ -20,6 +20,7 @@ Hold Caps Lock for vim-style navigation, using keyd (v2.6.0, built from source).
 | 9      | Ctrl+Shift+- (VS Code: go forward) |
 | j      | Smooth scroll up (hold)   |
 | k      | Smooth scroll down (hold) |
+| p      | Move pointer + focus to the other monitor |
 | Alt+h  | Ctrl+PageUp (previous tab)  |
 | Alt+l  | Ctrl+PageDown (next tab)    |
 
@@ -27,14 +28,15 @@ Hold Caps Lock for vim-style navigation, using keyd (v2.6.0, built from source).
 Requires Linux with systemd. On Ubuntu/Debian:
 
 ```bash
-sudo apt install -y git build-essential python3
+sudo apt install -y git build-essential python3 xdotool x11-utils x11-xserver-utils
 git clone https://github.com/dharani123/capsnav.git
 cd capsnav && ./install.sh
 ```
 
-On Fedora, use `sudo dnf install -y git gcc make python3` for the first line.
-`install.sh` builds keyd, installs the config and the smooth-scroll helper, and
-starts both services. It asks for your `sudo` password.
+On Fedora, use `sudo dnf install -y git gcc make python3 xdotool xprop xrandr` for the first line.
+`install.sh` builds keyd, installs the config, the smooth-scroll helper and the
+switch-monitor script, starts both services, and adds the GNOME shortcut for
+Caps+p. It asks for your `sudo` password.
 
 Before installing:
 - **Existing keyd config is replaced.** `/etc/keyd/default.conf` is
@@ -61,6 +63,7 @@ For smooth Caps+j/k scrolling in VS Code, add these to your VS Code
 - `capsnav-scroll.py`: smooth-scroll helper, installed as `/usr/local/bin/capsnav-scroll`.
 - `capsnav-scroll.service`: systemd unit that runs the helper.
 - `scroll.conf`: scroll speed, easing and event rate. The live copy is `/etc/capsnav/scroll.conf`.
+- `capsnav-switch-monitor.sh`: Caps+p helper, installed as `/usr/local/bin/capsnav-switch-monitor` (see below).
 - `tools/scroll-curve.py`: previews scroll settings as a speed curve; no root needed.
 - `system/capsnav.quirks`, `system/50-capsnav-scroll.conf`: the libinput and X settings for continuous scrolling (see below).
 
@@ -113,9 +116,18 @@ Then edit `scroll.conf` and copy it into place:
 `sudo cp scroll.conf /etc/capsnav/scroll.conf`
 It takes effect on the next scroll with no restart.
 
+## Switching monitors
+keyd runs as root with no access to your X session, so Caps+p can't run the
+script directly. It sends Super+Alt+O instead, and `install.sh` adds a GNOME
+custom shortcut ("capsnav: switch monitor") that runs
+`capsnav-switch-monitor`. The script moves the pointer to the centre of the
+next monitor and focuses the topmost window there. It reads the layout from
+`xrandr` each time, so it follows monitor changes. X11 only; on another
+desktop, bind Super+Alt+O to the script yourself.
+
 ## Common tasks
 - Apply config edits: `sudo cp default.conf /etc/keyd/default.conf && sudo keyd reload`
-- Uninstall: `sudo systemctl disable --now capsnav-scroll keyd && sudo rm -r /etc/systemd/system/capsnav-scroll.service /usr/local/bin/capsnav-scroll /etc/capsnav /etc/X11/xorg.conf.d/50-capsnav-scroll.conf && sudo make -C keyd-src uninstall`, then delete the `[capsnav smooth scroll]` section from `/etc/libinput/local-overrides.quirks`
+- Uninstall: `sudo systemctl disable --now capsnav-scroll keyd && sudo rm -r /etc/systemd/system/capsnav-scroll.service /usr/local/bin/capsnav-scroll /etc/capsnav /etc/X11/xorg.conf.d/50-capsnav-scroll.conf /usr/local/bin/capsnav-switch-monitor && sudo make -C keyd-src uninstall`, then delete the `[capsnav smooth scroll]` section from `/etc/libinput/local-overrides.quirks` and the "capsnav: switch monitor" shortcut in Settings → Keyboard → Custom Shortcuts
 - If the keyboard locks up: press Backspace+Escape+Enter together to stop keyd.
 
 ## keyd version
