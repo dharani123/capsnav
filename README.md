@@ -21,6 +21,37 @@ Hold Caps Lock for vim-style navigation, using keyd (v2.6.0, built from source).
 | j      | Smooth scroll up (hold)   |
 | k      | Smooth scroll down (hold) |
 
+## Install
+Requires Linux with systemd. On Ubuntu/Debian:
+
+```bash
+sudo apt install -y git build-essential python3
+git clone https://github.com/dharani123/capsnav.git
+cd capsnav && ./install.sh
+```
+
+On Fedora, use `sudo dnf install -y git gcc make python3` for the first line.
+`install.sh` builds keyd, installs the config and the smooth-scroll helper, and
+starts both services. It asks for your `sudo` password.
+
+Before installing:
+- **Existing keyd config is replaced.** `/etc/keyd/default.conf` is
+  overwritten, so back it up if you already use keyd. If keyd came from your
+  distro's packages, remove that first so two versions don't conflict.
+- **Caps Lock no longer toggles capitals.** It becomes the navigation key.
+- **Emergency stop:** if the keyboard misbehaves, press Backspace+Escape+Enter
+  together to stop keyd.
+
+### Recommended VS Code settings
+For smooth Caps+j/k scrolling in VS Code, add these to your VS Code
+`settings.json`:
+
+```json
+"editor.smoothScrolling": true,
+"workbench.list.smoothScrolling": true,
+"terminal.integrated.smoothScrolling": true,
+```
+
 ## Files
 - `default.conf`: the keyd config. The live copy is `/etc/keyd/default.conf`.
 - `keyd-src/`: keyd source used for the install.
