@@ -1,0 +1,7 @@
+# capsnav: treat the smooth-scroll virtual device's wheel values as
+# continuous scroll (like a touchpad). This skips libinput's wheel
+# "accumulate half a click first" filter, which made the first moment of
+# every scroll jump in VS Code and terminals.
+[capsnav smooth scroll]
+MatchName=capsnav smooth scroll
+ModelLenovoScrollPoint=1

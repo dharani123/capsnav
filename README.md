@@ -60,13 +60,31 @@ For smooth Caps+j/k scrolling in VS Code, add these to your VS Code
 - `capsnav-scroll.service`: systemd unit that runs the helper.
 - `scroll.conf`: scroll speed, easing and event rate. The live copy is `/etc/capsnav/scroll.conf`.
 - `tools/scroll-curve.py`: previews scroll settings as a speed curve; no root needed.
+- `system/capsnav.quirks`, `system/50-capsnav-scroll.conf`: the libinput and X settings for continuous scrolling (see below).
 
 ## Smooth scrolling
 Caps+j / Caps+k send no keys of their own. They switch on the empty keyd layers
 `scrollup` / `scrolldown`. `capsnav-scroll` watches those layers via
-`keyd listen`, and while one is active it sends high-resolution wheel events
-at `tick_hz` (default 120) from a virtual pointer. Speed eases in on press and glides to a stop
+`keyd listen`, and while one is active it sends small scroll steps at
+`tick_hz` from a virtual pointer. Speed eases in on press and glides to a stop
 on release, like a touchpad.
+
+### Why the libinput and X settings
+For wheel devices, libinput holds back the first half click of any scroll that
+starts after 500 ms of no scrolling (a filter against wheel jitter), then
+releases it at once. Chrome animates scrolling and hides that jump, but VS Code
+and terminals show it as a jerk at the start. To avoid it, capsnav:
+- marks its virtual device as a Lenovo ScrollPoint in
+  `/etc/libinput/local-overrides.quirks`, so libinput treats its scroll as
+  continuous, like a touchpad, with no hold-back;
+- sets `ScrollPixelDistance` to 50 in
+  `/etc/X11/xorg.conf.d/50-capsnav-scroll.conf`, so 50 units make one click,
+  the finest steps the X driver allows.
+
+libinput reads these settings only when the display server starts, so reboot
+once after installing. Until then, `capsnav-scroll` safely falls back to
+high-resolution wheel events (with the jerk). `journalctl -u capsnav-scroll`
+shows which mode is active: `scroll mode: continuous` or `scroll mode: wheel`.
 
 ### How the easing works
 Motion looks smooth when position, speed *and acceleration* all change without
@@ -95,7 +113,7 @@ It takes effect on the next scroll with no restart.
 
 ## Common tasks
 - Apply config edits: `sudo cp default.conf /etc/keyd/default.conf && sudo keyd reload`
-- Uninstall: `sudo systemctl disable --now capsnav-scroll keyd && sudo rm -r /etc/systemd/system/capsnav-scroll.service /usr/local/bin/capsnav-scroll /etc/capsnav && sudo make -C keyd-src uninstall`
+- Uninstall: `sudo systemctl disable --now capsnav-scroll keyd && sudo rm -r /etc/systemd/system/capsnav-scroll.service /usr/local/bin/capsnav-scroll /etc/capsnav /etc/X11/xorg.conf.d/50-capsnav-scroll.conf && sudo make -C keyd-src uninstall`, then delete the `[capsnav smooth scroll]` section from `/etc/libinput/local-overrides.quirks`
 - If the keyboard locks up: press Backspace+Escape+Enter together to stop keyd.
 
 ## keyd version

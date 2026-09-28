@@ -42,9 +42,9 @@ def load_conf(path):
 
 def simulate(values, hold):
     """Speed (as a fraction of full speed) and units sent, per tick."""
-    motion = cs.Motion(FixedSettings(values))
+    motion = cs.Motion(FixedSettings(values), cs.CONTINUOUS_UNITS)
     period = 1 / values["tick_hz"]
-    full = values["speed"] * cs.NOTCH
+    full = values["speed"] * cs.CONTINUOUS_UNITS
     speeds, units, t = [], [], 0.0
     while True:
         direction = 1 if t < hold else 0
@@ -95,7 +95,7 @@ def report(name, values, hold):
     t50 = first_time(speeds, period, lambda s: s >= 0.5)
     t90 = first_time(speeds, period, lambda s: s >= 0.9)
     stop = len(speeds) * period - hold
-    glide = sum(units[release:]) / cs.NOTCH
+    glide = sum(units[release:]) / cs.CONTINUOUS_UNITS
     tap_speeds, tap_units, _ = simulate(values, 0.06)
     overshoot = max(speeds) > 1.0001 or min(speeds) < -1e-9
     steady = [u for u, s in zip(units, speeds) if s > 0.999]
@@ -106,7 +106,7 @@ def report(name, values, hold):
     print(f"  half speed after      {ms(t50)}")
     print(f"  90% speed after       {ms(t90)}")
     print(f"  stops after release   {ms(stop)}  (glides {glide:.2f} clicks)")
-    print(f"  60 ms tap moves       {sum(tap_units) / cs.NOTCH:.2f} clicks")
+    print(f"  60 ms tap moves       {sum(tap_units) / cs.CONTINUOUS_UNITS:.2f} clicks")
     if steady:
         print(f"  steady step sizes     {sorted(set(steady))} units/event")
     print(f"  overshoot             {'YES' if overshoot else 'none'}")

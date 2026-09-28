@@ -3,9 +3,20 @@
 
 keyd activates the empty layers `scrollup` / `scrolldown` while Caps+j / Caps+k
 are held. This daemon watches those layer changes via `keyd listen` and emits a
-stream of high-resolution wheel events from a virtual pointer, easing in on
-press and gliding to a stop on release, so scrolling looks like a touchpad
-rather than jumping one wheel notch at a time.
+stream of small scroll events from a virtual pointer, easing in on press and
+gliding to a stop on release, so scrolling looks like a touchpad rather than
+jumping one wheel notch at a time.
+
+Scroll events go out in one of two modes:
+- continuous (preferred): a libinput quirk marks the device as a Lenovo
+  ScrollPoint, so its REL_WHEEL values are treated as continuous scroll, like a
+  touchpad. The X driver's ScrollPixelDistance makes CONTINUOUS_UNITS one click.
+- wheel (fallback): high-resolution wheel events, 120 per click. libinput holds
+  back the first half click of every scroll that starts after 500 ms of no
+  scrolling, then releases it at once, a visible jerk in apps that don't
+  animate scrolling (VS Code, terminals).
+Continuous mode is used only once libinput has loaded the quirk; otherwise each
+unit would scroll a whole click.
 
 Speed and easing are read from CONFIG_PATH, which is re-read whenever it
 changes, so edits take effect on the next scroll without a restart.
@@ -52,21 +63,68 @@ UI_DEV_SETUP = 0x405C5503   # _IOW('U', 3, struct uinput_setup), 92 bytes
 UI_DEV_CREATE = 0x5501
 UI_DEV_DESTROY = 0x5502
 
-NOTCH = 120
+DEVICE_NAME = "capsnav smooth scroll"
+QUIRKS_PATH = "/etc/libinput/local-overrides.quirks"
+WHEEL_UNITS = 120       # hi-res wheel units per click (fallback mode)
+CONTINUOUS_UNITS = 50   # continuous units per click; must match the
+                        # ScrollPixelDistance in 50-capsnav-scroll.conf
+
+
+def xorg_start_times():
+    """Start times (epoch seconds) of running Xorg servers."""
+    with open("/proc/stat") as f:
+        btime = next(int(l.split()[1]) for l in f if l.startswith("btime"))
+    hz = os.sysconf("SC_CLK_TCK")
+    times = []
+    for pid in filter(str.isdigit, os.listdir("/proc")):
+        try:
+            with open(f"/proc/{pid}/comm") as f:
+                if f.read().strip() != "Xorg":
+                    continue
+            with open(f"/proc/{pid}/stat") as f:
+                # Field 22 is the start time; split after the ")" of comm.
+                fields = f.read().rsplit(")", 1)[1].split()
+            times.append(btime + int(fields[19]) / hz)
+        except (FileNotFoundError, ProcessLookupError, IndexError):
+            continue
+    return times
+
+
+def continuous_mode_ready():
+    """True if libinput has (or will have) loaded our ScrollPoint quirk.
+
+    libinput reads quirks once, when the display server starts, so the quirk
+    is live only if every running Xorg started after the file was written.
+    """
+    try:
+        with open(QUIRKS_PATH) as f:
+            if f"MatchName={DEVICE_NAME}" not in f.read():
+                return False
+        quirk_mtime = os.stat(QUIRKS_PATH).st_mtime
+    except FileNotFoundError:
+        return False
+    return all(start > quirk_mtime for start in xorg_start_times())
 
 
 class VirtualWheel:
-    def __init__(self):
+    def __init__(self, continuous):
+        self.continuous = continuous
+        self.units_per_click = CONTINUOUS_UNITS if continuous else WHEEL_UNITS
         self.fd = os.open("/dev/uinput", os.O_WRONLY | os.O_NONBLOCK)
         # libinput only treats a device as a pointer if it has REL_X/REL_Y
         # and a button, so declare them even though they're never sent.
         fcntl.ioctl(self.fd, UI_SET_EVBIT, EV_KEY)
         fcntl.ioctl(self.fd, UI_SET_KEYBIT, BTN_LEFT)
         fcntl.ioctl(self.fd, UI_SET_EVBIT, EV_REL)
-        for code in (REL_X, REL_Y, REL_WHEEL, REL_WHEEL_HI_RES):
+        # Without REL_WHEEL_HI_RES, libinput flushes every event at once;
+        # the quirk then turns our REL_WHEEL values into continuous scroll.
+        codes = [REL_X, REL_Y, REL_WHEEL]
+        if not continuous:
+            codes.append(REL_WHEEL_HI_RES)
+        for code in codes:
             fcntl.ioctl(self.fd, UI_SET_RELBIT, code)
         setup = struct.pack("HHHH80sI", BUS_VIRTUAL, 0x1, 0x1, 1,
-                            b"capsnav smooth scroll", 0)
+                            DEVICE_NAME.encode(), 0)
         fcntl.ioctl(self.fd, UI_DEV_SETUP, setup)
         fcntl.ioctl(self.fd, UI_DEV_CREATE)
         self.notch_acc = 0
@@ -74,14 +132,18 @@ class VirtualWheel:
     def _event(self, etype, code, value):
         os.write(self.fd, struct.pack("llHHi", 0, 0, etype, code, value))
 
-    def scroll(self, hires):
-        """Send `hires` wheel units; a legacy notch accompanies every 120."""
-        self._event(EV_REL, REL_WHEEL_HI_RES, hires)
-        self.notch_acc += hires
-        notches = int(self.notch_acc / NOTCH)  # truncates toward zero
-        if notches:
-            self.notch_acc -= notches * NOTCH
-            self._event(EV_REL, REL_WHEEL, notches)
+    def scroll(self, units):
+        """Send `units` (see units_per_click) of scroll."""
+        if self.continuous:
+            self._event(EV_REL, REL_WHEEL, units)
+        else:
+            # Hi-res units; a legacy notch accompanies every 120.
+            self._event(EV_REL, REL_WHEEL_HI_RES, units)
+            self.notch_acc += units
+            notches = int(self.notch_acc / WHEEL_UNITS)  # toward zero
+            if notches:
+                self.notch_acc -= notches * WHEEL_UNITS
+                self._event(EV_REL, REL_WHEEL, notches)
         self._event(EV_SYN, SYN_REPORT, 0)
 
     def close(self):
@@ -129,8 +191,8 @@ class Settings:
         print(f"settings: {values}", file=sys.stderr, flush=True)
 
     @property
-    def max_speed(self):
-        return self.values["speed"] * NOTCH  # units/second
+    def speed(self):
+        return self.values["speed"]  # clicks/second
 
     @property
     def ease_in(self):
@@ -155,15 +217,16 @@ class Motion:
     reversing j -> k) carries on from the current velocity and acceleration.
     """
 
-    def __init__(self, settings):
+    def __init__(self, settings, units_per_click):
         self.settings = settings
+        self.units_per_click = units_per_click
         self.velocity = 0.0   # units/second, signed
         self.accel = 0.0      # units/second^2
         self.remainder = 0.0  # sub-unit carry so no motion is lost
 
     def step(self, direction, dt):
         """Advance by dt seconds and return whole wheel units to send."""
-        target = direction * self.settings.max_speed
+        target = direction * self.settings.speed * self.units_per_click
         t90 = self.settings.ease_in if direction else self.settings.ease_out
         v0 = self.velocity
         if t90 == 0:
@@ -197,7 +260,7 @@ def run(wheel, settings):
     listen = subprocess.Popen(["keyd", "listen"], stdout=subprocess.PIPE,
                               bufsize=0)
     held = set()
-    motion = Motion(settings)
+    motion = Motion(settings, wheel.units_per_click)
     buf = b""
     next_tick = None  # monotonic deadline of the next scroll event
     try:
@@ -245,7 +308,10 @@ def run(wheel, settings):
 
 
 def main():
-    wheel = VirtualWheel()
+    continuous = continuous_mode_ready()
+    print(f"scroll mode: {'continuous' if continuous else 'wheel'}",
+          file=sys.stderr, flush=True)
+    wheel = VirtualWheel(continuous)
     settings = Settings()
     try:
         while True:
