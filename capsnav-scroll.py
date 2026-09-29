@@ -65,7 +65,9 @@ T90_FACTOR = 3.89
 
 # Layer -> direction vector. Scroll: (wheel,), +1 = up. Mouse: (x, y) in
 # screen pixels, +y = down.
-SCROLL_LAYERS = {"scrolldown": (-1,), "scrollup": (1,)}
+# The *fast layers (Caps+Space+n/m) scroll at double speed.
+SCROLL_LAYERS = {"scrolldown": (-1,), "scrollup": (1,),
+                 "scrolldownfast": (-2,), "scrollupfast": (2,)}
 MOUSE_LAYERS = {"mouseleft": (-1, 0), "mouseright": (1, 0),
                 "mouseup": (0, -1), "mousedown": (0, 1)}
 
