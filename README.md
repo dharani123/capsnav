@@ -71,7 +71,7 @@ For smooth Caps+n/m scrolling in VS Code, add these to your VS Code
 - `capsnav-scroll.py`: smooth-scroll helper, installed as `/usr/local/bin/capsnav-scroll`.
 - `capsnav-scroll.service`: systemd unit that runs the helper.
 - `capsnav-mouse.service`: systemd user unit that runs the same helper with `--mouse` for pointer motion.
-- `scroll.conf`: scroll and pointer speed, easing and event rate. The live copy is `/etc/capsnav/scroll.conf`.
+- `mouse.conf`: scroll and pointer speed, easing and event rate. The live copy is `/etc/capsnav/mouse.conf`.
 - `capsnav-switch-monitor.sh`: Caps+p helper, installed as `/usr/local/bin/capsnav-switch-monitor` (see below).
 - `hintsd.service`: systemd user unit for the hints daemon, installed to `~/.config/systemd/user/`.
 - `hints-config.json`: hints settings for Caps+g, installed to `~/.config/hints/config.json`.
@@ -124,8 +124,8 @@ Other details that keep it fluid:
 Preview settings without installing, as curves and numbers:
 `tools/scroll-curve.py 50/100 100/200 --hz 60`
 
-Then edit `scroll.conf` and copy it into place:
-`sudo cp scroll.conf /etc/capsnav/scroll.conf`
+Then edit `mouse.conf` and copy it into place:
+`sudo cp mouse.conf /etc/capsnav/mouse.conf`
 It takes effect on the next scroll with no restart.
 
 ## Pointer motion (Caps+Space)
@@ -133,9 +133,11 @@ Hold Caps+Space, then i/j/k/l (up/left/down/right) to move the pointer; hold
 two for a diagonal. n left-clicks and m right-clicks (keyd sends the buttons
 itself); the button stays down while the key is held, so hold n and move to
 drag. (So while Space is held, n/m click rather than scroll.)
-It eases in and glides to a stop on the same spring as scrolling (`ease_in_ms`,
-`ease_out_ms`, `tick_hz` in `scroll.conf`); `mouse_speed` sets the top speed
-in pixels per second.
+It eases in and glides to a stop on the same spring as scrolling. In
+`mouse.conf`, `pointer_speed` sets the top speed in pixels per second and
+`pointer_ease_in_ms` the ease-in (slower than scrolling's by default, so a quick
+tap nudges the pointer a few pixels); the glide and rate share `ease_out_ms`
+and `tick_hz` with scrolling.
 
 keyd turns on the empty layers `mouseleft` / `mouseright` / `mouseup` /
 `mousedown`, and `capsnav-scroll --mouse` (the user service

@@ -44,16 +44,19 @@ import sys
 import time
 
 # --- Tuning -----------------------------------------------------------------
-CONFIG_PATH = "/etc/capsnav/scroll.conf"
+CONFIG_PATH = "/etc/capsnav/mouse.conf"
 # Defaults, used for any setting missing from CONFIG_PATH.
 DEFAULTS = {
-    "speed": 7.0,          # wheel clicks per second at full speed
-    "ease_in_ms": 100.0,   # time to reach ~90% of full speed after pressing
-    "ease_out_ms": 200.0,  # time to lose ~90% of speed after releasing
-    "tick_hz": 120.0,      # scroll events per second while moving
-    "mouse_speed": 1000.0, # pointer pixels per second at full speed
+    "scroll_speed": 7.0,         # wheel clicks per second at full speed
+    "scroll_ease_in_ms": 100.0,  # time to reach ~90% of full speed after pressing
+    "pointer_speed": 1000.0,     # pointer pixels per second at full speed
+    "pointer_ease_in_ms": 300.0, # like scroll_ease_in_ms; slower so short
+                                 # taps nudge the pointer precisely
+    "ease_out_ms": 200.0,        # time to lose ~90% of speed after releasing
+    "tick_hz": 120.0,            # events per second while moving
 }
-POSITIVE = {"speed", "tick_hz", "mouse_speed"}  # must be > 0 (others >= 0)
+# Settings that must be > 0 (others >= 0).
+POSITIVE = {"scroll_speed", "pointer_speed", "tick_hz"}
 
 # A critically damped spring reaches ~90% of its target at t = 3.89 / omega.
 T90_FACTOR = 3.89
@@ -235,11 +238,11 @@ class Settings:
 
     @property
     def speed(self):
-        return self.values["speed"]  # clicks/second
+        return self.values["scroll_speed"]  # clicks/second
 
     @property
     def ease_in(self):
-        return self.values["ease_in_ms"] / 1000  # seconds
+        return self.values["scroll_ease_in_ms"] / 1000  # seconds
 
     @property
     def ease_out(self):
@@ -260,10 +263,12 @@ class Motion:
     reversing j -> k) carries on from the current velocity and acceleration.
     """
 
-    def __init__(self, settings, units_per_click, speed_key="speed"):
+    def __init__(self, settings, units_per_click, speed_key="scroll_speed",
+                 ease_in_key="scroll_ease_in_ms"):
         self.settings = settings
         self.units_per_click = units_per_click
         self.speed_key = speed_key  # setting giving full speed, per unit above
+        self.ease_in_key = ease_in_key
         self.velocity = 0.0   # units/second, signed
         self.accel = 0.0      # units/second^2
         self.remainder = 0.0  # sub-unit carry so no motion is lost
@@ -272,7 +277,10 @@ class Motion:
         """Advance by dt seconds and return whole wheel units to send."""
         target = (direction * self.settings.values[self.speed_key]
                   * self.units_per_click)
-        t90 = self.settings.ease_in if direction else self.settings.ease_out
+        if direction:
+            t90 = self.settings.values[self.ease_in_key] / 1000
+        else:
+            t90 = self.settings.ease_out
         v0 = self.velocity
         if t90 == 0:
             self.velocity, self.accel = target, 0.0  # no easing: instant
@@ -359,7 +367,8 @@ def main():
     if "--mouse" in sys.argv[1:]:
         output = XTestPointer()
         layers = MOUSE_LAYERS
-        motions = [Motion(settings, 1, "mouse_speed") for _ in range(2)]
+        motions = [Motion(settings, 1, "pointer_speed", "pointer_ease_in_ms")
+                   for _ in range(2)]
     else:
         continuous = continuous_mode_ready()
         print(f"scroll mode: {'continuous' if continuous else 'wheel'}",

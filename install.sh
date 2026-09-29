@@ -29,7 +29,8 @@ sudo install -Dm644 system/keyd-restart.conf /etc/systemd/system/keyd.service.d/
 sudo systemctl daemon-reload
 sudo systemctl enable --now keyd
 sudo keyd reload
-sudo install -Dm644 scroll.conf /etc/capsnav/scroll.conf
+sudo install -Dm644 mouse.conf /etc/capsnav/mouse.conf
+sudo rm -f /etc/capsnav/scroll.conf  # old name, before mouse.conf
 # libinput quirk + X setting for continuous scrolling (see capsnav-scroll.py).
 # local-overrides.quirks is a single shared file, so append rather than replace.
 quirks=/etc/libinput/local-overrides.quirks

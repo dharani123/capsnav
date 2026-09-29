@@ -4,7 +4,7 @@
 Simulates holding Caps+n for a while and releasing, using the same Motion code
 as the daemon, then draws the speed curve and prints the numbers that matter.
 
-    tools/scroll-curve.py                  # settings from ../scroll.conf
+    tools/scroll-curve.py                  # settings from ../mouse.conf
     tools/scroll-curve.py 100/200 70/150   # compare ease_in/ease_out presets
     tools/scroll-curve.py --hold 0.4 --hz 60 100/200
 """
@@ -44,7 +44,7 @@ def simulate(values, hold):
     """Speed (as a fraction of full speed) and units sent, per tick."""
     motion = cs.Motion(FixedSettings(values), cs.CONTINUOUS_UNITS)
     period = 1 / values["tick_hz"]
-    full = values["speed"] * cs.CONTINUOUS_UNITS
+    full = values["scroll_speed"] * cs.CONTINUOUS_UNITS
     speeds, units, t = [], [], 0.0
     while True:
         direction = 1 if t < hold else 0
@@ -99,9 +99,9 @@ def report(name, values, hold):
     tap_speeds, tap_units, _ = simulate(values, 0.06)
     overshoot = max(speeds) > 1.0001 or min(speeds) < -1e-9
     steady = [u for u, s in zip(units, speeds) if s > 0.999]
-    print(f"== {name}: ease_in {values['ease_in_ms']:g} ms, "
+    print(f"== {name}: ease_in {values['scroll_ease_in_ms']:g} ms, "
           f"ease_out {values['ease_out_ms']:g} ms, speed "
-          f"{values['speed']:g} clicks/s, {values['tick_hz']:g} Hz")
+          f"{values['scroll_speed']:g} clicks/s, {values['tick_hz']:g} Hz")
     print(plot(speeds, period, hold))
     print(f"  half speed after      {ms(t50)}")
     print(f"  90% speed after       {ms(t90)}")
@@ -116,26 +116,26 @@ def report(name, values, hold):
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("presets", nargs="*", metavar="IN/OUT",
-                    help="ease_in_ms/ease_out_ms pairs, e.g. 100/200")
+                    help="scroll_ease_in_ms/ease_out_ms pairs, e.g. 100/200")
     ap.add_argument("--hold", type=float, default=0.6,
                     help="seconds to hold the key (default 0.6)")
     ap.add_argument("--hz", type=float, help="override tick_hz")
-    ap.add_argument("--speed", type=float, help="override speed")
-    ap.add_argument("--conf", default=REPO / "scroll.conf",
-                    help="base settings file (default ../scroll.conf)")
+    ap.add_argument("--speed", type=float, help="override scroll_speed")
+    ap.add_argument("--conf", default=REPO / "mouse.conf",
+                    help="base settings file (default ../mouse.conf)")
     args = ap.parse_args()
 
     base = load_conf(args.conf)
     if args.hz:
         base["tick_hz"] = args.hz
     if args.speed:
-        base["speed"] = args.speed
+        base["scroll_speed"] = args.speed
 
     if not args.presets:
-        report("scroll.conf", base, args.hold)
+        report("mouse.conf", base, args.hold)
     for p in args.presets:
         ease_in, _, ease_out = p.partition("/")
-        values = dict(base, ease_in_ms=float(ease_in),
+        values = dict(base, scroll_ease_in_ms=float(ease_in),
                       ease_out_ms=float(ease_out or ease_in))
         report(p, values, args.hold)
 
