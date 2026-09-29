@@ -188,6 +188,10 @@ class XTestPointer:
         self.x11.XCloseDisplay.argtypes = [ctypes.c_void_p]
         self.xtst.XTestFakeRelativeMotionEvent.argtypes = [
             ctypes.c_void_p, ctypes.c_int, ctypes.c_int, ctypes.c_ulong]
+        self.x11.XDefaultRootWindow.restype = ctypes.c_ulong
+        self.x11.XDefaultRootWindow.argtypes = [ctypes.c_void_p]
+        self.x11.XQueryPointer.argtypes = [ctypes.c_void_p, ctypes.c_ulong] + [
+            ctypes.c_void_p] * 7
         self.display = self.x11.XOpenDisplay(None)  # uses $DISPLAY
         if not self.display:
             raise SystemExit("cannot open X display (is DISPLAY set?)")
@@ -196,6 +200,18 @@ class XTestPointer:
         dx, dy = units
         self.xtst.XTestFakeRelativeMotionEvent(self.display, dx, dy, 0)
         self.x11.XFlush(self.display)
+
+    def button_down(self):
+        """True while any mouse button (left, middle, right) is pressed."""
+        root = self.x11.XDefaultRootWindow(self.display)
+        win = ctypes.c_ulong()
+        pos = ctypes.c_int()
+        mask = ctypes.c_uint()
+        self.x11.XQueryPointer(self.display, root, ctypes.byref(win),
+                               ctypes.byref(win), ctypes.byref(pos),
+                               ctypes.byref(pos), ctypes.byref(pos),
+                               ctypes.byref(pos), ctypes.byref(mask))
+        return bool(mask.value & (0b111 << 8))  # Button1Mask..Button3Mask
 
     def close(self):
         self.x11.XCloseDisplay(self.display)
@@ -355,6 +371,13 @@ def run(output, layers, motions, settings):
             # spaced, and a fixed dt makes every step at a steady speed the
             # same size: uneven steps are what the eye sees as judder.
             period = settings.period
+            # Pointer: a click during the glide after release would drag the
+            # clicked thing along the rest of the glide, so stop dead instead.
+            if (not held and hasattr(output, "button_down")
+                    and output.button_down()):
+                for m in motions:
+                    m.velocity = m.accel = m.remainder = 0.0
+                continue
             units = [m.step(sum(layers[n][axis] for n in held), period)
                      for axis, m in enumerate(motions)]
             if any(units):
