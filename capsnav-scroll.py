@@ -52,7 +52,9 @@ DEFAULTS = {
     "pointer_speed": 1000.0,     # pointer pixels per second at full speed
     "pointer_ease_in_ms": 400.0, # like scroll_ease_in_ms; slower so short
                                  # taps nudge the pointer precisely
-    "ease_out_ms": 200.0,        # time to lose ~90% of speed after releasing
+    "scroll_ease_out_ms": 200.0, # time to lose ~90% of speed after releasing
+    "pointer_ease_out_ms": 80.0, # same for the pointer; short, since a click
+                                 # during the glide turns into a drag
     "tick_hz": 120.0,            # events per second while moving
 }
 # Settings that must be > 0 (others >= 0).
@@ -246,7 +248,7 @@ class Settings:
 
     @property
     def ease_out(self):
-        return self.values["ease_out_ms"] / 1000  # seconds
+        return self.values["scroll_ease_out_ms"] / 1000  # seconds
 
     @property
     def period(self):
@@ -264,11 +266,13 @@ class Motion:
     """
 
     def __init__(self, settings, units_per_click, speed_key="scroll_speed",
-                 ease_in_key="scroll_ease_in_ms"):
+                 ease_in_key="scroll_ease_in_ms",
+                 ease_out_key="scroll_ease_out_ms"):
         self.settings = settings
         self.units_per_click = units_per_click
         self.speed_key = speed_key  # setting giving full speed, per unit above
         self.ease_in_key = ease_in_key
+        self.ease_out_key = ease_out_key
         self.velocity = 0.0   # units/second, signed
         self.accel = 0.0      # units/second^2
         self.remainder = 0.0  # sub-unit carry so no motion is lost
@@ -280,7 +284,7 @@ class Motion:
         if direction:
             t90 = self.settings.values[self.ease_in_key] / 1000
         else:
-            t90 = self.settings.ease_out
+            t90 = self.settings.values[self.ease_out_key] / 1000
         v0 = self.velocity
         if t90 == 0:
             self.velocity, self.accel = target, 0.0  # no easing: instant
@@ -367,7 +371,8 @@ def main():
     if "--mouse" in sys.argv[1:]:
         output = XTestPointer()
         layers = MOUSE_LAYERS
-        motions = [Motion(settings, 1, "pointer_speed", "pointer_ease_in_ms")
+        motions = [Motion(settings, 1, "pointer_speed", "pointer_ease_in_ms",
+                          "pointer_ease_out_ms")
                    for _ in range(2)]
     else:
         continuous = continuous_mode_ready()

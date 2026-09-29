@@ -5,8 +5,8 @@ Hold Caps Lock to drive the mouse from i/j/k/l and more, using keyd (v2.6.0, bui
 | Caps + | Sends       |
 |--------|-------------|
 | i/j/k/l | Move the mouse pointer up/left/down/right (hold; combine for diagonals) |
-| h      | Left click |
-| g      | Left button hold: hold g and move to select text or drag, release to drop |
+| g      | Left click; hold g and move to select text or drag, release to drop |
+| h      | Backspace |
 | ;      | Right click |
 | Space+i/j/k/l | Arrow keys up/left/down/right |
 | u      | Esc         |
@@ -127,15 +127,17 @@ It takes effect on the next scroll with no restart.
 
 ## Pointer motion (Caps+i/j/k/l)
 Hold Caps, then i/j/k/l (up/left/down/right) to move the pointer; hold two for
-a diagonal. h left-clicks, ; right-clicks, and g is the left button for
-holding (keyd sends the buttons itself). A button stays down while its key is held, so hold g with the left
+a diagonal. g is the left button (tap to click, hold to select or drag) and ;
+right-clicks (keyd sends the buttons itself). A button stays down while its key is held, so hold g with the left
 hand and steer with i/j/k/l to select text or drag, then release g to drop.
 With Space also held, i/j/k/l are arrow keys instead (Caps+Space+i/j/k/l).
-It eases in and glides to a stop on the same spring as scrolling. In
-`mouse.conf`, `pointer_speed` sets the top speed in pixels per second and
+It eases in and glides to a stop on the same spring as scrolling.
+In `mouse.conf`, `pointer_speed` sets the top speed in pixels per second,
 `pointer_ease_in_ms` the ease-in (slower than scrolling's by default, so a quick
-tap nudges the pointer a few pixels); the glide and rate share `ease_out_ms`
-and `tick_hz` with scrolling.
+tap nudges the pointer a few pixels), and `pointer_ease_out_ms` the glide after
+release (80 ms by default: a soft stop in about a tenth of a second, short
+because a click while the pointer is still gliding turns into a drag). The event rate `tick_hz` is shared
+with scrolling.
 
 keyd turns on the empty layers `mouseleft` / `mouseright` / `mouseup` /
 `mousedown`, and `capsnav-scroll --mouse` (the user service

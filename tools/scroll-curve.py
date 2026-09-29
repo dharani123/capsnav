@@ -100,7 +100,7 @@ def report(name, values, hold):
     overshoot = max(speeds) > 1.0001 or min(speeds) < -1e-9
     steady = [u for u, s in zip(units, speeds) if s > 0.999]
     print(f"== {name}: ease_in {values['scroll_ease_in_ms']:g} ms, "
-          f"ease_out {values['ease_out_ms']:g} ms, speed "
+          f"ease_out {values['scroll_ease_out_ms']:g} ms, speed "
           f"{values['scroll_speed']:g} clicks/s, {values['tick_hz']:g} Hz")
     print(plot(speeds, period, hold))
     print(f"  half speed after      {ms(t50)}")
@@ -116,7 +116,7 @@ def report(name, values, hold):
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("presets", nargs="*", metavar="IN/OUT",
-                    help="scroll_ease_in_ms/ease_out_ms pairs, e.g. 100/200")
+                    help="scroll_ease_in_ms/scroll_ease_out_ms pairs, e.g. 100/200")
     ap.add_argument("--hold", type=float, default=0.6,
                     help="seconds to hold the key (default 0.6)")
     ap.add_argument("--hz", type=float, help="override tick_hz")
@@ -136,7 +136,7 @@ def main():
     for p in args.presets:
         ease_in, _, ease_out = p.partition("/")
         values = dict(base, scroll_ease_in_ms=float(ease_in),
-                      ease_out_ms=float(ease_out or ease_in))
+                      scroll_ease_out_ms=float(ease_out or ease_in))
         report(p, values, args.hold)
 
 
