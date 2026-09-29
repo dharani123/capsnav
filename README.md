@@ -9,7 +9,6 @@ Hold Caps Lock to drive the mouse from i/j/k/l and more, using keyd (v2.6.0, bui
 | h      | Backspace |
 | ;      | Right click |
 | Space+i/j/k/l | Arrow keys up/left/down/right |
-| u      | Esc         |
 | t      | Ctrl+Home (top of page)    |
 | e      | Ctrl+End (bottom of page)  |
 | c      | Ctrl+Shift+C (copy in terminals) |
@@ -24,6 +23,7 @@ Hold Caps Lock to drive the mouse from i/j/k/l and more, using keyd (v2.6.0, bui
 | m      | Smooth scroll down (hold) |
 | Space+n/m | Smooth scroll up/down at double speed |
 | p      | Move pointer + focus to the other monitor |
+| u      | Centre the pointer on the current monitor |
 | b      | Window switcher (Alt+Tab): hold Caps, tap b to cycle, j/l to move, release to pick |
 | Alt+j  | Ctrl+PageUp (previous tab)  |
 | Alt+l  | Ctrl+PageDown (next tab)    |
@@ -158,9 +158,14 @@ next monitor and focuses the topmost window there. It reads the layout from
 `xrandr` each time, so it follows monitor changes. X11 only; on another
 desktop, bind Super+Alt+O to the script yourself.
 
+Caps+u works the same way (Super+Alt+U, shortcut "capsnav: center pointer")
+and runs `capsnav-switch-monitor --center`, which only moves the pointer to the
+centre of the monitor it's on. To reach a far corner quickly: Caps+u, then
+i/j/k/l.
+
 ## Common tasks
 - Apply config edits: `sudo cp default.conf /etc/keyd/default.conf && sudo keyd reload`
-- Uninstall: `sudo systemctl disable --now capsnav-scroll keyd && sudo rm -r /etc/systemd/system/capsnav-scroll.service /usr/local/bin/capsnav-scroll /etc/capsnav /etc/X11/xorg.conf.d/50-capsnav-scroll.conf /usr/local/bin/capsnav-switch-monitor && systemctl --user disable --now capsnav-mouse && rm ~/.config/systemd/user/capsnav-mouse.service && sudo gpasswd -d $USER keyd && sudo rm -r /etc/systemd/system/keyd.service.d/capsnav-restart.conf && sudo make -C keyd-src uninstall`, then delete the `[capsnav smooth scroll]` section from `/etc/libinput/local-overrides.quirks` and the "capsnav: switch monitor" shortcut in Settings → Keyboard → Custom Shortcuts
+- Uninstall: `sudo systemctl disable --now capsnav-scroll keyd && sudo rm -r /etc/systemd/system/capsnav-scroll.service /usr/local/bin/capsnav-scroll /etc/capsnav /etc/X11/xorg.conf.d/50-capsnav-scroll.conf /usr/local/bin/capsnav-switch-monitor && systemctl --user disable --now capsnav-mouse && rm ~/.config/systemd/user/capsnav-mouse.service && sudo gpasswd -d $USER keyd && sudo rm -r /etc/systemd/system/keyd.service.d/capsnav-restart.conf && sudo make -C keyd-src uninstall`, then delete the `[capsnav smooth scroll]` section from `/etc/libinput/local-overrides.quirks` and the "capsnav: switch monitor" and "capsnav: center pointer" shortcuts in Settings → Keyboard → Custom Shortcuts
 - If the keyboard locks up: press Backspace+Escape+Enter together to stop keyd.
 
 ## keyd version

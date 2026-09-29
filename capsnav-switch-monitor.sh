@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 # Move the pointer to the next monitor and focus the topmost window on it.
-# X11 only. Caps+p sends Super+Alt+O, which install.sh binds to this script
-# as a GNOME custom shortcut.
+# With --center, just move the pointer to the centre of the current monitor.
+# X11 only. Caps+p sends Super+Alt+O and Caps+u Super+Alt+U, which install.sh
+# binds to this script as GNOME custom shortcuts.
+center=
+[ "$1" = --center ] && center=1
 eval "$(xdotool getmouselocation --shell)"   # sets X, Y
 
 # Monitor geometries: w h x y
@@ -12,6 +15,11 @@ for i in "${!mons[@]}"; do
     read -r w h x y <<<"${mons[i]}"
     if (( X >= x && X < x + w && Y >= y && Y < y + h )); then cur=$i; fi
 done
+if [ -n "$center" ]; then
+    read -r w h x y <<<"${mons[cur]}"
+    xdotool mousemove $((x + w / 2)) $((y + h / 2))
+    exit
+fi
 read -r w h x y <<<"${mons[(cur + 1) % n]}"
 
 # Topmost visible, non-minimised window whose centre is on the target monitor
