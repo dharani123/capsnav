@@ -24,13 +24,12 @@ Hold Caps Lock for arrow keys on i/j/k/l and more, using keyd (v2.6.0, built fro
 | Space+n | Left click (hold while moving to drag) |
 | Space+m | Right click |
 | p      | Move pointer + focus to the other monitor |
-| g      | Click hints: label everything clickable, type a label to click it |
 | b      | Window switcher (Alt+Tab): hold Caps, tap b to cycle, j/l to move, release to pick |
 | Alt+j  | Ctrl+PageUp (previous tab)  |
 | Alt+l  | Ctrl+PageDown (next tab)    |
 
 ## Install
-Requires Linux with systemd; the Caps+p and Caps+g shortcuts need GNOME on X11.
+Requires Linux with systemd; Caps+p and the Caps+Space mouse need GNOME on X11.
 Ubuntu/Debian and Fedora are supported:
 
 ```bash
@@ -39,9 +38,9 @@ cd capsnav && ./install.sh
 ```
 
 Run it as your normal user; it asks for your `sudo` password. It installs the
-system packages (build tools, xdotool, hints' build deps), builds keyd, installs
-the config, the smooth-scroll helper, the switch-monitor script and
-[hints](#click-hints-capsg), starts the services, and adds the GNOME shortcuts.
+system packages (build tools, python3, xdotool), builds keyd, installs the
+config, the smooth-scroll and pointer helper and the switch-monitor script,
+starts the services, and adds the GNOME shortcut for Caps+p.
 Reboot once when it says so. Re-running it is safe and applies any changes.
 
 On other distros, install the equivalent of the apt package list at the top of
@@ -68,14 +67,12 @@ For smooth Caps+n/m scrolling in VS Code, add these to your VS Code
 ## Files
 - `default.conf`: the keyd config. The live copy is `/etc/keyd/default.conf`.
 - `keyd-src/`: keyd source used for the install.
-- `install.sh`: installs everything above (packages, keyd, config, scroll helper, switch-monitor, hints, GNOME shortcuts). Safe to re-run.
+- `install.sh`: installs everything above (packages, keyd, config, scroll and pointer helper, switch-monitor, GNOME shortcut). Safe to re-run.
 - `capsnav-scroll.py`: smooth-scroll helper, installed as `/usr/local/bin/capsnav-scroll`.
 - `capsnav-scroll.service`: systemd unit that runs the helper.
 - `capsnav-mouse.service`: systemd user unit that runs the same helper with `--mouse` for pointer motion.
 - `mouse.conf`: scroll and pointer speed, easing and event rate. The live copy is `/etc/capsnav/mouse.conf`.
 - `capsnav-switch-monitor.sh`: Caps+p helper, installed as `/usr/local/bin/capsnav-switch-monitor` (see below).
-- `hintsd.service`: systemd user unit for the hints daemon, installed to `~/.config/systemd/user/`.
-- `hints-config.json`: hints settings for Caps+g, installed to `~/.config/hints/config.json`.
 - `tools/scroll-curve.py`: previews scroll settings as a speed curve; no root needed.
 - `system/keyd-restart.conf`: systemd drop-in that restarts keyd if it crashes (not after the emergency stop).
 - `system/capsnav.quirks`, `system/50-capsnav-scroll.conf`: the libinput and X settings for continuous scrolling (see below).
@@ -158,34 +155,9 @@ next monitor and focuses the topmost window there. It reads the layout from
 `xrandr` each time, so it follows monitor changes. X11 only; on another
 desktop, bind Super+Alt+O to the script yourself.
 
-## Click hints (Caps+g)
-Caps+g sends Super+Alt+F, which `install.sh` binds to
-[hints](https://github.com/AlfredoSequeida/hints) (Vimium for the whole
-desktop). Every clickable element gets a label; type it to click.
-Shift+label right-clicks, Ctrl+label hovers, Esc cancels.
-
-`hints-config.json` (installed to `~/.config/hints/config.json`) turns off
-Alt+label drag. Drag holds the mouse button down and silently captures the
-keyboard until Esc, which looks like a frozen desktop if you hit it by accident
-(easy after Caps+Alt tab switching).
-
-**If the desktop seems stuck:** press Esc. If that fails, press Ctrl+Alt+F3,
-log in, run `pkill -f hints; systemctl --user restart hintsd`, and return with
-Ctrl+Alt+F2 (or F1).
-
-hints is not vendored: `install.sh` installs the pinned version (0.1.1) with
-[uv](https://docs.astral.sh/uv/) into `~/.local`, fetching uv temporarily if you
-don't have it. Instead of `hints --setup` (which duplicates lines on re-runs),
-`install.sh` does the same steps itself: turns on accessibility in
-`/etc/environment` and `~/.xprofile` so apps report their buttons, loads
-`uinput`, adds a udev rule, adds you to the `input` group (any program you run
-can then read raw keyboard input), and starts the `hintsd` user service
-(`hintsd.service`). Apps that expose no accessibility info fall back to image detection,
-which is less precise.
-
 ## Common tasks
 - Apply config edits: `sudo cp default.conf /etc/keyd/default.conf && sudo keyd reload`
-- Uninstall: `sudo systemctl disable --now capsnav-scroll keyd && sudo rm -r /etc/systemd/system/capsnav-scroll.service /usr/local/bin/capsnav-scroll /etc/capsnav /etc/X11/xorg.conf.d/50-capsnav-scroll.conf /usr/local/bin/capsnav-switch-monitor && systemctl --user disable --now capsnav-mouse && rm ~/.config/systemd/user/capsnav-mouse.service && sudo gpasswd -d $USER keyd && sudo rm -r /etc/systemd/system/keyd.service.d/capsnav-restart.conf && sudo make -C keyd-src uninstall`, then delete the `[capsnav smooth scroll]` section from `/etc/libinput/local-overrides.quirks` and the "capsnav: switch monitor" and "capsnav: hints" shortcuts in Settings → Keyboard → Custom Shortcuts. To remove hints too: `systemctl --user disable --now hintsd; rm ~/.config/systemd/user/hintsd.service; rm -r ~/.config/hints; uv tool uninstall hints` (or delete `~/.local/share/uv/tools/hints` and `~/.local/bin/hints*`), `sudo rm /etc/udev/rules.d/80-hints.rules /etc/modules-load.d/uinput.conf`, `sudo gpasswd -d $USER input`, and delete the accessibility lines from `/etc/environment` and `~/.xprofile`
+- Uninstall: `sudo systemctl disable --now capsnav-scroll keyd && sudo rm -r /etc/systemd/system/capsnav-scroll.service /usr/local/bin/capsnav-scroll /etc/capsnav /etc/X11/xorg.conf.d/50-capsnav-scroll.conf /usr/local/bin/capsnav-switch-monitor && systemctl --user disable --now capsnav-mouse && rm ~/.config/systemd/user/capsnav-mouse.service && sudo gpasswd -d $USER keyd && sudo rm -r /etc/systemd/system/keyd.service.d/capsnav-restart.conf && sudo make -C keyd-src uninstall`, then delete the `[capsnav smooth scroll]` section from `/etc/libinput/local-overrides.quirks` and the "capsnav: switch monitor" shortcut in Settings → Keyboard → Custom Shortcuts
 - If the keyboard locks up: press Backspace+Escape+Enter together to stop keyd.
 
 ## keyd version
