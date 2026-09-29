@@ -23,6 +23,7 @@ Hold Caps Lock for arrow keys on i/j/k/l and more, using keyd (v2.6.0, built fro
 | Space+i/j/k/l | Move the mouse pointer up/left/down/right (hold; combine for diagonals) |
 | Space+n | Left click (hold while moving to drag) |
 | Space+m | Right click |
+| Space+g | Hold left button while moving with i/j/k/l: select text, drag and drop (release to drop) |
 | p      | Move pointer + focus to the other monitor |
 | b      | Window switcher (Alt+Tab): hold Caps, tap b to cycle, j/l to move, release to pick |
 | Alt+j  | Ctrl+PageUp (previous tab)  |
@@ -130,7 +131,9 @@ It takes effect on the next scroll with no restart.
 Hold Caps+Space, then i/j/k/l (up/left/down/right) to move the pointer; hold
 two for a diagonal. n left-clicks and m right-clicks (keyd sends the buttons
 itself); the button stays down while the key is held, so hold n and move to
-drag. (So while Space is held, n/m click rather than scroll.)
+drag. (So while Space is held, n/m click rather than scroll.) g also holds the left
+button, on the left hand, so the right hand is free to steer: hold g, move
+with i/j/k/l to select text or drag, release g to drop.
 It eases in and glides to a stop on the same spring as scrolling. In
 `mouse.conf`, `pointer_speed` sets the top speed in pixels per second and
 `pointer_ease_in_ms` the ease-in (slower than scrolling's by default, so a quick
