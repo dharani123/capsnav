@@ -1,31 +1,31 @@
 # capsnav
 
-Hold Caps Lock for vim-style navigation, using keyd (v2.6.0, built from source).
+Hold Caps Lock for arrow keys on i/j/k/l and more, using keyd (v2.6.0, built from source).
 
 | Caps + | Sends       |
 |--------|-------------|
-| u      | Up          |
-| n      | Down        |
-| h      | Left        |
+| i      | Up          |
+| j      | Left        |
+| k      | Down        |
 | l      | Right       |
-| m      | Backspace   |
+| u      | Esc         |
+| h      | Backspace   |
 | t      | Ctrl+Home (top of page)    |
 | v      | Ctrl+End (bottom of page)  |
 | y      | Home (start of line)       |
 | o      | End (end of line)          |
-| i      | Esc         |
 | d      | F12 (VS Code: go to definition) |
 | ;      | Ctrl+Shift+O (VS Code: go to symbol in file) |
 | 8      | Ctrl+Alt+- (VS Code: go back)    |
 | 9      | Ctrl+Shift+- (VS Code: go forward) |
-| j      | Smooth scroll up (hold)   |
-| k      | Smooth scroll down (hold) |
+| n      | Smooth scroll up (hold)   |
+| m      | Smooth scroll down (hold) |
 | Space+i/j/k/l | Move the mouse pointer up/left/down/right (hold; combine for diagonals) |
 | Space+n | Left click (hold while moving to drag) |
 | Space+m | Right click |
 | p      | Move pointer + focus to the other monitor |
 | g      | Click hints: label everything clickable, type a label to click it |
-| Alt+h  | Ctrl+PageUp (previous tab)  |
+| Alt+j  | Ctrl+PageUp (previous tab)  |
 | Alt+l  | Ctrl+PageDown (next tab)    |
 
 ## Install
@@ -55,7 +55,7 @@ Before installing:
   together to stop keyd.
 
 ### Recommended VS Code settings
-For smooth Caps+j/k scrolling in VS Code, add these to your VS Code
+For smooth Caps+n/m scrolling in VS Code, add these to your VS Code
 `settings.json`:
 
 ```json
@@ -80,7 +80,7 @@ For smooth Caps+j/k scrolling in VS Code, add these to your VS Code
 - `system/capsnav.quirks`, `system/50-capsnav-scroll.conf`: the libinput and X settings for continuous scrolling (see below).
 
 ## Smooth scrolling
-Caps+j / Caps+k send no keys of their own. They switch on the empty keyd layers
+Caps+n / Caps+m send no keys of their own. They switch on the empty keyd layers
 `scrollup` / `scrolldown`. `capsnav-scroll` watches those layers via
 `keyd listen`, and while one is active it sends small scroll steps at
 `tick_hz` from a virtual pointer. Speed eases in on press and glides to a stop
@@ -132,7 +132,7 @@ It takes effect on the next scroll with no restart.
 Hold Caps+Space, then i/j/k/l (up/left/down/right) to move the pointer; hold
 two for a diagonal. n left-clicks and m right-clicks (keyd sends the buttons
 itself); the button stays down while the key is held, so hold n and move to
-drag.
+drag. (So while Space is held, n/m click rather than scroll.)
 It eases in and glides to a stop on the same spring as scrolling (`ease_in_ms`,
 `ease_out_ms`, `tick_hz` in `scroll.conf`); `mouse_speed` sets the top speed
 in pixels per second.

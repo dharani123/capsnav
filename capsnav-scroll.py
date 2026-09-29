@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Smooth scrolling and pointer motion for the capsnav keyd layer.
 
-keyd activates the empty layers `scrollup` / `scrolldown` while Caps+j / Caps+k
+keyd activates the empty layers `scrollup` / `scrolldown` while Caps+n / Caps+m
 are held. This daemon watches those layer changes via `keyd listen` and emits a
 stream of small scroll events from a virtual pointer, easing in on press and
 gliding to a stop on release, so scrolling looks like a touchpad rather than

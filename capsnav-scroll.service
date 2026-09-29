@@ -1,5 +1,5 @@
 [Unit]
-Description=capsnav smooth scrolling (Caps+j / Caps+k)
+Description=capsnav smooth scrolling (Caps+n / Caps+m)
 # Pointer motion is the same program as a user service: capsnav-mouse.service
 After=keyd.service
 Wants=keyd.service

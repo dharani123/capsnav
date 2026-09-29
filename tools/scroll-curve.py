@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Preview how capsnav smooth-scroll settings feel, without root.
 
-Simulates holding Caps+j for a while and releasing, using the same Motion code
+Simulates holding Caps+n for a while and releasing, using the same Motion code
 as the daemon, then draws the speed curve and prints the numbers that matter.
 
     tools/scroll-curve.py                  # settings from ../scroll.conf
