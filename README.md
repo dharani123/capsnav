@@ -70,6 +70,7 @@ For smooth Caps+n/m scrolling in VS Code, add these to your VS Code
 - `install.sh`: installs everything above (packages, keyd, config, scroll and pointer helper, switch-monitor, GNOME shortcut). Safe to re-run.
 - `capsnav-scroll.py`: smooth-scroll helper, installed as `/usr/local/bin/capsnav-scroll`.
 - `capsnav-scroll.service`: systemd unit that runs the helper.
+- `capsnav-focus-follow.sh`, `capsnav-focus-follow.service`: pointer-follows-focus script and its user unit.
 - `capsnav-mouse.service`: systemd user unit that runs the same helper with `--mouse` for pointer motion.
 - `mouse.conf`: scroll and pointer speed, easing and event rate. The live copy is `/etc/capsnav/mouse.conf`.
 - `capsnav-switch-monitor.sh`: Caps+p helper, installed as `/usr/local/bin/capsnav-switch-monitor` (see below).
@@ -149,6 +150,14 @@ session, so this part runs as you rather than root, and `install.sh` adds you
 to the `keyd` group so it can read `keyd listen` (takes effect at next login).
 X11 only.
 
+## Pointer follows focus
+When another window becomes active (Caps+b, a new window or dialog, closing a
+window) and the pointer isn't already inside it, the pointer jumps to that
+window's centre, so it's always near what you're working on. Clicking a window
+never moves the pointer, since it's already inside. `capsnav-focus-follow`
+(user service `capsnav-focus-follow`) watches `_NET_ACTIVE_WINDOW` with
+`xprop -spy`. To turn it off: `systemctl --user disable --now capsnav-focus-follow`.
+
 ## Switching monitors
 keyd runs as root with no access to your X session, so Caps+p can't run the
 script directly. It sends Super+Alt+O instead, and `install.sh` adds a GNOME
@@ -165,7 +174,7 @@ i/j/k/l.
 
 ## Common tasks
 - Apply config edits: `sudo cp default.conf /etc/keyd/default.conf && sudo keyd reload`
-- Uninstall: `sudo systemctl disable --now capsnav-scroll keyd && sudo rm -r /etc/systemd/system/capsnav-scroll.service /usr/local/bin/capsnav-scroll /etc/capsnav /etc/X11/xorg.conf.d/50-capsnav-scroll.conf /usr/local/bin/capsnav-switch-monitor && systemctl --user disable --now capsnav-mouse && rm ~/.config/systemd/user/capsnav-mouse.service && sudo gpasswd -d $USER keyd && sudo rm -r /etc/systemd/system/keyd.service.d/capsnav-restart.conf && sudo make -C keyd-src uninstall`, then delete the `[capsnav smooth scroll]` section from `/etc/libinput/local-overrides.quirks` and the "capsnav: switch monitor" and "capsnav: center pointer" shortcuts in Settings → Keyboard → Custom Shortcuts
+- Uninstall: `sudo systemctl disable --now capsnav-scroll keyd && sudo rm -r /etc/systemd/system/capsnav-scroll.service /usr/local/bin/capsnav-scroll /etc/capsnav /etc/X11/xorg.conf.d/50-capsnav-scroll.conf /usr/local/bin/capsnav-switch-monitor /usr/local/bin/capsnav-focus-follow && systemctl --user disable --now capsnav-mouse capsnav-focus-follow && rm ~/.config/systemd/user/capsnav-mouse.service ~/.config/systemd/user/capsnav-focus-follow.service && sudo gpasswd -d $USER keyd && sudo rm -r /etc/systemd/system/keyd.service.d/capsnav-restart.conf && sudo make -C keyd-src uninstall`, then delete the `[capsnav smooth scroll]` section from `/etc/libinput/local-overrides.quirks` and the "capsnav: switch monitor" and "capsnav: center pointer" shortcuts in Settings → Keyboard → Custom Shortcuts
 - If the keyboard locks up: press Backspace+Escape+Enter together to stop keyd.
 
 ## keyd version
