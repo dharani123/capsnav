@@ -5,18 +5,19 @@ Hold Caps Lock to drive the mouse from i/j/k/l and more, using keyd (v2.6.0, bui
 | Caps + | Sends       |
 |--------|-------------|
 | i/j/k/l | Move the mouse pointer up/left/down/right (hold; combine for diagonals) |
+| e/s/d/f | Same movement on the left hand (up/left/down/right). Down-left (s+d) may not register on some laptop keyboards: they can't detect Caps+S+D together (hardware ghosting); use j+k instead |
 | g      | Left click; hold g and move to select text or drag, release to drop |
-| h      | Backspace |
+| h      | Left click (right hand, while moving with e/s/d/f) |
 | ;      | Right click |
 | Space+i/j/k/l | Arrow keys up/left/down/right |
 | t      | Ctrl+Home (top of page)    |
-| e      | Ctrl+End (bottom of page)  |
+| w      | Ctrl+End (bottom of page)  |
 | c      | Ctrl+Shift+C (copy in terminals) |
 | v      | Ctrl+Shift+V (paste in terminals; plain-text paste in browsers) |
 | y      | Home (start of line)       |
 | o      | End (end of line)          |
-| d      | F12 (VS Code: go to definition) |
-| f      | Ctrl+Shift+O (VS Code: go to symbol in file) |
+| r      | F12 (VS Code: go to definition) |
+| a      | Ctrl+Shift+O (VS Code: go to symbol in file) |
 | 8      | Ctrl+Alt+- (VS Code: go back)    |
 | 9      | Ctrl+Shift+- (VS Code: go forward) |
 | n      | Smooth scroll up (hold)   |
