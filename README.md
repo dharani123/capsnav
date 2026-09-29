@@ -1,13 +1,13 @@
 # capsnav
 
-Hold Caps Lock for arrow keys on i/j/k/l and more, using keyd (v2.6.0, built from source).
+Hold Caps Lock to drive the mouse from i/j/k/l and more, using keyd (v2.6.0, built from source).
 
 | Caps + | Sends       |
 |--------|-------------|
-| i      | Up          |
-| j      | Left        |
-| k      | Down        |
-| l      | Right       |
+| i/j/k/l | Move the mouse pointer up/left/down/right (hold; combine for diagonals) |
+| g      | Left click (held while g is: hold g and move to select text or drag) |
+| ;      | Right click |
+| Space+i/j/k/l | Arrow keys up/left/down/right |
 | u      | Esc         |
 | h      | Backspace   |
 | t      | Ctrl+Home (top of page)    |
@@ -17,22 +17,18 @@ Hold Caps Lock for arrow keys on i/j/k/l and more, using keyd (v2.6.0, built fro
 | y      | Home (start of line)       |
 | o      | End (end of line)          |
 | d      | F12 (VS Code: go to definition) |
-| ;      | Ctrl+Shift+O (VS Code: go to symbol in file) |
+| f      | Ctrl+Shift+O (VS Code: go to symbol in file) |
 | 8      | Ctrl+Alt+- (VS Code: go back)    |
 | 9      | Ctrl+Shift+- (VS Code: go forward) |
 | n      | Smooth scroll up (hold)   |
 | m      | Smooth scroll down (hold) |
-| Space+i/j/k/l | Move the mouse pointer up/left/down/right (hold; combine for diagonals) |
-| Space+n | Left click (hold while moving to drag) |
-| Space+m | Right click |
-| Space+g | Hold left button while moving with i/j/k/l: select text, drag and drop (release to drop) |
 | p      | Move pointer + focus to the other monitor |
 | b      | Window switcher (Alt+Tab): hold Caps, tap b to cycle, j/l to move, release to pick |
 | Alt+j  | Ctrl+PageUp (previous tab)  |
 | Alt+l  | Ctrl+PageDown (next tab)    |
 
 ## Install
-Requires Linux with systemd; Caps+p and the Caps+Space mouse need GNOME on X11.
+Requires Linux with systemd; Caps+p and the mouse keys need GNOME on X11.
 Ubuntu/Debian and Fedora are supported:
 
 ```bash
@@ -129,13 +125,12 @@ Then edit `mouse.conf` and copy it into place:
 `sudo cp mouse.conf /etc/capsnav/mouse.conf`
 It takes effect on the next scroll with no restart.
 
-## Pointer motion (Caps+Space)
-Hold Caps+Space, then i/j/k/l (up/left/down/right) to move the pointer; hold
-two for a diagonal. n left-clicks and m right-clicks (keyd sends the buttons
-itself); the button stays down while the key is held, so hold n and move to
-drag. (So while Space is held, n/m click rather than scroll.) g also holds the left
-button, on the left hand, so the right hand is free to steer: hold g, move
-with i/j/k/l to select text or drag, release g to drop.
+## Pointer motion (Caps+i/j/k/l)
+Hold Caps, then i/j/k/l (up/left/down/right) to move the pointer; hold two for
+a diagonal. g is the left button and ; the right (keyd sends the buttons
+itself). A button stays down while its key is held, so hold g with the left
+hand and steer with i/j/k/l to select text or drag, then release g to drop.
+With Space also held, i/j/k/l are arrow keys instead (Caps+Space+i/j/k/l).
 It eases in and glides to a stop on the same spring as scrolling. In
 `mouse.conf`, `pointer_speed` sets the top speed in pixels per second and
 `pointer_ease_in_ms` the ease-in (slower than scrolling's by default, so a quick

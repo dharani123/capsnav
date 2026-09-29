@@ -43,7 +43,7 @@ sudo install -m644 capsnav-scroll.service /etc/systemd/system/capsnav-scroll.ser
 sudo systemctl daemon-reload
 sudo systemctl enable capsnav-scroll
 sudo systemctl restart capsnav-scroll
-# Pointer motion (Caps+Space+i/j/k/l): same program as a user service, since
+# Pointer motion (Caps+i/j/k/l): same program as a user service, since
 # XTest needs your X session. The keyd group lets it read `keyd listen`.
 if ! id -nG "$USER" | grep -qw keyd; then
 	sudo usermod -aG keyd "$USER"

@@ -1,5 +1,5 @@
 [Unit]
-Description=capsnav mouse motion (Caps+Space+i/j/k/l)
+Description=capsnav mouse motion (Caps+i/j/k/l)
 # Needs the X session (DISPLAY), so it runs as a user service.
 PartOf=graphical-session.target
 After=graphical-session.target

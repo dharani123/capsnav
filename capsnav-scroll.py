@@ -7,7 +7,7 @@ stream of small scroll events from a virtual pointer, easing in on press and
 gliding to a stop on release, so scrolling looks like a touchpad rather than
 jumping one wheel notch at a time.
 
-With --mouse it instead moves the pointer while Caps+Space+i/j/k/l hold the
+With --mouse it instead moves the pointer while Caps+i/j/k/l hold the
 layers `mouseleft` / `mouseright` / `mouseup` / `mousedown`, on the same spring
 curve. It moves the pointer through XTest, which (unlike a virtual mouse)
 bypasses pointer acceleration, so the curve arrives exactly. That needs the
