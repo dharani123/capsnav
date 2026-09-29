@@ -55,12 +55,6 @@ systemctl --user enable capsnav-mouse
 systemctl --user restart capsnav-mouse
 
 sudo install -m755 capsnav-switch-monitor.sh /usr/local/bin/capsnav-switch-monitor
-# Pointer follows keyboard focus (user service: needs the X session).
-sudo install -m755 capsnav-focus-follow.sh /usr/local/bin/capsnav-focus-follow
-install -Dm644 capsnav-focus-follow.service "$HOME/.config/systemd/user/capsnav-focus-follow.service"
-systemctl --user daemon-reload
-systemctl --user enable capsnav-focus-follow
-systemctl --user restart capsnav-focus-follow
 
 # GNOME custom shortcuts for Caps keys that run a program: keyd (root, no X
 # access) sends a key combo, and GNOME runs the command. Runs as you, not root:
