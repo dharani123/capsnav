@@ -260,7 +260,7 @@ class Motion:
     Unlike a simple exponential ease, the spring keeps acceleration continuous
     too, so speed builds and fades along an S-curve with no kick at press or
     release. It never overshoots, and a new target mid-glide (release, or
-    reversing j -> k) carries on from the current velocity and acceleration.
+    reversing n -> m) carries on from the current velocity and acceleration.
     """
 
     def __init__(self, settings, units_per_click, speed_key="scroll_speed",

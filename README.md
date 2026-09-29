@@ -11,7 +11,9 @@ Hold Caps Lock for arrow keys on i/j/k/l and more, using keyd (v2.6.0, built fro
 | u      | Esc         |
 | h      | Backspace   |
 | t      | Ctrl+Home (top of page)    |
-| v      | Ctrl+End (bottom of page)  |
+| e      | Ctrl+End (bottom of page)  |
+| c      | Ctrl+Shift+C (copy in terminals) |
+| v      | Ctrl+Shift+V (paste in terminals; plain-text paste in browsers) |
 | y      | Home (start of line)       |
 | o      | End (end of line)          |
 | d      | F12 (VS Code: go to definition) |
