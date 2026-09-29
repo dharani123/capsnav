@@ -1,11 +1,17 @@
 #!/usr/bin/env python3
-"""Smooth scrolling for the capsnav keyd layer.
+"""Smooth scrolling and pointer motion for the capsnav keyd layer.
 
 keyd activates the empty layers `scrollup` / `scrolldown` while Caps+j / Caps+k
 are held. This daemon watches those layer changes via `keyd listen` and emits a
 stream of small scroll events from a virtual pointer, easing in on press and
 gliding to a stop on release, so scrolling looks like a touchpad rather than
 jumping one wheel notch at a time.
+
+With --mouse it instead moves the pointer while Caps+Space+i/j/k/l hold the
+layers `mouseleft` / `mouseright` / `mouseup` / `mousedown`, on the same spring
+curve. It moves the pointer through XTest, which (unlike a virtual mouse)
+bypasses pointer acceleration, so the curve arrives exactly. That needs the
+user's X session, so --mouse runs as a user service, not as root.
 
 Scroll events go out in one of two modes:
 - continuous (preferred): a libinput quirk marks the device as a Lenovo
@@ -21,9 +27,13 @@ unit would scroll a whole click.
 Speed and easing are read from CONFIG_PATH, which is re-read whenever it
 changes, so edits take effect on the next scroll without a restart.
 
-Must run as root (needs /dev/uinput and the keyd socket). No dependencies.
+Scrolling must run as root (needs /dev/uinput and the keyd socket). --mouse
+runs as the desktop user, who must be in the `keyd` group for the socket.
+No dependencies beyond libX11/libXtst for --mouse.
 """
 
+import ctypes
+import ctypes.util
 import fcntl
 import math
 import os
@@ -41,13 +51,18 @@ DEFAULTS = {
     "ease_in_ms": 100.0,   # time to reach ~90% of full speed after pressing
     "ease_out_ms": 200.0,  # time to lose ~90% of speed after releasing
     "tick_hz": 120.0,      # scroll events per second while moving
+    "mouse_speed": 1000.0, # pointer pixels per second at full speed
 }
-POSITIVE = {"speed", "tick_hz"}  # settings that must be > 0 (others >= 0)
+POSITIVE = {"speed", "tick_hz", "mouse_speed"}  # must be > 0 (others >= 0)
 
 # A critically damped spring reaches ~90% of its target at t = 3.89 / omega.
 T90_FACTOR = 3.89
 
-LAYER_DIRECTION = {"scrolldown": -1, "scrollup": 1}  # wheel +1 = up
+# Layer -> direction vector. Scroll: (wheel,), +1 = up. Mouse: (x, y) in
+# screen pixels, +y = down.
+SCROLL_LAYERS = {"scrolldown": (-1,), "scrollup": (1,)}
+MOUSE_LAYERS = {"mouseleft": (-1, 0), "mouseright": (1, 0),
+                "mouseup": (0, -1), "mousedown": (0, 1)}
 
 # --- uinput -----------------------------------------------------------------
 EV_SYN, EV_KEY, EV_REL = 0x00, 0x01, 0x02
@@ -146,9 +161,37 @@ class VirtualWheel:
                 self._event(EV_REL, REL_WHEEL, notches)
         self._event(EV_SYN, SYN_REPORT, 0)
 
+    def send(self, units):
+        self.scroll(units[0])
+
     def close(self):
         fcntl.ioctl(self.fd, UI_DEV_DESTROY)
         os.close(self.fd)
+
+
+class XTestPointer:
+    """Moves the X pointer by exact pixels via XTest (no acceleration)."""
+
+    def __init__(self):
+        self.x11 = ctypes.CDLL(ctypes.util.find_library("X11") or "libX11.so.6")
+        self.xtst = ctypes.CDLL(ctypes.util.find_library("Xtst") or "libXtst.so.6")
+        self.x11.XOpenDisplay.restype = ctypes.c_void_p
+        self.x11.XOpenDisplay.argtypes = [ctypes.c_char_p]
+        self.x11.XFlush.argtypes = [ctypes.c_void_p]
+        self.x11.XCloseDisplay.argtypes = [ctypes.c_void_p]
+        self.xtst.XTestFakeRelativeMotionEvent.argtypes = [
+            ctypes.c_void_p, ctypes.c_int, ctypes.c_int, ctypes.c_ulong]
+        self.display = self.x11.XOpenDisplay(None)  # uses $DISPLAY
+        if not self.display:
+            raise SystemExit("cannot open X display (is DISPLAY set?)")
+
+    def send(self, units):
+        dx, dy = units
+        self.xtst.XTestFakeRelativeMotionEvent(self.display, dx, dy, 0)
+        self.x11.XFlush(self.display)
+
+    def close(self):
+        self.x11.XCloseDisplay(self.display)
 
 
 class Settings:
@@ -217,16 +260,18 @@ class Motion:
     reversing j -> k) carries on from the current velocity and acceleration.
     """
 
-    def __init__(self, settings, units_per_click):
+    def __init__(self, settings, units_per_click, speed_key="speed"):
         self.settings = settings
         self.units_per_click = units_per_click
+        self.speed_key = speed_key  # setting giving full speed, per unit above
         self.velocity = 0.0   # units/second, signed
         self.accel = 0.0      # units/second^2
         self.remainder = 0.0  # sub-unit carry so no motion is lost
 
     def step(self, direction, dt):
         """Advance by dt seconds and return whole wheel units to send."""
-        target = direction * self.settings.speed * self.units_per_click
+        target = (direction * self.settings.values[self.speed_key]
+                  * self.units_per_click)
         t90 = self.settings.ease_in if direction else self.settings.ease_out
         v0 = self.velocity
         if t90 == 0:
@@ -256,16 +301,18 @@ class Motion:
         return self.velocity != 0.0
 
 
-def run(wheel, settings):
+def run(output, layers, motions, settings):
+    """Follow `layers` via keyd listen, easing each axis of `motions` toward
+    the held direction and sending whole units to `output` every tick."""
     listen = subprocess.Popen(["keyd", "listen"], stdout=subprocess.PIPE,
                               bufsize=0)
     held = set()
-    motion = Motion(settings, wheel.units_per_click)
     buf = b""
     next_tick = None  # monotonic deadline of the next scroll event
     try:
         while True:
-            if held or motion.moving:
+            moving = any(m.moving for m in motions)
+            if held or moving:
                 if next_tick is None:
                     next_tick = time.monotonic()  # respond to a press at once
                 timeout = max(0.0, next_tick - time.monotonic())
@@ -281,23 +328,23 @@ def run(wheel, settings):
                 for line in lines:
                     line = line.decode(errors="replace").strip()
                     name = line[1:]
-                    if name not in LAYER_DIRECTION:
+                    if name not in layers:
                         continue
                     if line[0] == "+":
                         held.add(name)
                     elif line[0] == "-":
                         held.discard(name)
-                if not motion.moving:
+                if not any(m.moving for m in motions):
                     settings.refresh()  # pick up config edits between scrolls
                 continue  # key events only change `held`; ticks do the moving
             # Fixed deadlines (not "sleep one period") keep events evenly
             # spaced, and a fixed dt makes every step at a steady speed the
             # same size: uneven steps are what the eye sees as judder.
             period = settings.period
-            direction = sum(LAYER_DIRECTION[n] for n in held)
-            units = motion.step(direction, period)
-            if units:
-                wheel.scroll(units)
+            units = [m.step(sum(layers[n][axis] for n in held), period)
+                     for axis, m in enumerate(motions)]
+            if any(units):
+                output.send(units)
             now = time.monotonic()
             next_tick += period
             if now - next_tick > period:
@@ -308,19 +355,26 @@ def run(wheel, settings):
 
 
 def main():
-    continuous = continuous_mode_ready()
-    print(f"scroll mode: {'continuous' if continuous else 'wheel'}",
-          file=sys.stderr, flush=True)
-    wheel = VirtualWheel(continuous)
     settings = Settings()
+    if "--mouse" in sys.argv[1:]:
+        output = XTestPointer()
+        layers = MOUSE_LAYERS
+        motions = [Motion(settings, 1, "mouse_speed") for _ in range(2)]
+    else:
+        continuous = continuous_mode_ready()
+        print(f"scroll mode: {'continuous' if continuous else 'wheel'}",
+              file=sys.stderr, flush=True)
+        output = VirtualWheel(continuous)
+        layers = SCROLL_LAYERS
+        motions = [Motion(settings, output.units_per_click)]
     try:
         while True:
-            run(wheel, settings)
-            time.sleep(1)  # keyd restarting; reconnect
+            run(output, layers, motions, settings)
+            time.sleep(1)  # keyd restarting (or no socket access); retry
     except KeyboardInterrupt:
         pass
     finally:
-        wheel.close()
+        output.close()
 
 
 if __name__ == "__main__":

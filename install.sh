@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Install everything capsnav needs: system packages, keyd (built from
-# keyd-src) and its config, the smooth-scroll helper, the Caps+p
+# keyd-src) and its config, the smooth-scroll and pointer-motion helper, the Caps+p
 # switch-monitor script, hints for Caps+g, and the GNOME shortcuts.
 # Run as your normal user; it uses sudo where needed. Safe to re-run.
 set -e
@@ -45,6 +45,16 @@ sudo install -m644 capsnav-scroll.service /etc/systemd/system/capsnav-scroll.ser
 sudo systemctl daemon-reload
 sudo systemctl enable capsnav-scroll
 sudo systemctl restart capsnav-scroll
+# Pointer motion (Caps+Space+i/j/k/l): same program as a user service, since
+# XTest needs your X session. The keyd group lets it read `keyd listen`.
+if ! id -nG "$USER" | grep -qw keyd; then
+	sudo usermod -aG keyd "$USER"
+	need_reboot=1
+fi
+install -Dm644 capsnav-mouse.service "$HOME/.config/systemd/user/capsnav-mouse.service"
+systemctl --user daemon-reload
+systemctl --user enable capsnav-mouse
+systemctl --user restart capsnav-mouse
 
 sudo install -m755 capsnav-switch-monitor.sh /usr/local/bin/capsnav-switch-monitor
 
