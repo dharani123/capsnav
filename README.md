@@ -25,6 +25,7 @@ Hold Caps Lock for arrow keys on i/j/k/l and more, using keyd (v2.6.0, built fro
 | Space+m | Right click |
 | p      | Move pointer + focus to the other monitor |
 | g      | Click hints: label everything clickable, type a label to click it |
+| b      | Window switcher (Alt+Tab): hold Caps, tap b to cycle, j/l to move, release to pick |
 | Alt+j  | Ctrl+PageUp (previous tab)  |
 | Alt+l  | Ctrl+PageDown (next tab)    |
 
