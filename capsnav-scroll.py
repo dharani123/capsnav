@@ -50,7 +50,7 @@ DEFAULTS = {
     "scroll_speed": 7.0,         # wheel clicks per second at full speed
     "scroll_ease_in_ms": 100.0,  # time to reach ~90% of full speed after pressing
     "pointer_speed": 1000.0,     # pointer pixels per second at full speed
-    "pointer_ease_in_ms": 350.0, # like scroll_ease_in_ms; slower so short
+    "pointer_ease_in_ms": 400.0, # like scroll_ease_in_ms; slower so short
                                  # taps nudge the pointer precisely
     "ease_out_ms": 200.0,        # time to lose ~90% of speed after releasing
     "tick_hz": 120.0,            # events per second while moving
