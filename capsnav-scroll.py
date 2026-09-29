@@ -53,8 +53,8 @@ DEFAULTS = {
     "pointer_ease_in_ms": 400.0, # like scroll_ease_in_ms; slower so short
                                  # taps nudge the pointer precisely
     "scroll_ease_out_ms": 200.0, # time to lose ~90% of speed after releasing
-    "pointer_ease_out_ms": 80.0, # same for the pointer; short, since a click
-                                 # during the glide turns into a drag
+    "pointer_ease_out_ms": 120.0, # same for the pointer; short, since a click
+                                  # during the glide turns into a drag
     "tick_hz": 120.0,            # events per second while moving
 }
 # Settings that must be > 0 (others >= 0).

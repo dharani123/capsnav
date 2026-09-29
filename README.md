@@ -135,8 +135,8 @@ It eases in and glides to a stop on the same spring as scrolling.
 In `mouse.conf`, `pointer_speed` sets the top speed in pixels per second,
 `pointer_ease_in_ms` the ease-in (slower than scrolling's by default, so a quick
 tap nudges the pointer a few pixels), and `pointer_ease_out_ms` the glide after
-release (80 ms by default: a soft stop in about a tenth of a second, short
-because a click while the pointer is still gliding turns into a drag). The event rate `tick_hz` is shared
+release (120 ms by default: a smooth stop in about 150 ms; kept short because
+a click while the pointer is still gliding turns into a drag). The event rate `tick_hz` is shared
 with scrolling.
 
 keyd turns on the empty layers `mouseleft` / `mouseright` / `mouseup` /
