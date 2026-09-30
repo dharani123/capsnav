@@ -8,7 +8,7 @@ gliding to a stop on release, so scrolling looks like a touchpad rather than
 jumping one wheel notch at a time.
 
 With --mouse it instead moves the pointer while Caps+i/j/k/l hold the
-layers `mouseleft` / `mouseright` / `mouseup` / `mousedown`, on the same spring
+layers `ijklleft` / `ijklright` / … (and the `esdf…` ones), on the same spring
 curve. It moves the pointer through XTest, which (unlike a virtual mouse)
 bypasses pointer acceleration, so the curve arrives exactly. That needs the
 user's X session, so --mouse runs as a user service, not as root.
@@ -37,6 +37,7 @@ import ctypes.util
 import fcntl
 import math
 import os
+import re
 import select
 import struct
 import subprocess
@@ -57,6 +58,7 @@ DEFAULTS = {
     "pointer_ease_out_ms": 120.0, # same for the pointer; short, since a click
                                   # during the glide turns into a drag
     "tick_hz": 120.0,            # events per second while moving
+    "pointer_snap_margin_px": 40.0,  # how far inside the edge a snap lands
     "vsync": 1.0,                # scroll: 1 = one step per screen refresh
     "vsync_crtc": 0.0,           # which display pipe to follow (see mouse.conf)
 }
@@ -73,8 +75,48 @@ SCROLL_LAYERS = {"scrolldown": (-1,), "scrollup": (1,)}
 # Alt ("alt") or Super ("meta", left of Space on some keyboards) halves it. Checked every tick, so pressing or releasing them
 # mid-scroll changes speed at once (eased by the spring).
 SCROLL_SPEED_LAYERS = {"arrows": 3.0, "alt": 0.5, "meta": 0.5}
-MOUSE_LAYERS = {"mouseleft": (-1, 0), "mouseright": (1, 0),
-                "mouseup": (0, -1), "mousedown": (0, 1)}
+# Pointer keys: two clusters, Caps+i/j/k/l and Caps+e/s/d/f, each turning on
+# its own layers. Depending on the pointer mode (Caps+x cycles it), a cluster
+# either moves the pointer smoothly or snaps it to that edge of its screen.
+POINTER_LAYERS = {}
+for _cluster in ("ijkl", "esdf"):
+    for _side, _dir in (("left", (-1, 0)), ("right", (1, 0)),
+                        ("up", (0, -1)), ("down", (0, 1))):
+        POINTER_LAYERS[_cluster + _side] = (_cluster, _dir)
+MOUSE_LAYERS = {name: d for name, (_, d) in POINTER_LAYERS.items()}
+# (label, clusters that snap); Caps+x cycles through these.
+POINTER_MODES = [("both move", set()),
+                 ("e/s/d/f snap, i/j/k/l move", {"esdf"}),
+                 ("i/j/k/l snap, e/s/d/f move", {"ijkl"})]
+POINTER_MODE_PATH = os.path.expanduser("~/.config/capsnav/pointer-mode")
+
+
+class PointerMode:
+    """The current POINTER_MODES index, kept in POINTER_MODE_PATH so it
+    survives restarts. Default: e/s/d/f snap, i/j/k/l move."""
+
+    def __init__(self):
+        try:
+            with open(POINTER_MODE_PATH) as f:
+                self.index = int(f.read().strip()) % len(POINTER_MODES)
+        except (OSError, ValueError):
+            self.index = 1
+
+    @property
+    def snapping(self):
+        return POINTER_MODES[self.index][1]
+
+    def cycle(self):
+        self.index = (self.index + 1) % len(POINTER_MODES)
+        try:
+            os.makedirs(os.path.dirname(POINTER_MODE_PATH), exist_ok=True)
+            with open(POINTER_MODE_PATH, "w") as f:
+                f.write(f"{self.index}\n")
+        except OSError:
+            pass
+        subprocess.Popen(["notify-send", "-t", "1500", "-h", "int:transient:1",
+                          f"Pointer keys: {POINTER_MODES[self.index][0]}"],
+                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 # --- uinput -----------------------------------------------------------------
 EV_SYN, EV_KEY, EV_REL = 0x00, 0x01, 0x02
@@ -193,6 +235,9 @@ class XTestPointer:
         self.x11.XCloseDisplay.argtypes = [ctypes.c_void_p]
         self.xtst.XTestFakeRelativeMotionEvent.argtypes = [
             ctypes.c_void_p, ctypes.c_int, ctypes.c_int, ctypes.c_ulong]
+        self.xtst.XTestFakeMotionEvent.argtypes = [
+            ctypes.c_void_p, ctypes.c_int, ctypes.c_int, ctypes.c_int,
+            ctypes.c_ulong]
         self.x11.XDefaultRootWindow.restype = ctypes.c_ulong
         self.x11.XDefaultRootWindow.argtypes = [ctypes.c_void_p]
         self.x11.XQueryPointer.argtypes = [ctypes.c_void_p, ctypes.c_ulong] + [
@@ -206,17 +251,40 @@ class XTestPointer:
         self.xtst.XTestFakeRelativeMotionEvent(self.display, dx, dy, 0)
         self.x11.XFlush(self.display)
 
-    def button_down(self):
-        """True while any mouse button (left, middle, right) is pressed."""
+    def _query(self):
+        """Pointer (root x, root y, button mask)."""
         root = self.x11.XDefaultRootWindow(self.display)
         win = ctypes.c_ulong()
-        pos = ctypes.c_int()
+        xs = [ctypes.c_int() for _ in range(4)]
         mask = ctypes.c_uint()
         self.x11.XQueryPointer(self.display, root, ctypes.byref(win),
-                               ctypes.byref(win), ctypes.byref(pos),
-                               ctypes.byref(pos), ctypes.byref(pos),
-                               ctypes.byref(pos), ctypes.byref(mask))
-        return bool(mask.value & (0b111 << 8))  # Button1Mask..Button3Mask
+                               ctypes.byref(win), *map(ctypes.byref, xs),
+                               ctypes.byref(mask))
+        return xs[0].value, xs[1].value, mask.value
+
+    def button_down(self):
+        """True while any mouse button (left, middle, right) is pressed."""
+        return bool(self._query()[2] & (0b111 << 8))  # Button1..3Mask
+
+    def snap(self, direction, margin):
+        """Jump to `margin` px inside the edge of the pointer's monitor in
+        `direction` (dx, dy), keeping the other coordinate."""
+        x, y, _ = self._query()
+        out = subprocess.run(["xrandr", "--listmonitors"], capture_output=True,
+                             text=True).stdout
+        for w, h, mx, my in re.findall(r"(\d+)/\d+x(\d+)/\d+\+(\d+)\+(\d+)", out):
+            w, h, mx, my = map(int, (w, h, mx, my))
+            if mx <= x < mx + w and my <= y < my + h:
+                break
+        else:
+            return
+        dx, dy = direction
+        if dx:
+            x = mx + margin if dx < 0 else mx + w - 1 - margin
+        if dy:
+            y = my + margin if dy < 0 else my + h - 1 - margin
+        self.xtst.XTestFakeMotionEvent(self.display, -1, int(x), int(y), 0)
+        self.x11.XFlush(self.display)
 
     def close(self):
         self.x11.XCloseDisplay(self.display)
@@ -407,6 +475,7 @@ def run(output, layers, motions, settings, vblank=None):
     listen = subprocess.Popen(["keyd", "listen"], stdout=subprocess.PIPE,
                               bufsize=0)
     held = set()
+    mode = PointerMode() if hasattr(output, "snap") else None
     modifiers = set()  # active SCROLL_SPEED_LAYERS (scrolling only)
     buf = b""
     next_tick = None  # monotonic deadline of the next scroll event
@@ -440,6 +509,19 @@ def run(output, layers, motions, settings, vblank=None):
                 for line in lines:
                     line = line.decode(errors="replace").strip()
                     name = line[1:]
+                    if mode and name == "pointermode":
+                        if line[0] == "+":
+                            mode.cycle()
+                        continue
+                    if (mode and name in POINTER_LAYERS
+                            and POINTER_LAYERS[name][0] in mode.snapping):
+                        if line[0] == "+":
+                            output.snap(POINTER_LAYERS[name][1], settings.values[
+                                "pointer_snap_margin_px"])
+                            for m in motions:  # drop any glide
+                                m.velocity = m.accel = m.remainder = 0.0
+                        held.discard(name)
+                        continue
                     if name in SCROLL_SPEED_LAYERS and layers is SCROLL_LAYERS:
                         if line[0] == "+":
                             modifiers.add(name)

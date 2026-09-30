@@ -5,9 +5,10 @@ Hold Caps Lock to drive the mouse from i/j/k/l and more, using keyd (v2.6.0, bui
 | Caps + | Sends       |
 |--------|-------------|
 | i/j/k/l | Move the mouse pointer up/left/down/right (hold; combine for diagonals) |
-| e/s/d/f | Same movement on the left hand (up/left/down/right). Down-left (s+d) may not register on some laptop keyboards: they can't detect Caps+S+D together (hardware ghosting); use j+k instead |
+| e/s/d/f | Up/left/down/right on the left hand: snap to that screen edge or move, depending on the pointer mode (x) |
+| x      | Cycle the pointer mode: both clusters move / e-s-d-f snap, i-j-k-l move / i-j-k-l snap, e-s-d-f move (notification shows which) |
 | g      | Left click; hold g and move to select text or drag, release to drop |
-| h      | Left click (right hand, while moving with e/s/d/f) |
+| h      | Left click (also on g) |
 | ;      | Right click |
 | Space+i/j/k/l | Arrow keys up/left/down/right |
 | t      | Ctrl+Home (top of page)    |
@@ -155,14 +156,28 @@ release (120 ms by default: a smooth stop in about 150 ms; kept short because
 a click while the pointer is still gliding turns into a drag). The event rate `tick_hz` is shared
 with scrolling.
 
-keyd turns on the empty layers `mouseleft` / `mouseright` / `mouseup` /
-`mousedown`, and `capsnav-scroll --mouse` (the user service
+keyd turns on the empty layers `ijklleft` / `ijklright` / `ijklup` /
+`ijkldown` (and `esdf…` for e/s/d/f), and `capsnav-scroll --mouse` (the user service
 `capsnav-mouse`) watches them. It moves the pointer with XTest rather than a
 virtual mouse, because GNOME applies pointer acceleration to every mouse,
 which would bend the curve; XTest moves exact pixels. XTest needs your X
 session, so this part runs as you rather than root, and `install.sh` adds you
 to the `keyd` group so it can read `keyd listen` (takes effect at next login).
 X11 only.
+
+### Snap to an edge, and the pointer mode (Caps+x)
+A snap jumps the pointer `pointer_snap_margin_px` (40) inside that edge of the
+screen it's on, keeping its other coordinate: e.g. up then left = top-left
+corner; then fine-tune with the moving keys. Caps+x cycles which cluster does
+what, with a notification each time:
+
+| Mode | e/s/d/f | i/j/k/l |
+|---|---|---|
+| 1 | move | move |
+| 2 (default) | snap | move |
+| 3 | move | snap |
+
+The mode is kept in `~/.config/capsnav/pointer-mode`, so it survives restarts.
 
 ## Switching monitors
 keyd runs as root with no access to your X session, so Caps+p can't run the
