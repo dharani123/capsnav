@@ -23,6 +23,7 @@ Hold Caps Lock to drive the mouse from i/j/k/l and more, using keyd (v2.6.0, bui
 | n      | Smooth scroll up (hold)   |
 | m      | Smooth scroll down (hold) |
 | Space+n/m | Smooth scroll up/down at double speed |
+| 7      | PrtSc (screenshot) |
 | p      | Move pointer + focus to the other monitor |
 | u      | Centre the pointer on the current monitor |
 | b      | Window switcher (Alt+Tab): hold Caps, tap b to cycle, j/l to move, release to pick |
