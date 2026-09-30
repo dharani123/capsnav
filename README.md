@@ -69,6 +69,7 @@ For smooth Caps+n/m scrolling in VS Code, add these to your VS Code
 ## Files
 - `default.conf`: the keyd config. The live copy is `/etc/keyd/default.conf`.
 - `keyd-src/`: keyd source used for the install.
+- `check.sh`: read-only diagnostics for the whole setup (see below).
 - `install.sh`: installs everything above (packages, keyd, config, scroll and pointer helper, switch-monitor, GNOME shortcut). Safe to re-run.
 - `capsnav-scroll.py`: smooth-scroll helper, installed as `/usr/local/bin/capsnav-scroll`.
 - `capsnav-scroll.service`: systemd unit that runs the helper.
@@ -164,6 +165,15 @@ Caps+u works the same way (Super+Alt+U, shortcut "capsnav: center pointer")
 and runs `capsnav-switch-monitor --center`, which only moves the pointer to the
 centre of the monitor it's on. To reach a far corner quickly: Caps+u, then
 i/j/k/l.
+
+## Checking the setup
+`./check.sh` checks everything `install.sh` sets up and prints `[ OK ]`,
+`[WARN]` or `[FAIL]` for each item, with a hint for anything wrong: X11 vs
+Wayland, keyd running and its config, a conflicting distro keyd, keyd group
+membership (including "log out and back in"), both services, dependencies,
+X11 access and the GNOME shortcuts. It's read-only and needs no sudo. Run it
+in a terminal inside the desktop session; if something doesn't work, share
+the whole output.
 
 ## Common tasks
 - Apply config edits: `sudo cp default.conf /etc/keyd/default.conf && sudo keyd reload`

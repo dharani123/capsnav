@@ -99,6 +99,7 @@ if sudo journalctl -u capsnav-scroll -n 50 -o cat | grep "scroll mode" | tail -1
 	need_reboot=1
 fi
 echo
+echo "Run ./check.sh any time to verify the setup (share its output when asking for help)."
 if [ -n "$need_reboot" ]; then
 	echo "Done. Reboot once to finish (smooth scroll and the keyd group load at login)."
 else
