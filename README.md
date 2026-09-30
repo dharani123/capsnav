@@ -11,7 +11,7 @@ Hold Caps Lock to drive the mouse from i/j/k/l and more, using keyd (v2.6.0, bui
 | ;      | Right click |
 | Space+i/j/k/l | Arrow keys up/left/down/right |
 | t      | Ctrl+Home (top of page)    |
-| w      | Ctrl+End (bottom of page)  |
+| q / w  | Previous / next tab (Ctrl+PageUp / Ctrl+PageDown) |
 | c      | Ctrl+Shift+C (copy in terminals) |
 | v      | Ctrl+Shift+V (paste in terminals; plain-text paste in browsers) |
 | y      | Home (start of line)       |
@@ -120,6 +120,17 @@ Other details that keep it fluid:
   and a softer stop lets your eyes keep their place.
 - **Modest values:** Chrome and VS Code (with `smoothScrolling`) add their own
   animation on top.
+
+### In step with the screen (vsync)
+A timer at 60 Hz drifts against a 60 Hz screen: when a scroll event lands on
+a frame boundary, one frame gets two steps and the next none, which reads as
+text moving in steps. So by default (`vsync = 1`) the helper waits for each
+refresh of one screen (DRM `WAIT_VBLANK` on `/dev/dri/card*`) and sends exactly
+one step per frame, sized by the measured frame time; at steady speed the step
+is rounded to a whole number of units, so every frame moves the same distance.
+`vsync_crtc` picks the screen's display pipe (here 0 = laptop, 1 = HDMI; the
+other screen drifts slightly). If the wait fails it falls back to `tick_hz`.
+`journalctl -u capsnav-scroll` shows `vsync: available via /dev/dri/card1`.
 
 ### Tuning
 Preview settings without installing, as curves and numbers:

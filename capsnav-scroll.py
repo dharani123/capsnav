@@ -41,6 +41,7 @@ import select
 import struct
 import subprocess
 import sys
+import threading
 import time
 
 # --- Tuning -----------------------------------------------------------------
@@ -56,6 +57,8 @@ DEFAULTS = {
     "pointer_ease_out_ms": 120.0, # same for the pointer; short, since a click
                                   # during the glide turns into a drag
     "tick_hz": 120.0,            # events per second while moving
+    "vsync": 1.0,                # scroll: 1 = one step per screen refresh
+    "vsync_crtc": 0.0,           # which display pipe to follow (see mouse.conf)
 }
 # Settings that must be > 0 (others >= 0).
 POSITIVE = {"scroll_speed", "pointer_speed", "tick_hz"}
@@ -217,6 +220,64 @@ class XTestPointer:
         self.x11.XCloseDisplay(self.display)
 
 
+class VBlank(threading.Thread):
+    """Wakes the scroll loop once per refresh of one screen, via the DRM
+    WAIT_VBLANK ioctl on /dev/dri/card*. While `active` is set it writes a
+    byte to `self.r` after every vblank; `period` tracks the measured frame
+    interval. If waiting fails (screen off, bad pipe) it falls back to a timer
+    so scrolling keeps working."""
+
+    IOCTL = 0xC018643A  # _IOWR('d', 0x3a, union drm_wait_vblank), 24 bytes
+
+    def __init__(self, settings):
+        super().__init__(daemon=True)
+        self.settings = settings
+        self.fd = None
+        for card in sorted(p for p in os.listdir("/dev/dri") if p.startswith("card")):
+            try:
+                fd = os.open(f"/dev/dri/{card}", os.O_RDWR)
+                self.fd, self.card = fd, card
+                self._wait(int(settings.values["vsync_crtc"]))
+                break
+            except OSError:
+                if self.fd is not None:
+                    os.close(self.fd)
+                self.fd = None
+        if self.fd is None:
+            raise OSError("no /dev/dri/card* supports vblank waits")
+        self.r, self._w = os.pipe()
+        os.set_blocking(self.r, False)
+        self.active = threading.Event()
+        self.period = settings.period
+
+    def _wait(self, crtc):
+        kind = 0x1  # _DRM_VBLANK_RELATIVE: the next vblank
+        if crtc == 1:
+            kind |= 0x20000000  # _DRM_VBLANK_SECONDARY
+        elif crtc > 1:
+            kind |= (crtc << 1) & 0x3E  # _DRM_VBLANK_HIGH_CRTC
+        buf = bytearray(struct.pack("IIqq", kind, 1, 0, 0))
+        fcntl.ioctl(self.fd, self.IOCTL, buf, True)
+        _, seq, sec, usec = struct.unpack("IIqq", buf)
+        return seq, sec + usec / 1e6
+
+    def run(self):
+        last = None  # (sequence, timestamp) of the previous vblank
+        while True:
+            self.active.wait()
+            try:
+                seq, stamp = self._wait(int(self.settings.values["vsync_crtc"]))
+                if last and seq == last[0] + 1:
+                    # Smooth the measured interval; steps use it as dt, so
+                    # each frame moves the same distance.
+                    self.period += 0.1 * (stamp - last[1] - self.period)
+                last = (seq, stamp)
+            except OSError:
+                last = None
+                time.sleep(self.settings.period)
+            os.write(self._w, b"v")
+
+
 class Settings:
     """`key = value` settings from CONFIG_PATH, reloaded when the file changes."""
 
@@ -295,10 +356,15 @@ class Motion:
         self.accel = 0.0      # units/second^2
         self.remainder = 0.0  # sub-unit carry so no motion is lost
 
-    def step(self, direction, dt):
-        """Advance by dt seconds and return whole wheel units to send."""
+    def step(self, direction, dt, whole_steps=False):
+        """Advance by dt seconds and return whole wheel units to send.
+        With `whole_steps`, the full speed is rounded to a whole number of
+        units per step, so a steady scroll moves every frame by exactly the
+        same amount (e.g. 5.01 units/frame would add a 6 every ~100 frames)."""
         target = (direction * self.settings.values[self.speed_key]
                   * self.units_per_click)
+        if whole_steps and target:
+            target = max(1, round(abs(target) * dt)) / dt * (1 if target > 0 else -1)
         if direction:
             t90 = self.settings.values[self.ease_in_key] / 1000
         else:
@@ -331,9 +397,11 @@ class Motion:
         return self.velocity != 0.0
 
 
-def run(output, layers, motions, settings):
+def run(output, layers, motions, settings, vblank=None):
     """Follow `layers` via keyd listen, easing each axis of `motions` toward
-    the held direction and sending whole units to `output` every tick."""
+    the held direction and sending whole units to `output` every tick. With
+    `vblank` (and the vsync setting on), ticks come from screen refreshes
+    instead of a timer."""
     listen = subprocess.Popen(["keyd", "listen"], stdout=subprocess.PIPE,
                               bufsize=0)
     held = set()
@@ -342,14 +410,25 @@ def run(output, layers, motions, settings):
     try:
         while True:
             moving = any(m.moving for m in motions)
-            if held or moving:
+            synced = vblank is not None and settings.values["vsync"]
+            fds = [listen.stdout]
+            if synced:
+                # One step per screen refresh: every frame moves the same
+                # amount, instead of a timer drifting against the display.
+                timeout = None
+                if held or moving:
+                    vblank.active.set()
+                    fds.append(vblank.r)
+                else:
+                    vblank.active.clear()
+            elif held or moving:
                 if next_tick is None:
                     next_tick = time.monotonic()  # respond to a press at once
                 timeout = max(0.0, next_tick - time.monotonic())
             else:
                 next_tick, timeout = None, None  # idle: sleep until a key
-            ready, _, _ = select.select([listen.stdout], [], [], timeout)
-            if ready:
+            ready, _, _ = select.select(fds, [], [], timeout)
+            if listen.stdout in ready:
                 chunk = os.read(listen.stdout.fileno(), 512)
                 if not chunk:
                     return  # keyd went away; caller restarts us
@@ -370,7 +449,14 @@ def run(output, layers, motions, settings):
             # Fixed deadlines (not "sleep one period") keep events evenly
             # spaced, and a fixed dt makes every step at a steady speed the
             # same size: uneven steps are what the eye sees as judder.
-            period = settings.period
+            if synced:
+                try:
+                    os.read(vblank.r, 64)  # consume this refresh's wakeup(s)
+                except BlockingIOError:
+                    pass
+                period = vblank.period
+            else:
+                period = settings.period
             # Pointer: a click during the glide after release would drag the
             # clicked thing along the rest of the glide, so stop dead instead.
             if (not held and hasattr(output, "button_down")
@@ -378,10 +464,13 @@ def run(output, layers, motions, settings):
                 for m in motions:
                     m.velocity = m.accel = m.remainder = 0.0
                 continue
-            units = [m.step(sum(layers[n][axis] for n in held), period)
+            units = [m.step(sum(layers[n][axis] for n in held), period,
+                            whole_steps=synced)
                      for axis, m in enumerate(motions)]
             if any(units):
                 output.send(units)
+            if synced:
+                continue
             now = time.monotonic()
             next_tick += period
             if now - next_tick > period:
@@ -406,9 +495,19 @@ def main():
         output = VirtualWheel(continuous)
         layers = SCROLL_LAYERS
         motions = [Motion(settings, output.units_per_click)]
+    vblank = None
+    if "--mouse" not in sys.argv[1:]:
+        try:
+            vblank = VBlank(settings)
+            vblank.start()
+            print(f"vsync: available via /dev/dri/{vblank.card}",
+                  file=sys.stderr, flush=True)
+        except OSError as e:
+            print(f"vsync: unavailable ({e}); using tick_hz", file=sys.stderr,
+                  flush=True)
     try:
         while True:
-            run(output, layers, motions, settings)
+            run(output, layers, motions, settings, vblank)
             time.sleep(1)  # keyd restarting (or no socket access); retry
     except KeyboardInterrupt:
         pass
