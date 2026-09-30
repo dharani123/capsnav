@@ -68,9 +68,11 @@ T90_FACTOR = 3.89
 
 # Layer -> direction vector. Scroll: (wheel,), +1 = up. Mouse: (x, y) in
 # screen pixels, +y = down.
-# The *fast layers (Caps+Space+n/m) scroll at double speed.
-SCROLL_LAYERS = {"scrolldown": (-1,), "scrollup": (1,),
-                 "scrolldownfast": (-2,), "scrollupfast": (2,)}
+SCROLL_LAYERS = {"scrolldown": (-1,), "scrollup": (1,)}
+# While scrolling, holding Space (keyd layer "arrows") doubles the speed and
+# Alt ("alt") halves it. Checked every tick, so pressing or releasing them
+# mid-scroll changes speed at once (eased by the spring).
+SCROLL_SPEED_LAYERS = {"arrows": 2.0, "alt": 0.5}
 MOUSE_LAYERS = {"mouseleft": (-1, 0), "mouseright": (1, 0),
                 "mouseup": (0, -1), "mousedown": (0, 1)}
 
@@ -405,6 +407,7 @@ def run(output, layers, motions, settings, vblank=None):
     listen = subprocess.Popen(["keyd", "listen"], stdout=subprocess.PIPE,
                               bufsize=0)
     held = set()
+    modifiers = set()  # active SCROLL_SPEED_LAYERS (scrolling only)
     buf = b""
     next_tick = None  # monotonic deadline of the next scroll event
     try:
@@ -437,6 +440,12 @@ def run(output, layers, motions, settings, vblank=None):
                 for line in lines:
                     line = line.decode(errors="replace").strip()
                     name = line[1:]
+                    if name in SCROLL_SPEED_LAYERS and layers is SCROLL_LAYERS:
+                        if line[0] == "+":
+                            modifiers.add(name)
+                        else:
+                            modifiers.discard(name)
+                        continue
                     if name not in layers:
                         continue
                     if line[0] == "+":
@@ -464,8 +473,11 @@ def run(output, layers, motions, settings, vblank=None):
                 for m in motions:
                     m.velocity = m.accel = m.remainder = 0.0
                 continue
-            units = [m.step(sum(layers[n][axis] for n in held), period,
-                            whole_steps=synced)
+            factor = 1.0
+            for name in modifiers:
+                factor *= SCROLL_SPEED_LAYERS[name]
+            units = [m.step(sum(layers[n][axis] for n in held) * factor,
+                            period, whole_steps=synced)
                      for axis, m in enumerate(motions)]
             if any(units):
                 output.send(units)
