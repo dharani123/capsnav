@@ -69,10 +69,10 @@ T90_FACTOR = 3.89
 # Layer -> direction vector. Scroll: (wheel,), +1 = up. Mouse: (x, y) in
 # screen pixels, +y = down.
 SCROLL_LAYERS = {"scrolldown": (-1,), "scrollup": (1,)}
-# While scrolling, holding Space (keyd layer "arrows") triples the speed and
-# Alt ("alt") halves it. Checked every tick, so pressing or releasing them
+# While scrolling, holding Space (keyd layer "arrows") triples the speed, and
+# Alt ("alt") or Super ("meta", left of Space on some keyboards) halves it. Checked every tick, so pressing or releasing them
 # mid-scroll changes speed at once (eased by the spring).
-SCROLL_SPEED_LAYERS = {"arrows": 3.0, "alt": 0.5}
+SCROLL_SPEED_LAYERS = {"arrows": 3.0, "alt": 0.5, "meta": 0.5}
 MOUSE_LAYERS = {"mouseleft": (-1, 0), "mouseright": (1, 0),
                 "mouseup": (0, -1), "mousedown": (0, 1)}
 
