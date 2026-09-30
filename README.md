@@ -22,7 +22,7 @@ Hold Caps Lock to drive the mouse from i/j/k/l and more, using keyd (v2.6.0, bui
 | 9      | Ctrl+Shift+- (VS Code: go forward) |
 | n      | Smooth scroll up (hold)   |
 | m      | Smooth scroll down (hold) |
-| Space+n/m | Smooth scroll at double speed (press or release Space mid-scroll to switch) |
+| Space+n/m | Smooth scroll at triple speed (press or release Space mid-scroll to switch) |
 | Alt+n/m | Smooth scroll at half speed (press or release Alt mid-scroll to switch) |
 | 7      | PrtSc (screenshot) |
 | p      | Move pointer + focus to the other monitor |
