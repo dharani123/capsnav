@@ -71,10 +71,10 @@ T90_FACTOR = 3.89
 # Layer -> direction vector. Scroll: (wheel,), +1 = up. Mouse: (x, y) in
 # screen pixels, +y = down.
 SCROLL_LAYERS = {"scrolldown": (-1,), "scrollup": (1,)}
-# While scrolling, holding Space (keyd layer "arrows") triples the speed, and
-# Alt ("alt") or Super ("meta", left of Space on some keyboards) halves it. Checked every tick, so pressing or releasing them
-# mid-scroll changes speed at once (eased by the spring).
-SCROLL_SPEED_LAYERS = {"arrows": 3.0, "alt": 0.5, "meta": 0.5}
+# While scrolling, holding Space (keyd layer "arrows") scrolls 6x as fast.
+# Checked every tick, so pressing or releasing it mid-scroll changes speed at
+# once (eased by the spring).
+SCROLL_SPEED_LAYERS = {"arrows": 6.0}
 # Pointer keys: two clusters, Caps+i/j/k/l and Caps+e/s/d/f, each turning on
 # its own layers. Depending on the pointer mode (Caps+x cycles it), a cluster
 # either moves the pointer smoothly or snaps it to that edge of its screen.
@@ -509,6 +509,15 @@ def run(output, layers, motions, settings, vblank=None):
                 for line in lines:
                     line = line.decode(errors="replace").strip()
                     name = line[1:]
+                    if mode and name == "mousemode":
+                        # A left Shift tap toggled mouse mode: say so, since keys now
+                        # move the pointer instead of typing.
+                        state = "ON" if line[0] == "+" else "OFF"
+                        subprocess.Popen(
+                            ["notify-send", "-t", "1500", "-h", "int:transient:1",
+                             f"Mouse mode {state}"],
+                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                        continue
                     if mode and name == "pointermode":
                         if line[0] == "+":
                             mode.cycle()

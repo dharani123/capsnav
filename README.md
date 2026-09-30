@@ -23,8 +23,7 @@ Hold Caps Lock to drive the mouse from i/j/k/l and more, using keyd (v2.6.0, bui
 | 9      | Ctrl+Shift+- (VS Code: go forward) |
 | n      | Smooth scroll up (hold)   |
 | m      | Smooth scroll down (hold) |
-| Space+n/m | Smooth scroll at triple speed (press or release Space mid-scroll to switch) |
-| Alt+n/m or Super+n/m | Smooth scroll at half speed (press or release mid-scroll to switch) |
+| Space+n/m | Smooth scroll at 6x speed (press or release Space mid-scroll to switch) |
 | 7      | PrtSc (screenshot) |
 | p      | Move pointer + focus to the other monitor |
 | u      | Centre the pointer on the current monitor |
@@ -70,6 +69,7 @@ For smooth Caps+n/m scrolling in VS Code, add these to your VS Code
 
 ## Files
 - `default.conf`: the keyd config. The live copy is `/etc/keyd/default.conf`.
+- `capsnav-nav`: the Caps-layer bindings, included by `default.conf` (live copy `/etc/keyd/capsnav-nav`).
 - `keyd-src/`: keyd source used for the install.
 - `check.sh`: read-only diagnostics for the whole setup (see below).
 - `install.sh`: installs everything above (packages, keyd, config, scroll and pointer helper, switch-monitor, GNOME shortcut). Safe to re-run.
@@ -179,6 +179,20 @@ what, with a notification each time:
 
 The mode is kept in `~/.config/capsnav/pointer-mode`, so it survives restarts.
 
+## Mouse mode (tap left Shift)
+Tap left Shift on its own (released within 200 ms, no other key) to lock
+the Caps layer on, for stretches of mouse-only use: every Caps
+binding (mouse keys, clicks, n/m scroll with Space for fast, q/w tabs, c/v,
+and the rest) works without holding Caps. A notification says ON or OFF.
+Letters without a Caps binding type normally, but Space acts as in
+Caps+Space (arrows / fast scroll). Another left Shift tap turns it off;
+holding Shift with a letter types capitals as usual. b jumps to the previous
+window (Caps+b's hold-to-cycle switcher needs Caps held).
+
+The bindings live in `capsnav-nav`, which `default.conf` includes in both the
+Caps layer (`[nav]`) and mouse mode (`[mousemode]`); `install.sh` copies it
+to `/etc/keyd/capsnav-nav`.
+
 ## Switching monitors
 keyd runs as root with no access to your X session, so Caps+p can't run the
 script directly. It sends Super+Alt+O instead, and `install.sh` adds a GNOME
@@ -203,7 +217,7 @@ in a terminal inside the desktop session; if something doesn't work, share
 the whole output.
 
 ## Common tasks
-- Apply config edits: `sudo cp default.conf /etc/keyd/default.conf && sudo keyd reload`
+- Apply config edits: `sudo cp capsnav-nav default.conf /etc/keyd/ && sudo systemctl restart keyd`
 - Uninstall: `sudo systemctl disable --now capsnav-scroll keyd && sudo rm -r /etc/systemd/system/capsnav-scroll.service /usr/local/bin/capsnav-scroll /etc/capsnav /etc/X11/xorg.conf.d/50-capsnav-scroll.conf /usr/local/bin/capsnav-switch-monitor && systemctl --user disable --now capsnav-mouse && rm ~/.config/systemd/user/capsnav-mouse.service && sudo gpasswd -d $USER keyd && sudo rm -r /etc/systemd/system/keyd.service.d/capsnav-restart.conf && sudo make -C keyd-src uninstall`, then delete the `[capsnav smooth scroll]` section from `/etc/libinput/local-overrides.quirks` and the "capsnav: switch monitor" and "capsnav: center pointer" shortcuts in Settings → Keyboard → Custom Shortcuts
 - If the keyboard locks up: press Backspace+Escape+Enter together to stop keyd.
 
