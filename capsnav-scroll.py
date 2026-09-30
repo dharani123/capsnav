@@ -89,6 +89,20 @@ POINTER_MODES = [("both move", set()),
                  ("e/s/d/f snap, i/j/k/l move", {"esdf"}),
                  ("i/j/k/l snap, e/s/d/f move", {"ijkl"})]
 POINTER_MODE_PATH = os.path.expanduser("~/.config/capsnav/pointer-mode")
+# capsnav-indicator shows a mouse icon in the top bar while mouse mode is on; the pointer helper starts it and feeds it "on" / "off".
+INDICATOR = None
+
+
+def indicator(state):
+    global INDICATOR
+    try:
+        if INDICATOR is None or INDICATOR.poll() is not None:
+            INDICATOR = subprocess.Popen(["/usr/local/bin/capsnav-indicator"],
+                                         stdin=subprocess.PIPE, text=True)
+        INDICATOR.stdin.write(state + "\n")
+        INDICATOR.stdin.flush()
+    except OSError:
+        INDICATOR = None
 
 
 class PointerMode:
@@ -512,11 +526,7 @@ def run(output, layers, motions, settings, vblank=None):
                     if mode and name == "mousemode":
                         # A left Shift tap toggled mouse mode: say so, since keys now
                         # move the pointer instead of typing.
-                        state = "ON" if line[0] == "+" else "OFF"
-                        subprocess.Popen(
-                            ["notify-send", "-t", "1500", "-h", "int:transient:1",
-                             f"Mouse mode {state}"],
-                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                        indicator("on" if line[0] == "+" else "off")
                         continue
                     if mode and name == "pointermode":
                         if line[0] == "+":

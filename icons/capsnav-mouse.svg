@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+  <!-- Filled white mouse for the top bar (mouse mode on). The gap between
+       the buttons and the wheel is cut out, so the shape reads at 16 px. -->
+  <path fill="#ffffff" fill-rule="evenodd" d="
+    M8 0.5 C5.2 0.5 3.5 2.4 3.5 5.2 V10.5 C3.5 13.4 5.4 15.5 8 15.5
+    C10.6 15.5 12.5 13.4 12.5 10.5 V5.2 C12.5 2.4 10.8 0.5 8 0.5 Z
+    M7.4 1.6 H8.6 V6.3 H11.4 V7.3 H4.6 V6.3 H7.4 Z"/>
+</svg>

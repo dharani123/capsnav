@@ -12,9 +12,11 @@ if command -v apt-get >/dev/null; then
 	# A broken third-party repo shouldn't stop the install.
 	sudo apt-get update || true
 	sudo apt-get install -y git build-essential python3 \
-		xdotool x11-utils x11-xserver-utils
+		xdotool x11-utils x11-xserver-utils \
+		python3-gi gir1.2-gtk-3.0 gir1.2-ayatanaappindicator3-0.1
 elif command -v dnf >/dev/null; then
-	sudo dnf install -y git gcc make python3 xdotool xprop xrandr
+	sudo dnf install -y git gcc make python3 xdotool xprop xrandr \
+		python3-gobject gtk3 libayatana-appindicator-gtk3
 else
 	echo "No apt-get or dnf: install the packages listed in README.md yourself."
 fi
@@ -56,6 +58,9 @@ systemctl --user enable capsnav-mouse
 systemctl --user restart capsnav-mouse
 
 sudo install -m755 capsnav-switch-monitor.sh /usr/local/bin/capsnav-switch-monitor
+# Top-bar mouse icon while mouse mode is on (AppIndicator, GTK 3).
+sudo install -m755 capsnav-indicator.py /usr/local/bin/capsnav-indicator
+sudo install -Dm644 icons/capsnav-mouse.svg /usr/local/share/capsnav/icons/capsnav-mouse.svg
 
 # GNOME custom shortcuts for Caps keys that run a program: keyd (root, no X
 # access) sends a key combo, and GNOME runs the command. Runs as you, not root:
