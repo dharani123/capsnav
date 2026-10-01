@@ -21,14 +21,15 @@ g = leftmouse
 # Left click on the right hand as well
 h = leftmouse
 semicolon = rightmouse
-t = C-home
-# Tabs (browsers, VS Code, terminals): q = previous, w = next
+# Tabs (browsers, VS Code, terminals): q = previous, w = next,
+# t = new tab, y = close tab
 q = C-pageup
 w = C-pagedown
+t = C-t
+y = C-w
 # Copy / paste, terminal style (Ctrl+Shift+C/V)
 c = C-S-c
 v = C-S-v
-y = home
 o = end
 # VS Code: go to definition, go to symbol in file, go back, go forward
 r = f12

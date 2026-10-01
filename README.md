@@ -11,11 +11,10 @@ Hold Caps Lock to drive the mouse from i/j/k/l and more, using keyd (v2.6.0, bui
 | h      | Left click (also on g) |
 | ;      | Right click |
 | Space+i/j/k/l | Arrow keys up/left/down/right |
-| t      | Ctrl+Home (top of page)    |
 | q / w  | Previous / next tab (Ctrl+PageUp / Ctrl+PageDown) |
+| t / y  | New tab / close tab (Ctrl+T / Ctrl+W) |
 | c      | Ctrl+Shift+C (copy in terminals) |
 | v      | Ctrl+Shift+V (paste in terminals; plain-text paste in browsers) |
-| y      | Home (start of line)       |
 | o      | End (end of line)          |
 | r      | F12 (VS Code: go to definition) |
 | a      | Ctrl+Shift+O (VS Code: go to symbol in file) |
