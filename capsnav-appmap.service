@@ -1,0 +1,17 @@
+[Unit]
+Description=capsnav per-app key overrides (keyd-application-mapper, app.conf)
+# Follows window focus in the X session, so it runs as a user service.
+PartOf=graphical-session.target
+After=graphical-session.target
+
+[Service]
+# Use the mapper's plain X11 window tracking: under GNOME it would otherwise
+# insist on its own GNOME Shell extension, which X11 doesn't need.
+Environment=XDG_CURRENT_DESKTOP=X-Generic PYTHONUNBUFFERED=1
+UnsetEnvironment=GNOME_SETUP_DISPLAY
+ExecStart=/usr/local/bin/keyd-application-mapper -v
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=graphical-session.target

@@ -76,6 +76,7 @@ For smooth Caps+n/m scrolling in VS Code, add these to your VS Code
 - `install.sh`: installs everything above (packages, keyd, config, scroll and pointer helper, switch-monitor, GNOME shortcut). Safe to re-run.
 - `capsnav-scroll.py`: smooth-scroll helper, installed as `/usr/local/bin/capsnav-scroll`.
 - `capsnav-scroll.service`: systemd unit that runs the helper.
+- `app.conf`, `capsnav-appmap.service`: per-app key overrides and the user unit running keyd's application mapper.
 - `capsnav-mouse.service`: systemd user unit that runs the same helper with `--mouse` for pointer motion.
 - `mouse.conf`: scroll and pointer speed, easing and event rate. The live copy is `/etc/capsnav/mouse.conf`.
 - `capsnav-switch-monitor.sh`: Caps+p helper, installed as `/usr/local/bin/capsnav-switch-monitor` (see below).
@@ -196,6 +197,26 @@ The bindings live in `capsnav-nav`, which `default.conf` includes in both the
 Caps layer (`[nav]`) and mouse mode (`[mousemode]`); `install.sh` copies it
 to `/etc/keyd/capsnav-nav`.
 
+## Per-app keys (VS Code)
+In VS Code, some left-hand Caps keys (and their mouse-mode versions) do code
+navigation instead:
+
+| Caps + | In VS Code | Elsewhere |
+|---|---|---|
+| q / w | Go back / forward | Previous / next tab |
+| s | Search in this file (Ctrl+F) | Pointer left |
+| d | Go to definition (F12) | Pointer down |
+| f | Find all references (Shift+Alt+F12) | Pointer right |
+| e | Search all files (Ctrl+Shift+F) | Pointer up |
+
+These live in `app.conf` (installed to `~/.config/keyd/app.conf`) and are
+applied by keyd's `keyd-application-mapper`, run as the user service
+`capsnav-appmap`, whenever a window of that class has focus. It uses plain
+X11 focus tracking (needs `python3-xlib`); the service hides GNOME from it,
+otherwise it would ask for its own GNOME Shell extension. To add another app,
+add a `[class]` section (`journalctl --user -u capsnav-appmap` shows each
+focused window's class) and run `systemctl --user restart capsnav-appmap`.
+
 ## Switching monitors
 keyd runs as root with no access to your X session, so Caps+p can't run the
 script directly. It sends Super+Alt+O instead, and `install.sh` adds a GNOME
@@ -221,7 +242,7 @@ the whole output.
 
 ## Common tasks
 - Apply config edits: `sudo cp capsnav-nav default.conf /etc/keyd/ && sudo systemctl restart keyd`
-- Uninstall: `sudo systemctl disable --now capsnav-scroll keyd && sudo rm -r /etc/systemd/system/capsnav-scroll.service /usr/local/bin/capsnav-scroll /etc/capsnav /etc/X11/xorg.conf.d/50-capsnav-scroll.conf /usr/local/bin/capsnav-switch-monitor /usr/local/bin/capsnav-indicator /usr/local/share/capsnav && systemctl --user disable --now capsnav-mouse && rm ~/.config/systemd/user/capsnav-mouse.service && sudo gpasswd -d $USER keyd && sudo rm -r /etc/systemd/system/keyd.service.d/capsnav-restart.conf && sudo make -C keyd-src uninstall`, then delete the `[capsnav smooth scroll]` section from `/etc/libinput/local-overrides.quirks` and the "capsnav: switch monitor" and "capsnav: center pointer" shortcuts in Settings → Keyboard → Custom Shortcuts
+- Uninstall: `sudo systemctl disable --now capsnav-scroll keyd && sudo rm -r /etc/systemd/system/capsnav-scroll.service /usr/local/bin/capsnav-scroll /etc/capsnav /etc/X11/xorg.conf.d/50-capsnav-scroll.conf /usr/local/bin/capsnav-switch-monitor /usr/local/bin/capsnav-indicator /usr/local/share/capsnav && systemctl --user disable --now capsnav-mouse capsnav-appmap && rm ~/.config/systemd/user/capsnav-mouse.service ~/.config/systemd/user/capsnav-appmap.service ~/.config/keyd/app.conf && sudo gpasswd -d $USER keyd && sudo rm -r /etc/systemd/system/keyd.service.d/capsnav-restart.conf && sudo make -C keyd-src uninstall`, then delete the `[capsnav smooth scroll]` section from `/etc/libinput/local-overrides.quirks` and the "capsnav: switch monitor" and "capsnav: center pointer" shortcuts in Settings → Keyboard → Custom Shortcuts
 - If the keyboard locks up: press Backspace+Escape+Enter together to stop keyd.
 
 ## keyd version

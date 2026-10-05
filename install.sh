@@ -13,10 +13,10 @@ if command -v apt-get >/dev/null; then
 	sudo apt-get update || true
 	sudo apt-get install -y git build-essential python3 \
 		xdotool x11-utils x11-xserver-utils \
-		python3-gi gir1.2-gtk-3.0 gir1.2-ayatanaappindicator3-0.1
+		python3-gi gir1.2-gtk-3.0 gir1.2-ayatanaappindicator3-0.1 python3-xlib
 elif command -v dnf >/dev/null; then
 	sudo dnf install -y git gcc make python3 xdotool xprop xrandr \
-		python3-gobject gtk3 libayatana-appindicator-gtk3
+		python3-gobject gtk3 libayatana-appindicator-gtk3 python3-xlib
 else
 	echo "No apt-get or dnf: install the packages listed in README.md yourself."
 fi
@@ -53,9 +53,15 @@ if ! id -nG "$USER" | grep -qw keyd; then
 	need_reboot=1
 fi
 install -Dm644 capsnav-mouse.service "$HOME/.config/systemd/user/capsnav-mouse.service"
+# Per-app overrides (app.conf, e.g. VS Code code navigation) via keyd's
+# application mapper, run as a user service.
+install -Dm644 app.conf "$HOME/.config/keyd/app.conf"
+install -Dm644 capsnav-appmap.service "$HOME/.config/systemd/user/capsnav-appmap.service"
 systemctl --user daemon-reload
 systemctl --user enable capsnav-mouse
 systemctl --user restart capsnav-mouse
+systemctl --user enable capsnav-appmap
+systemctl --user restart capsnav-appmap
 
 sudo install -m755 capsnav-switch-monitor.sh /usr/local/bin/capsnav-switch-monitor
 # Top-bar mouse icon while mouse mode is on (AppIndicator, GTK 3).
