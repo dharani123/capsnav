@@ -183,16 +183,17 @@ what, with a notification each time:
 The mode is kept in `~/.config/capsnav/pointer-mode`, so it survives restarts.
 
 ## Mouse mode (tap left Shift)
-Tap left Shift on its own (released within 200 ms, no other key) to lock
-the Caps layer on, for stretches of mouse-only use: every Caps
-binding (mouse keys, clicks, n/m scroll with Space for fast, q/w tabs, c/v,
-and the rest) works without holding Caps.
-Letters without a Caps binding type normally, but Space acts as in
-Caps+Space (arrows / fast scroll). Another left Shift tap turns it off;
-holding Shift with a letter types capitals as usual. While mouse mode is on, a mouse
-icon shows in the top bar next to Wi-Fi (`capsnav-indicator`, an
-AppIndicator), so you can see the mode at a glance. b jumps to the previous
-window (Caps+b's hold-to-cycle switcher needs Caps held).
+Tap left Shift on its own (released within 200 ms, no other key) to lock the
+Caps layer on, for stretches of mouse-only use: every Caps binding (mouse
+keys, clicks, n/m scroll with Space for fast, q/w tabs, c/v, and the rest)
+works without holding Caps. Letters without a Caps binding type normally, but
+Space acts as in Caps+Space (arrows / fast scroll). Another left Shift tap
+turns it off, clicking first where the pointer is (so the text cursor lands
+there and you can type straight away); holding Shift with a letter types
+capitals as usual. While mouse mode is on, a mouse icon shows in the top bar
+next to Wi-Fi (`capsnav-indicator`, an AppIndicator), so you can see the mode
+at a glance. b jumps to the previous window (Caps+b's hold-to-cycle switcher
+needs Caps held).
 
 The bindings live in `capsnav-nav`, which `default.conf` includes in both the
 Caps layer (`[nav]`) and mouse mode (`[mousemode]`); `install.sh` copies it
