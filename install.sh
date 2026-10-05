@@ -64,6 +64,12 @@ systemctl --user enable capsnav-appmap
 systemctl --user restart capsnav-appmap
 
 sudo install -m755 capsnav-switch-monitor.sh /usr/local/bin/capsnav-switch-monitor
+# Pointer follows keyboard focus (user service: needs the X session).
+sudo install -m755 capsnav-focus-follow.sh /usr/local/bin/capsnav-focus-follow
+install -Dm644 capsnav-focus-follow.service "$HOME/.config/systemd/user/capsnav-focus-follow.service"
+systemctl --user daemon-reload
+systemctl --user enable capsnav-focus-follow
+systemctl --user restart capsnav-focus-follow
 # Top-bar mouse icon while mouse mode is on (AppIndicator, GTK 3).
 sudo install -m755 capsnav-indicator.py /usr/local/bin/capsnav-indicator
 sudo install -Dm644 icons/capsnav-mouse.svg /usr/local/share/capsnav/icons/capsnav-mouse.svg

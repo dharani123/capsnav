@@ -1,0 +1,13 @@
+[Unit]
+Description=capsnav: pointer follows keyboard focus
+# Needs the X session (DISPLAY), so it runs as a user service.
+PartOf=graphical-session.target
+After=graphical-session.target
+
+[Service]
+ExecStart=/usr/local/bin/capsnav-focus-follow
+Restart=always
+RestartSec=1
+
+[Install]
+WantedBy=graphical-session.target
