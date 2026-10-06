@@ -32,8 +32,10 @@ v = C-S-v
 0 = M-l
 # PrtSc (screenshot). The physical PrtSc key sends KEY_SYSRQ.
 7 = sysrq
-# Jump pointer + focus to the other monitor (GNOME shortcut -> capsnav-switch-monitor)
+# Jump pointer + focus to the other monitor (GNOME shortcut -> capsnav-switch-monitor):
+# p on the right hand, r on the left
 p = M-A-o
+r = M-A-o
 # Centre the pointer on the current monitor (GNOME shortcut -> capsnav-switch-monitor --center)
 u = M-A-u
 # Smooth scroll: these layers are watched by capsnav-scroll.py
