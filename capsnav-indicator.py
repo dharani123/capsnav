@@ -47,24 +47,30 @@ def main():
     ind.set_menu(menu)
     ind.set_status(AppIndicator.IndicatorStatus.ACTIVE)  # always shown
 
-    def on_input(source, condition):
-        if condition & (GLib.IO_HUP | GLib.IO_ERR):
-            Gtk.main_quit()
+    # Read the raw fd, not sys.stdin: its buffered readline() can pull two
+    # lines ("off" then "on" at startup) into Python's buffer but return one,
+    # and the watch never fires for the line left behind, so the icon would
+    # stay a step behind. Handle every complete line each time instead.
+    fd = sys.stdin.fileno()
+    pending = b""
+
+    def on_input(_source, condition):
+        nonlocal pending
+        chunk = os.read(fd, 4096) if condition & GLib.IO_IN else b""
+        if not chunk:
+            Gtk.main_quit()  # the helper went away
             return False
-        line = source.readline()
-        if not line:
-            Gtk.main_quit()
-            return False
-        cmd = line.strip()
-        if cmd in ("on", "off"):
-            on = cmd == "on"
-            ind.set_icon_full(ICON_ON if on else ICON_OFF,
-                              "Mouse mode " + cmd)
-            item.set_label(LABEL_ON if on else LABEL_OFF)
+        *lines, pending = (pending + chunk).split(b"\n")
+        for line in lines:
+            cmd = line.decode(errors="replace").strip()
+            if cmd in ("on", "off"):
+                on = cmd == "on"
+                ind.set_icon_full(ICON_ON if on else ICON_OFF,
+                                  "Mouse mode " + cmd)
+                item.set_label(LABEL_ON if on else LABEL_OFF)
         return True
 
-    GLib.io_add_watch(sys.stdin, GLib.IO_IN | GLib.IO_HUP | GLib.IO_ERR,
-                      on_input)
+    GLib.io_add_watch(fd, GLib.IO_IN | GLib.IO_HUP | GLib.IO_ERR, on_input)
     Gtk.main()
 
 
