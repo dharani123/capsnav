@@ -1,0 +1,36 @@
+# Every key mouse mode takes over, mapped back to itself. Included by
+# [mousetype] (Caps held in mouse mode) in default.conf. Installed next to it
+# as /etc/keyd/capsnav-mousetype. Keep in step with capsnav-nav, [mousemode]
+# and [mousemode+control].
+i = i
+j = j
+k = k
+l = l
+e = e
+s = s
+d = d
+f = f
+x = x
+g = g
+h = h
+semicolon = semicolon
+q = q
+w = w
+t = t
+y = y
+c = c
+v = v
+o = o
+r = r
+a = a
+8 = 8
+9 = 9
+7 = 7
+0 = 0
+p = p
+u = u
+n = n
+m = m
+space = space
+b = b
+leftshift = layer(shift)

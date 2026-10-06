@@ -199,8 +199,11 @@ so Alt stays held).
 
 Hold Caps in mouse mode to get the normal keyboard back for as long as Caps
 is down, e.g. Caps+Ctrl+Shift+t or Caps+Ctrl+s, without leaving mouse mode.
-`[mousetype]` in `default.conf` maps each mouse-mode key back to itself, so
-keep it in step when you add a binding to `capsnav-nav`.
+Holding Ctrl does the same on its own: Ctrl+c, Ctrl+s or Ctrl+Shift+t type
+as plain shortcuts instead of the mouse-mode keys. `capsnav-mousetype` maps
+each mouse-mode key back to itself for `[mousetype]`, and
+`[mousemode+control]` in `default.conf` maps it to Ctrl+itself, so keep both
+in step when you add a binding to `capsnav-nav`.
 
 The bindings live in `capsnav-nav`, which `default.conf` includes in both the
 Caps layer (`[nav]`) and mouse mode (`[mousemode]`); `install.sh` copies it
@@ -258,7 +261,7 @@ in a terminal inside the desktop session; if something doesn't work, share
 the whole output.
 
 ## Common tasks
-- Apply config edits: `sudo cp capsnav-nav default.conf /etc/keyd/ && sudo systemctl restart keyd`
+- Apply config edits: `sudo cp capsnav-nav capsnav-mousetype default.conf /etc/keyd/ && sudo systemctl restart keyd`
 - Uninstall: `sudo systemctl disable --now capsnav-scroll keyd && sudo rm -r /etc/systemd/system/capsnav-scroll.service /usr/local/bin/capsnav-scroll /etc/capsnav /etc/X11/xorg.conf.d/50-capsnav-scroll.conf /usr/local/bin/capsnav-switch-monitor /usr/local/bin/capsnav-focus-follow /usr/local/bin/capsnav-indicator /usr/local/share/capsnav && systemctl --user disable --now capsnav-mouse capsnav-appmap capsnav-focus-follow && rm ~/.config/systemd/user/capsnav-mouse.service ~/.config/systemd/user/capsnav-appmap.service ~/.config/systemd/user/capsnav-focus-follow.service ~/.config/keyd/app.conf && sudo gpasswd -d $USER keyd && sudo rm -r /etc/systemd/system/keyd.service.d/capsnav-restart.conf && sudo make -C keyd-src uninstall`, then delete the `[capsnav smooth scroll]` section from `/etc/libinput/local-overrides.quirks` and the "capsnav: switch monitor" and "capsnav: center pointer" shortcuts in Settings → Keyboard → Custom Shortcuts
 - If the keyboard locks up: press Backspace+Escape+Enter together to stop keyd.
 
