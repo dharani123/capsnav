@@ -23,7 +23,7 @@ Hold Caps Lock to drive the mouse from i/j/k/l and more, using keyd (v2.6.0, bui
 | 7      | PrtSc (screenshot) |
 | p / r  | Move pointer + focus to the other monitor (right or left hand) |
 | u      | Centre the pointer on the current monitor |
-| b      | Window switcher (Alt+Tab): hold Caps, tap b to cycle, j/l to move, release to pick |
+| b      | Window switcher (Alt+Tab): hold Caps, tap b to cycle, j/l or s/f to move, release to pick |
 
 ## Install
 Requires Linux with systemd; Caps+p and the mouse keys need GNOME on X11.
@@ -175,7 +175,7 @@ turns it off, clicking first where the pointer is (so the text cursor lands
 there and you can type straight away); holding Shift with a letter types
 capitals as usual. A mouse icon in the top bar next to Wi-Fi
 (`capsnav-indicator`, an AppIndicator) shows the mode at a glance: filled
-while mouse mode is on, outlined while it's off. Clicking the icon opens a menu with **Mappings…** (see below). Hold b for the window switcher: j/l move through it and releasing
+while mouse mode is on, outlined while it's off. Clicking the icon opens a menu with **Mappings…** (see below). Hold b for the window switcher: j/l (or s/f) move through it and releasing
 b picks; a quick tap of b jumps to the previous window. This uses a small
 patch to the bundled keyd (`layerm()` runs its macro after the layer is on,
 so Alt stays held).
