@@ -10,6 +10,10 @@ Hold Caps Lock to drive the mouse from i/j/k/l and more, using keyd (v2.6.0, bui
 | h      | Left click (also on g) |
 | ; / a  | Right click (right or left hand) |
 | Space+i/j/k/l | Arrow keys up/left/down/right |
+| Space+t / Space+b | Top / bottom of the file (Ctrl+Home / Ctrl+End) |
+| Space+h / Space+; | Start / end of the line (Home / End) |
+| Space+u / Space+d | Page up / page down |
+| Space+q / Space+w | Previous / next word (Ctrl+Left / Ctrl+Right) |
 | q / w  | Previous / next tab (Ctrl+PageUp / Ctrl+PageDown) |
 | t / y  | New tab / close tab (Ctrl+T / Ctrl+W) |
 | n      | Smooth scroll up (hold)   |

@@ -192,7 +192,15 @@ class TabsTest(unittest.TestCase):
         self.assertEqual(rows, [("Space + ", "i", "up"),
                                 ("Space + ", "j", "left"),
                                 ("Space + ", "k", "down"),
-                                ("Space + ", "l", "right")])
+                                ("Space + ", "l", "right"),
+                                ("Space + ", "t", "C-home"),
+                                ("Space + ", "b", "C-end"),
+                                ("Space + ", "h", "home"),
+                                ("Space + ", "semicolon", "end"),
+                                ("Space + ", "u", "pageup"),
+                                ("Space + ", "d", "pagedown"),
+                                ("Space + ", "q", "C-left"),
+                                ("Space + ", "w", "C-right")])
 
     def test_unbound_tab(self):
         texts = repo_texts()
