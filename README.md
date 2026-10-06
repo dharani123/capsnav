@@ -8,7 +8,7 @@ Hold Caps Lock to drive the mouse from i/j/k/l and more, using keyd (v2.6.0, bui
 | e/s/d/f | Move the pointer on the left hand too; the same direction on both (e.g. j + s) moves twice as fast |
 | g      | Left click; hold g and move to select text or drag, release to drop |
 | h      | Left click (also on g) |
-| ;      | Right click |
+| ; / a  | Right click (right or left hand) |
 | Space+i/j/k/l | Arrow keys up/left/down/right |
 | q / w  | Previous / next tab (Ctrl+PageUp / Ctrl+PageDown) |
 | t / y  | New tab / close tab (Ctrl+T / Ctrl+W) |
