@@ -70,9 +70,12 @@ install -Dm644 capsnav-focus-follow.service "$HOME/.config/systemd/user/capsnav-
 systemctl --user daemon-reload
 systemctl --user enable capsnav-focus-follow
 systemctl --user restart capsnav-focus-follow
-# Top-bar mouse icon while mouse mode is on (AppIndicator, GTK 3).
+# Top-bar mouse icon: filled while mouse mode is on, outlined while off
+# (AppIndicator, GTK 3).
 sudo install -m755 capsnav-indicator.py /usr/local/bin/capsnav-indicator
+sudo install -m755 capsnav-mappings.py /usr/local/bin/capsnav-mappings
 sudo install -Dm644 icons/capsnav-mouse.svg /usr/local/share/capsnav/icons/capsnav-mouse.svg
+sudo install -Dm644 icons/capsnav-mouse-off.svg /usr/local/share/capsnav/icons/capsnav-mouse-off.svg
 
 # GNOME custom shortcuts for Caps keys that run a program: keyd (root, no X
 # access) sends a key combo, and GNOME runs the command. Runs as you, not root:

@@ -5,8 +5,7 @@ Hold Caps Lock to drive the mouse from i/j/k/l and more, using keyd (v2.6.0, bui
 | Caps + | Sends       |
 |--------|-------------|
 | i/j/k/l | Move the mouse pointer up/left/down/right (hold; combine for diagonals) |
-| e/s/d/f | Up/left/down/right on the left hand: snap to that screen edge or move, depending on the pointer mode (x) |
-| x      | Cycle the pointer mode: both clusters move / e-s-d-f snap, i-j-k-l move / i-j-k-l snap, e-s-d-f move (notification shows which) |
+| e/s/d/f | Move the pointer on the left hand too; the same direction on both (e.g. j + s) moves twice as fast |
 | g      | Left click; hold g and move to select text or drag, release to drop |
 | h      | Left click (also on g) |
 | ;      | Right click |
@@ -15,11 +14,6 @@ Hold Caps Lock to drive the mouse from i/j/k/l and more, using keyd (v2.6.0, bui
 | t / y  | New tab / close tab (Ctrl+T / Ctrl+W) |
 | c      | Ctrl+Shift+C (copy in terminals) |
 | v      | Ctrl+Shift+V (paste in terminals; plain-text paste in browsers) |
-| o      | End (end of line)          |
-| r      | F12 (VS Code: go to definition) |
-| a      | Ctrl+Shift+O (VS Code: go to symbol in file) |
-| 8      | Ctrl+Alt+- (VS Code: go back)    |
-| 9      | Ctrl+Shift+- (VS Code: go forward) |
 | n      | Smooth scroll up (hold)   |
 | m      | Smooth scroll down (hold) |
 | Space+n/m | Smooth scroll at 6x speed (press or release Space mid-scroll to switch) |
@@ -27,8 +21,6 @@ Hold Caps Lock to drive the mouse from i/j/k/l and more, using keyd (v2.6.0, bui
 | p      | Move pointer + focus to the other monitor |
 | u      | Centre the pointer on the current monitor |
 | b      | Window switcher (Alt+Tab): hold Caps, tap b to cycle, j/l to move, release to pick |
-| Alt+j  | Ctrl+PageUp (previous tab)  |
-| Alt+l  | Ctrl+PageDown (next tab)    |
 
 ## Install
 Requires Linux with systemd; Caps+p and the mouse keys need GNOME on X11.
@@ -71,7 +63,8 @@ For smooth Caps+n/m scrolling in VS Code, add these to your VS Code
 - `capsnav-nav`: the Caps-layer bindings, included by `default.conf` (live copy `/etc/keyd/capsnav-nav`).
 - `keyd-src/`: keyd source used for the install.
 - `icons/capsnav-mouse.svg`: that icon (a filled white mouse), installed to `/usr/local/share/capsnav/icons/`.
-- `capsnav-indicator.py`: the mouse-mode top-bar icon, installed as `/usr/local/bin/capsnav-indicator` (started by the mouse helper).
+- `capsnav-indicator.py`: the mouse-mode top-bar icon (filled = on, outlined = off; `icons/`), installed as `/usr/local/bin/capsnav-indicator` (started by the mouse helper).
+- `capsnav-mappings.py`: the mappings window (icon menu → Mappings…), installed as `/usr/local/bin/capsnav-mappings`. Tests: `python3 -m unittest discover tests`.
 - `check.sh`: read-only diagnostics for the whole setup (see below).
 - `install.sh`: installs everything above (packages, keyd, config, scroll and pointer helper, switch-monitor, GNOME shortcut). Safe to re-run.
 - `capsnav-scroll.py`: smooth-scroll helper, installed as `/usr/local/bin/capsnav-scroll`.
@@ -147,7 +140,8 @@ It takes effect on the next scroll with no restart.
 
 ## Pointer motion (Caps+i/j/k/l)
 Hold Caps, then i/j/k/l (up/left/down/right) to move the pointer; hold two for
-a diagonal. g is the left button (tap to click, hold to select or drag) and ;
+a diagonal. e/s/d/f do the same on the left hand, and held directions add up,
+so the same direction on both hands (e.g. j + s) moves twice as fast. g is the left button (tap to click, hold to select or drag) and ;
 right-clicks (keyd sends the buttons itself). A button stays down while its key is held, so hold g with the left
 hand and steer with i/j/k/l to select text or drag, then release g to drop.
 With Space also held, i/j/k/l are arrow keys instead (Caps+Space+i/j/k/l).
@@ -168,20 +162,6 @@ session, so this part runs as you rather than root, and `install.sh` adds you
 to the `keyd` group so it can read `keyd listen` (takes effect at next login).
 X11 only.
 
-### Snap to an edge, and the pointer mode (Caps+x)
-A snap jumps the pointer `pointer_snap_margin_px` (40) inside that edge of the
-screen it's on, keeping its other coordinate: e.g. up then left = top-left
-corner; then fine-tune with the moving keys. Caps+x cycles which cluster does
-what, with a notification each time:
-
-| Mode | e/s/d/f | i/j/k/l |
-|---|---|---|
-| 1 | move | move |
-| 2 (default) | snap | move |
-| 3 | move | snap |
-
-The mode is kept in `~/.config/capsnav/pointer-mode`, so it survives restarts.
-
 ## Mouse mode (tap left Shift)
 Tap left Shift on its own (released within 200 ms, no other key) to lock the
 Caps layer on, for stretches of mouse-only use: every Caps binding (mouse
@@ -190,9 +170,9 @@ works without holding Caps. Letters without a Caps binding type normally, but
 Space acts as in Caps+Space (arrows / fast scroll). Another left Shift tap
 turns it off, clicking first where the pointer is (so the text cursor lands
 there and you can type straight away); holding Shift with a letter types
-capitals as usual. While mouse mode is on, a mouse icon shows in the top bar
-next to Wi-Fi (`capsnav-indicator`, an AppIndicator), so you can see the mode
-at a glance. Hold b for the window switcher: j/l move through it and releasing
+capitals as usual. A mouse icon in the top bar next to Wi-Fi
+(`capsnav-indicator`, an AppIndicator) shows the mode at a glance: filled
+while mouse mode is on, outlined while it's off. Clicking the icon opens a menu with **Mappings…** (see below). Hold b for the window switcher: j/l move through it and releasing
 b picks; a quick tap of b jumps to the previous window. This uses a small
 patch to the bundled keyd (`layerm()` runs its macro after the layer is on,
 so Alt stays held).
@@ -208,6 +188,26 @@ in step when you add a binding to `capsnav-nav`.
 The bindings live in `capsnav-nav`, which `default.conf` includes in both the
 Caps layer (`[nav]`) and mouse mode (`[mousemode]`); `install.sh` copies it
 to `/etc/keyd/capsnav-nav`.
+
+### Mappings window
+
+Mouse-mode icon → **Mappings…** (or run `capsnav-mappings`) lists every
+binding, read from the live configs (`/etc/keyd/capsnav-nav`,
+`/etc/keyd/default.conf`, `~/.config/keyd/app.conf`), grouped under the
+config comments. `capsnav-mappings --print` prints the same list in the
+terminal.
+
+Each key is a drop-down: pick another key and press **Apply** to move that
+action there. Keys already in use are labelled with what they do; moving onto
+one overwrites it, and the old action is kept as `# unbound: KEY = ACTION`
+under **Unbound**, where you can give it a key again. Moving a Caps / mouse
+mode key also updates `capsnav-mousetype` and `[mousemode+control]`, so holding
+Caps or Ctrl in mouse mode still types it. Saving checks the result with
+`keyd check`, installs it with sudo (your `SUDO_ASKPASS` or
+`~/.local/bin/sudo-askpass` if set up, otherwise `pkexec`) and reloads keyd.
+
+Changes go to the live files only, not to this repo: running `install.sh`
+again puts the repo's bindings back.
 
 ## Per-app keys (VS Code)
 In VS Code, some left-hand Caps keys (and their mouse-mode versions) do code
@@ -262,7 +262,7 @@ the whole output.
 
 ## Common tasks
 - Apply config edits: `sudo cp capsnav-nav capsnav-mousetype default.conf /etc/keyd/ && sudo systemctl restart keyd`
-- Uninstall: `sudo systemctl disable --now capsnav-scroll keyd && sudo rm -r /etc/systemd/system/capsnav-scroll.service /usr/local/bin/capsnav-scroll /etc/capsnav /etc/X11/xorg.conf.d/50-capsnav-scroll.conf /usr/local/bin/capsnav-switch-monitor /usr/local/bin/capsnav-focus-follow /usr/local/bin/capsnav-indicator /usr/local/share/capsnav && systemctl --user disable --now capsnav-mouse capsnav-appmap capsnav-focus-follow && rm ~/.config/systemd/user/capsnav-mouse.service ~/.config/systemd/user/capsnav-appmap.service ~/.config/systemd/user/capsnav-focus-follow.service ~/.config/keyd/app.conf && sudo gpasswd -d $USER keyd && sudo rm -r /etc/systemd/system/keyd.service.d/capsnav-restart.conf && sudo make -C keyd-src uninstall`, then delete the `[capsnav smooth scroll]` section from `/etc/libinput/local-overrides.quirks` and the "capsnav: switch monitor" and "capsnav: center pointer" shortcuts in Settings → Keyboard → Custom Shortcuts
+- Uninstall: `sudo systemctl disable --now capsnav-scroll keyd && sudo rm -r /etc/systemd/system/capsnav-scroll.service /usr/local/bin/capsnav-scroll /etc/capsnav /etc/X11/xorg.conf.d/50-capsnav-scroll.conf /usr/local/bin/capsnav-switch-monitor /usr/local/bin/capsnav-focus-follow /usr/local/bin/capsnav-indicator /usr/local/bin/capsnav-mappings /usr/local/share/capsnav && systemctl --user disable --now capsnav-mouse capsnav-appmap capsnav-focus-follow && rm ~/.config/systemd/user/capsnav-mouse.service ~/.config/systemd/user/capsnav-appmap.service ~/.config/systemd/user/capsnav-focus-follow.service ~/.config/keyd/app.conf && sudo gpasswd -d $USER keyd && sudo rm -r /etc/systemd/system/keyd.service.d/capsnav-restart.conf && sudo make -C keyd-src uninstall`, then delete the `[capsnav smooth scroll]` section from `/etc/libinput/local-overrides.quirks` and the "capsnav: switch monitor" and "capsnav: center pointer" shortcuts in Settings → Keyboard → Custom Shortcuts
 - If the keyboard locks up: press Backspace+Escape+Enter together to stop keyd.
 
 ## keyd version

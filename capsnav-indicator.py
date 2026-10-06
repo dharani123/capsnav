@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
-"""Mouse-mode indicator: a mouse icon in the top bar (next to Wi-Fi) while
-mouse mode is on.
+"""Mouse-mode indicator: a mouse icon in the top bar (next to Wi-Fi), filled
+while mouse mode is on and outlined while it's off.
 
-Started by capsnav-scroll --mouse, which writes "on" / "off" lines to its
-stdin when mouse mode turns on or off. Uses AppIndicator (Ubuntu's
-ubuntu-appindicators extension shows it); the icon is hidden while mouse mode
-is off. Exits when stdin closes.
+Started by capsnav-scroll --mouse, which writes "off" at startup and then
+"on" / "off" lines to its stdin when mouse mode turns on or off. Uses
+AppIndicator (Ubuntu's ubuntu-appindicators extension shows it). Its menu
+names the mode and opens the mappings window. Exits when stdin closes.
 """
 
 import os
+import subprocess
 import sys
 
 import gi
@@ -18,27 +19,33 @@ gi.require_version("AyatanaAppIndicator3", "0.1")
 from gi.repository import AyatanaAppIndicator3 as AppIndicator  # noqa: E402
 from gi.repository import GLib, Gtk  # noqa: E402
 
-# Filled white mouse (icons/capsnav-mouse.svg, installed by install.sh);
-# falls back to the theme's outline mouse if it's missing.
+# Filled / outlined white mouse (icons/, installed by install.sh); falls back
+# to the theme's mouse icon if they're missing.
 ICON_DIR = "/usr/local/share/capsnav/icons"
-ICON = "capsnav-mouse"
-if not os.path.exists(os.path.join(ICON_DIR, ICON + ".svg")):
-    ICON = "input-mouse-symbolic"
+ICON_ON, ICON_OFF = "capsnav-mouse", "capsnav-mouse-off"
+if not os.path.exists(os.path.join(ICON_DIR, ICON_ON + ".svg")):
+    ICON_ON = ICON_OFF = "input-mouse-symbolic"
+LABEL_ON = "Mouse mode on (tap left Shift to leave)"
+LABEL_OFF = "Mouse mode off (tap left Shift to turn on)"
 
 
 def main():
     ind = AppIndicator.Indicator.new_with_path(
-        "capsnav-mouse-mode", ICON,
+        "capsnav-mouse-mode", ICON_OFF,
         AppIndicator.IndicatorCategory.HARDWARE, ICON_DIR)
     ind.set_title("capsnav mouse mode")
-    # AppIndicator requires a menu; it just names the mode.
+    # The menu names the mode and opens the mappings window.
     menu = Gtk.Menu()
-    item = Gtk.MenuItem(label="Mouse mode on (tap left Shift to leave)")
+    item = Gtk.MenuItem(label=LABEL_OFF)
     item.set_sensitive(False)
     menu.append(item)
+    mappings = Gtk.MenuItem(label="Mappings…")
+    mappings.connect("activate",
+                     lambda _i: subprocess.Popen(["capsnav-mappings"]))
+    menu.append(mappings)
     menu.show_all()
     ind.set_menu(menu)
-    ind.set_status(AppIndicator.IndicatorStatus.PASSIVE)  # hidden
+    ind.set_status(AppIndicator.IndicatorStatus.ACTIVE)  # always shown
 
     def on_input(source, condition):
         if condition & (GLib.IO_HUP | GLib.IO_ERR):
@@ -49,10 +56,11 @@ def main():
             Gtk.main_quit()
             return False
         cmd = line.strip()
-        if cmd == "on":
-            ind.set_status(AppIndicator.IndicatorStatus.ACTIVE)
-        elif cmd == "off":
-            ind.set_status(AppIndicator.IndicatorStatus.PASSIVE)
+        if cmd in ("on", "off"):
+            on = cmd == "on"
+            ind.set_icon_full(ICON_ON if on else ICON_OFF,
+                              "Mouse mode " + cmd)
+            item.set_label(LABEL_ON if on else LABEL_OFF)
         return True
 
     GLib.io_add_watch(sys.stdin, GLib.IO_IN | GLib.IO_HUP | GLib.IO_ERR,

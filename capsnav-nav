@@ -1,24 +1,22 @@
 # capsnav key bindings, shared by [nav] (hold Caps) and [mousemode] (a left
 # Shift tap locks them on) in default.conf, which includes this file. Installed next to
 # it as /etc/keyd/capsnav-nav (no .conf, so keyd doesn't load it on its own).
+
 # Mouse: i/j/k/l move the pointer (up/left/down/right). The empty layers are
-# watched by capsnav-scroll --mouse. g = left button (tap to click, hold and
-# move to select text or drag), ; = right click. Buttons stay down while the
-# key is held.
+# watched by capsnav-scroll --mouse.
 i = layer(ijklup)
 j = layer(ijklleft)
 k = layer(ijkldown)
 l = layer(ijklright)
-# e/s/d/f: up/left/down/right on the left hand. Whether each cluster (i/j/k/l,
-# e/s/d/f) moves the pointer or snaps it to that screen edge depends on the
-# pointer mode; x cycles it (both move / e-s-d-f snap / i-j-k-l snap).
+# e/s/d/f: the same on the left hand. The same direction on both clusters
+# (e.g. j + s) moves twice as fast.
 e = layer(esdfup)
 s = layer(esdfleft)
 d = layer(esdfdown)
 f = layer(esdfright)
-x = layer(pointermode)
+# Clicks: g and h = left button (tap to click, hold and move to select text or
+# drag), ; = right click. Buttons stay down while the key is held.
 g = leftmouse
-# Left click on the right hand as well
 h = leftmouse
 semicolon = rightmouse
 # Tabs (browsers, VS Code, terminals): q = previous, w = next,
@@ -30,12 +28,6 @@ y = C-w
 # Copy / paste, terminal style (Ctrl+Shift+C/V)
 c = C-S-c
 v = C-S-v
-o = end
-# VS Code: go to definition, go to symbol in file, go back, go forward
-r = f12
-a = C-S-o
-8 = C-A-minus
-9 = C-S-minus
 # Lock the screen (GNOME's Super+L)
 0 = M-l
 # PrtSc (screenshot). The physical PrtSc key sends KEY_SYSRQ.
@@ -47,5 +39,5 @@ u = M-A-u
 # Smooth scroll: these layers are watched by capsnav-scroll.py
 n = layer(scrollup)
 m = layer(scrolldown)
-# Caps+Space: i/j/k/l become arrow keys (below)
+# Caps+Space: hold Space for arrow keys on i/j/k/l and fast scrolling on n/m
 space = layer(arrows)
