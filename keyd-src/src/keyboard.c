@@ -499,7 +499,12 @@ static long process_descriptor(struct keyboard *kbd, uint8_t code,
 		struct macro *macro;
 
 		switch (d->op) {
-		case OP_LAYERM:
+		/*
+		 * capsnav: layerm() runs its macro after the layer is
+		 * active (below), like swapm(), so a modifier layer stays
+		 * held through the macro: layerm(winswitch, A-tab) keeps
+		 * Alt down and the switcher open.
+		 */
 		case OP_ONESHOTM:
 		case OP_TOGGLEM:
 			macro = &kbd->config.macros[d->args[1].idx];
@@ -628,6 +633,9 @@ static long process_descriptor(struct keyboard *kbd, uint8_t code,
 		} else {
 			update_mods(kbd, -1, 0);
 		}
+
+		if (pressed && d->op == OP_LAYERM)
+			execute_macro(kbd, dl, &kbd->config.macros[d->args[1].idx]);
 
 		break;
 	case OP_CLEARM:

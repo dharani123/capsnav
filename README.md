@@ -192,8 +192,15 @@ turns it off, clicking first where the pointer is (so the text cursor lands
 there and you can type straight away); holding Shift with a letter types
 capitals as usual. While mouse mode is on, a mouse icon shows in the top bar
 next to Wi-Fi (`capsnav-indicator`, an AppIndicator), so you can see the mode
-at a glance. b jumps to the previous window (Caps+b's hold-to-cycle switcher
-needs Caps held).
+at a glance. Hold b for the window switcher: j/l move through it and releasing
+b picks; a quick tap of b jumps to the previous window. This uses a small
+patch to the bundled keyd (`layerm()` runs its macro after the layer is on,
+so Alt stays held).
+
+Hold Caps in mouse mode to get the normal keyboard back for as long as Caps
+is down, e.g. Caps+Ctrl+Shift+t or Caps+Ctrl+s, without leaving mouse mode.
+`[mousetype]` in `default.conf` maps each mouse-mode key back to itself, so
+keep it in step when you add a binding to `capsnav-nav`.
 
 The bindings live in `capsnav-nav`, which `default.conf` includes in both the
 Caps layer (`[nav]`) and mouse mode (`[mousemode]`); `install.sh` copies it
