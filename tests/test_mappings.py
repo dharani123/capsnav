@@ -152,7 +152,7 @@ class TabsTest(unittest.TestCase):
                          ("p", "Mouse"), ("n", "Scroll"), ("m", "Scroll"),
                          ("q", "Browser"), ("w", "Browser"), ("t", "Browser"),
                          ("y", "Browser"), ("0", "Windows"), ("7", "Windows"),
-                         ("c", "Other"), ("v", "Other")]:
+                         ("c", "Scroll"), ("v", "Scroll")]:
             self.assertEqual(self.tab_of(*nav, key), tab, key)
         dc = "default.conf"
         self.assertEqual(self.tab_of(dc, "nav", "b"), "Windows")
@@ -172,18 +172,17 @@ class TabsTest(unittest.TestCase):
                          b.group)
 
     def test_scroll_combo(self):
-        self.assertEqual(cm.combos(self.sections), {
-            "Scroll": [("Space + ", "n / m",
-                        "Scroll 6x faster (hold Space while scrolling)")],
-            "Text": [("Space + ", "n", "Scroll up, 6x faster"),
-                     ("Space + ", "m", "Scroll down, 6x faster")]})
+        rows = [("Space + ", "n, c", "Scroll up, 6x faster"),
+                ("Space + ", "m, v", "Scroll down, 6x faster")]
+        self.assertEqual(cm.combos(self.sections),
+                         {"Scroll": rows, "Text": rows})
 
     def test_scroll_combo_follows_moved_keys(self):
         texts = repo_texts()
         b = find(self.sections, "Caps", "n")
         secs = cm.parse_all(cm.move(texts, b, "z"))
-        self.assertEqual(cm.combos(secs)["Scroll"][0][1], "z / m")
-        self.assertEqual(cm.combos(secs)["Text"][0][1], "z")
+        self.assertEqual(cm.combos(secs)["Scroll"][0][1], "z, c")
+        self.assertEqual(cm.combos(secs)["Text"][0][1], "z, c")
 
     def test_text_tab_is_one_section_with_space_prefix(self):
         text = dict(self.tabs)["Text"]

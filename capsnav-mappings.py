@@ -372,25 +372,21 @@ SCROLL_BOOST = 6
 def combos(sections):
     """Read-only rows for key combinations the helper handles rather than
     keyd: {tab: [(prefix, keys, does)]}, using the keys currently bound."""
-    keys = {}
+    keys = {}      # action -> labels of every key bound to it, in file order
     for sec in sections:
         if (sec.file, sec.section) != ("capsnav-nav", None):
             continue
         for _h, bs in sec.groups:
             for b in bs:
-                keys.setdefault(b.action, key_label(b.key))
+                keys.setdefault(b.action, []).append(key_label(b.key))
     up, down = keys.get("layer(scrollup)"), keys.get("layer(scrolldown)")
     boost = keys.get("layer(arrows)")
     if not (up and down and boost):
         return {}
-    pre = boost + " + "
-    return {
-        "Scroll": [(pre, "%s / %s" % (up, down),
-                    "Scroll %dx faster (hold %s while scrolling)"
-                    % (SCROLL_BOOST, boost))],
-        "Text": [(pre, up, "Scroll up, %dx faster" % SCROLL_BOOST),
-                 (pre, down, "Scroll down, %dx faster" % SCROLL_BOOST)],
-    }
+    pre = boost[0] + " + "
+    rows = [(pre, ", ".join(up), "Scroll up, %dx faster" % SCROLL_BOOST),
+            (pre, ", ".join(down), "Scroll down, %dx faster" % SCROLL_BOOST)]
+    return {"Scroll": rows, "Text": rows}
 
 
 def _section_range(lines, name):

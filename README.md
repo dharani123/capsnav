@@ -12,11 +12,10 @@ Hold Caps Lock to drive the mouse from i/j/k/l and more, using keyd (v2.6.0, bui
 | Space+i/j/k/l | Arrow keys up/left/down/right |
 | q / w  | Previous / next tab (Ctrl+PageUp / Ctrl+PageDown) |
 | t / y  | New tab / close tab (Ctrl+T / Ctrl+W) |
-| c      | Ctrl+Shift+C (copy in terminals) |
-| v      | Ctrl+Shift+V (paste in terminals; plain-text paste in browsers) |
 | n      | Smooth scroll up (hold)   |
 | m      | Smooth scroll down (hold) |
-| Space+n/m | Smooth scroll at 6x speed (press or release Space mid-scroll to switch) |
+| c / v  | Smooth scroll up / down on the left hand (same as n / m) |
+| Space+n/m, Space+c/v | Smooth scroll at 6x speed (press or release Space mid-scroll to switch) |
 | 7      | PrtSc (screenshot) |
 | p / r  | Move pointer + focus to the other monitor (right or left hand) |
 | u      | Centre the pointer on the current monitor |
@@ -79,7 +78,7 @@ For smooth Caps+n/m scrolling in VS Code, add these to your VS Code
 - `system/capsnav.quirks`, `system/50-capsnav-scroll.conf`: the libinput and X settings for continuous scrolling (see below).
 
 ## Smooth scrolling
-Caps+n / Caps+m send no keys of their own. They switch on the empty keyd layers
+Caps+n / Caps+m (and Caps+c / Caps+v) send no keys of their own. They switch on the empty keyd layers
 `scrollup` / `scrolldown`. `capsnav-scroll` watches those layers via
 `keyd listen`, and while one is active it sends small scroll steps at
 `tick_hz` from a virtual pointer. Speed eases in on press and glides to a stop
@@ -165,7 +164,7 @@ X11 only.
 ## Mouse mode (tap left Shift)
 Tap left Shift on its own (released within 200 ms, no other key) to lock the
 Caps layer on, for stretches of mouse-only use: every Caps binding (mouse
-keys, clicks, n/m scroll with Space for fast, q/w tabs, c/v, and the rest)
+keys, clicks, n/m and c/v scroll with Space for fast, q/w tabs, and the rest)
 works without holding Caps. Letters without a Caps binding type normally, but
 Space acts as in Caps+Space (arrows / fast scroll). Another left Shift tap
 turns it off, clicking first where the pointer is (so the text cursor lands

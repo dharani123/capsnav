@@ -25,9 +25,6 @@ q = C-pageup
 w = C-pagedown
 t = C-t
 y = C-w
-# Copy / paste, terminal style (Ctrl+Shift+C/V)
-c = C-S-c
-v = C-S-v
 # Lock the screen (GNOME's Super+L)
 0 = M-l
 # PrtSc (screenshot). The physical PrtSc key sends KEY_SYSRQ.
@@ -38,8 +35,11 @@ p = M-A-o
 r = M-A-o
 # Centre the pointer on the current monitor (GNOME shortcut -> capsnav-switch-monitor --center)
 u = M-A-u
-# Smooth scroll: these layers are watched by capsnav-scroll.py
+# Smooth scroll: n/m on the right hand, c/v on the left (up/down). These
+# layers are watched by capsnav-scroll.py.
 n = layer(scrollup)
 m = layer(scrolldown)
+c = layer(scrollup)
+v = layer(scrolldown)
 # Caps+Space: hold Space for arrow keys on i/j/k/l and fast scrolling on n/m
 space = layer(arrows)
