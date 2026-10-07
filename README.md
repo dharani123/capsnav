@@ -67,8 +67,8 @@ For smooth Caps+n/m scrolling in VS Code, add these to your VS Code
 - `default.conf`: the keyd config. The live copy is `/etc/keyd/default.conf`.
 - `capsnav-nav`: the Caps-layer bindings, included by `default.conf` (live copy `/etc/keyd/capsnav-nav`).
 - `keyd-src/`: keyd source used for the install.
-- `icons/capsnav-mouse.svg`: that icon (a filled white mouse), installed to `/usr/local/share/icons/hicolor/scalable/status/`.
-- `capsnav-indicator.py`: the mouse-mode top-bar icon (filled = on, outlined = off; `icons/`), installed as `/usr/local/bin/capsnav-indicator` (started by the mouse helper).
+- `icons/capsnav-mouse.svg`, `icons/capsnav-keyboard.svg`: the top-bar icons (a filled white mouse / keyboard), installed to `/usr/local/share/icons/hicolor/scalable/status/`.
+- `capsnav-indicator.py`: the mouse-mode top-bar icon (mouse = on, keyboard = off; `icons/`), installed as `/usr/local/bin/capsnav-indicator` (started by the mouse helper).
 - `capsnav-mappings.py`: the mappings window (icon menu → Mappings…), installed as `/usr/local/bin/capsnav-mappings`. Tests: `python3 -m unittest discover tests`.
 - `check.sh`: read-only diagnostics for the whole setup (see below).
 - `install.sh`: installs everything above (packages, keyd, config, scroll and pointer helper, switch-monitor, GNOME shortcut). Safe to re-run.
@@ -179,9 +179,9 @@ works without holding Caps. Letters without a Caps binding type normally, but
 Space acts as in Caps+Space (arrows / fast scroll). Another left Shift tap
 turns it off, clicking first where the pointer is (so the text cursor lands
 there and you can type straight away); holding Shift with a letter types
-capitals as usual. A mouse icon in the top bar next to Wi-Fi
-(`capsnav-indicator`, an AppIndicator) shows the mode at a glance: filled
-while mouse mode is on, outlined while it's off. Clicking the icon opens a menu that shows the mouse mode and the Caps+x pointer mode, with **Mappings…** (see below). Hold b for the window switcher: j/l (or s/f) move through it and releasing
+capitals as usual. An icon in the top bar next to Wi-Fi
+(`capsnav-indicator`, an AppIndicator) shows the mode at a glance: a filled
+mouse while mouse mode is on, a filled keyboard while it's off. Clicking the icon opens a menu that shows the mouse mode and the Caps+x pointer mode, with **Mappings…** (see below). Hold b for the window switcher: j/l (or s/f) move through it and releasing
 b picks; a quick tap of b jumps to the previous window. This uses a small
 patch to the bundled keyd (`layerm()` runs its macro after the layer is on,
 so Alt stays held).

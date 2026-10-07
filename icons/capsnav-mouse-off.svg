@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
-  <!-- Outlined white mouse for the top bar (mouse mode off); the same shape
-       as capsnav-mouse.svg (on), drawn as a line instead of filled. -->
-  <g fill="none" stroke="#ffffff" stroke-width="1.2">
-    <path d="M8 1.1 C5.6 1.1 4.1 2.8 4.1 5.2 V10.5 C4.1 13 5.8 14.9 8 14.9
-             C10.2 14.9 11.9 13 11.9 10.5 V5.2 C11.9 2.8 10.4 1.1 8 1.1 Z"/>
-    <path d="M8 1.1 V6.8 M4.1 6.8 H11.9"/>
-  </g>
-</svg>

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+  <!-- Filled white keyboard for the top bar (mouse mode off), so it reads
+       apart from the filled mouse (on) at a glance. The keys are cut out on
+       whole pixels so they stay sharp at 16 px. -->
+  <path fill="#ffffff" fill-rule="evenodd" d="
+    M1.5 3 H14.5 Q16 3 16 4.5 V12.5 Q16 14 14.5 14 H1.5 Q0 14 0 12.5 V4.5 Q0 3 1.5 3 Z
+    M1 5 h2 v2 h-2 Z M4 5 h2 v2 h-2 Z M7 5 h2 v2 h-2 Z M10 5 h2 v2 h-2 Z M13 5 h2 v2 h-2 Z
+    M1 8 h2 v2 h-2 Z M4 8 h2 v2 h-2 Z M7 8 h2 v2 h-2 Z M10 8 h2 v2 h-2 Z M13 8 h2 v2 h-2 Z
+    M4 11 h8 v1 h-8 Z"/>
+</svg>

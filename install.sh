@@ -52,15 +52,19 @@ if ! id -nG "$USER" | grep -qw keyd; then
 	sudo usermod -aG keyd "$USER"
 	need_reboot=1
 fi
-# Top-bar mouse icon: filled while mouse mode is on, outlined while off
+# Top-bar icon: a filled mouse while mouse mode is on, a filled keyboard while off
 # (AppIndicator, GTK 3). Installed before the mouse helper restarts, since
 # the helper starts it.
 sudo install -m755 capsnav-indicator.py /usr/local/bin/capsnav-indicator
 sudo install -m755 capsnav-mappings.py /usr/local/bin/capsnav-mappings
-for icon in capsnav-mouse capsnav-mouse-off; do
+for icon in capsnav-mouse capsnav-keyboard; do
 	sudo install -Dm644 "icons/$icon.svg" "/usr/local/share/icons/hicolor/scalable/status/$icon.svg"
 done
 sudo rm -rf /usr/local/share/capsnav/icons  # old location (indicator now finds them by name)
+sudo rm -f /usr/local/share/icons/hicolor/scalable/status/capsnav-mouse-off.svg  # old outlined "off" icon
+# GNOME Shell lists icon folders once and only rescans when the theme folder
+# itself changes; without this a newly added icon shows as "..." until re-login.
+sudo touch /usr/local/share/icons/hicolor
 install -Dm644 capsnav-mouse.service "$HOME/.config/systemd/user/capsnav-mouse.service"
 # Per-app overrides (app.conf, e.g. VS Code code navigation) via keyd's
 # application mapper, run as a user service.

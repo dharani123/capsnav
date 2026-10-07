@@ -91,8 +91,8 @@ POINTER_MODES = [("both move", set()),
                  ("e/s/d/f snap, i/j/k/l move", {"esdf"}),
                  ("i/j/k/l snap, e/s/d/f move", {"ijkl"})]
 POINTER_MODE_PATH = os.path.expanduser("~/.config/capsnav/pointer-mode")
-# capsnav-indicator shows a mouse icon in the top bar, filled while mouse mode
-# is on and outlined while off; the pointer helper starts it and feeds it
+# capsnav-indicator shows an icon in the top bar, a filled mouse while mouse
+# mode is on and a filled keyboard while off; the pointer helper starts it and feeds it
 # "on" / "off", and "pointer <mode>" for its menu.
 INDICATOR = None
 
@@ -502,7 +502,7 @@ def run(output, layers, motions, settings, vblank=None):
     pointer = isinstance(output, XTestPointer)
     mode = PointerMode() if pointer else None
     if pointer:
-        # Show the (outlined) icon from the start; keyd listen then reports
+        # Show the (keyboard) icon from the start; keyd listen then reports
         # mouse mode if it's already on.
         indicator("off")
         indicator("pointer " + mode.label)
