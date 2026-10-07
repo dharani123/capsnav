@@ -19,6 +19,13 @@ static struct keyboard *active_kbd = NULL;
 static void free_configs(void)
 {
 	struct config_ent *ent = configs;
+
+	/*
+	 * capsnav: don't leave active_kbd pointing at a freed keyboard; a
+	 * pending timeout would otherwise run on it after a reload.
+	 */
+	active_kbd = NULL;
+
 	while (ent) {
 		struct config_ent *tmp = ent;
 		ent = ent->next;
@@ -295,6 +302,26 @@ static void manage_device(struct device *dev)
 static void reload(void)
 {
 	size_t i;
+	struct config_ent *ent;
+
+	/*
+	 * capsnav: the new keyboards start with no layers active, so tell
+	 * listeners about every layer that goes off. Otherwise keyd listen
+	 * clients keep showing it: the mouse-mode icon stayed filled after a
+	 * reload, though mouse mode was off.
+	 */
+	for (ent = configs; ent; ent = ent->next) {
+		struct keyboard *kbd = ent->kbd;
+
+		for (i = 1; i < kbd->config.nr_layers; i++) {
+			struct layer *layer = &kbd->config.layers[i];
+
+			if (layer->type != LT_LAYOUT && kbd->layer_state[i].active) {
+				kbd->layer_state[i].active = 0;
+				on_layer_change(kbd, layer, 0);
+			}
+		}
+	}
 
 	free_configs();
 	load_configs();
