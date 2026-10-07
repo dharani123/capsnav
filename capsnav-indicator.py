@@ -3,9 +3,10 @@
 while mouse mode is on and outlined while it's off.
 
 Started by capsnav-scroll --mouse, which writes "off" at startup and then
-"on" / "off" lines to its stdin when mouse mode turns on or off. Uses
-AppIndicator (Ubuntu's ubuntu-appindicators extension shows it). Its menu
-names the mode and opens the mappings window. Exits when stdin closes.
+"on" / "off" lines to its stdin when mouse mode turns on or off, and
+"pointer <mode>" lines with the Caps+x pointer mode. Uses AppIndicator
+(Ubuntu's ubuntu-appindicators extension shows it). Its menu names both
+modes and opens the mappings window. Exits when stdin closes.
 """
 
 import os
@@ -32,6 +33,7 @@ if not os.path.exists(os.path.join(ICON_DIR, ICON_ON + ".svg")):
     ICON_ON = ICON_OFF = "input-mouse-symbolic"
 LABEL_ON = "Mouse mode on (tap left Shift to leave)"
 LABEL_OFF = "Mouse mode off (tap left Shift to turn on)"
+POINTER_LABEL = "Pointer keys: %s (Caps+x to change)"
 
 
 def main():
@@ -39,11 +41,14 @@ def main():
         "capsnav-mouse-mode", ICON_OFF,
         AppIndicator.IndicatorCategory.HARDWARE)
     ind.set_title("capsnav mouse mode")
-    # The menu names the mode and opens the mappings window.
+    # The menu names both modes and opens the mappings window.
     menu = Gtk.Menu()
     item = Gtk.MenuItem(label=LABEL_OFF)
     item.set_sensitive(False)
     menu.append(item)
+    pointer = Gtk.MenuItem(label=POINTER_LABEL % "…")
+    pointer.set_sensitive(False)
+    menu.append(pointer)
     mappings = Gtk.MenuItem(label="Mappings…")
     mappings.connect("activate",
                      lambda _i: subprocess.Popen(["capsnav-mappings"]))
@@ -73,6 +78,8 @@ def main():
                 ind.set_icon_full(ICON_ON if on else ICON_OFF,
                                   "Mouse mode " + cmd)
                 item.set_label(LABEL_ON if on else LABEL_OFF)
+            elif cmd.startswith("pointer "):
+                pointer.set_label(POINTER_LABEL % cmd[len("pointer "):])
         return True
 
     GLib.io_add_watch(fd, GLib.IO_IN | GLib.IO_HUP | GLib.IO_ERR, on_input)

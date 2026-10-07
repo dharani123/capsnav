@@ -37,6 +37,7 @@ import ctypes.util
 import fcntl
 import math
 import os
+import re
 import select
 import struct
 import subprocess
@@ -57,6 +58,7 @@ DEFAULTS = {
     "pointer_ease_out_ms": 120.0, # same for the pointer; short, since a click
                                   # during the glide turns into a drag
     "tick_hz": 120.0,            # events per second while moving
+    "pointer_snap_margin_px": 40.0,  # how far inside the edge a snap lands
     "vsync": 1.0,                # scroll: 1 = one step per screen refresh
     "vsync_crtc": 0.0,           # which display pipe to follow (see mouse.conf)
 }
@@ -74,16 +76,24 @@ SCROLL_LAYERS = {"scrolldown": (-1,), "scrollup": (1,)}
 # once (eased by the spring).
 SCROLL_SPEED_LAYERS = {"arrows": 6.0}
 # Pointer keys: two clusters, Caps+i/j/k/l and Caps+e/s/d/f, each turning on
-# its own layers. Both move the pointer; held directions add up, so the same
-# direction on both clusters moves twice as fast.
-MOUSE_LAYERS = {}
+# its own layers. Depending on the pointer mode (Caps+x cycles it), a cluster
+# either moves the pointer smoothly or snaps it to that edge of its screen.
+# Moving directions add up, so the same direction on both clusters moves
+# twice as fast.
+POINTER_LAYERS = {}
 for _cluster in ("ijkl", "esdf"):
     for _side, _dir in (("left", (-1, 0)), ("right", (1, 0)),
                         ("up", (0, -1)), ("down", (0, 1))):
-        MOUSE_LAYERS[_cluster + _side] = _dir
+        POINTER_LAYERS[_cluster + _side] = (_cluster, _dir)
+MOUSE_LAYERS = {name: d for name, (_, d) in POINTER_LAYERS.items()}
+# (label, clusters that snap); Caps+x cycles through these.
+POINTER_MODES = [("both move", set()),
+                 ("e/s/d/f snap, i/j/k/l move", {"esdf"}),
+                 ("i/j/k/l snap, e/s/d/f move", {"ijkl"})]
+POINTER_MODE_PATH = os.path.expanduser("~/.config/capsnav/pointer-mode")
 # capsnav-indicator shows a mouse icon in the top bar, filled while mouse mode
 # is on and outlined while off; the pointer helper starts it and feeds it
-# "on" / "off".
+# "on" / "off", and "pointer <mode>" for its menu.
 INDICATOR = None
 
 
@@ -97,6 +107,39 @@ def indicator(state):
         INDICATOR.stdin.flush()
     except OSError:
         INDICATOR = None
+
+
+class PointerMode:
+    """The current POINTER_MODES index, kept in POINTER_MODE_PATH so it
+    survives restarts. Default: both move."""
+
+    def __init__(self):
+        try:
+            with open(POINTER_MODE_PATH) as f:
+                self.index = int(f.read().strip()) % len(POINTER_MODES)
+        except (OSError, ValueError):
+            self.index = 0
+
+    @property
+    def snapping(self):
+        return POINTER_MODES[self.index][1]
+
+    @property
+    def label(self):
+        return POINTER_MODES[self.index][0]
+
+    def cycle(self):
+        self.index = (self.index + 1) % len(POINTER_MODES)
+        indicator("pointer " + self.label)
+        try:
+            os.makedirs(os.path.dirname(POINTER_MODE_PATH), exist_ok=True)
+            with open(POINTER_MODE_PATH, "w") as f:
+                f.write(f"{self.index}\n")
+        except OSError:
+            pass
+        subprocess.Popen(["notify-send", "-t", "1500", "-h", "int:transient:1",
+                          f"Pointer keys: {self.label}"],
+                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
 # --- uinput -----------------------------------------------------------------
@@ -246,6 +289,26 @@ class XTestPointer:
     def button_down(self):
         """True while any mouse button (left, middle, right) is pressed."""
         return bool(self._query()[2] & (0b111 << 8))  # Button1..3Mask
+
+    def snap(self, direction, margin):
+        """Jump to `margin` px inside the edge of the pointer's monitor in
+        `direction` (dx, dy), keeping the other coordinate."""
+        x, y, _ = self._query()
+        out = subprocess.run(["xrandr", "--listmonitors"], capture_output=True,
+                             text=True).stdout
+        for w, h, mx, my in re.findall(r"(\d+)/\d+x(\d+)/\d+\+(\d+)\+(\d+)", out):
+            w, h, mx, my = map(int, (w, h, mx, my))
+            if mx <= x < mx + w and my <= y < my + h:
+                break
+        else:
+            return
+        dx, dy = direction
+        if dx:
+            x = mx + margin if dx < 0 else mx + w - 1 - margin
+        if dy:
+            y = my + margin if dy < 0 else my + h - 1 - margin
+        self.xtst.XTestFakeMotionEvent(self.display, -1, int(x), int(y), 0)
+        self.x11.XFlush(self.display)
 
     def close(self):
         self.x11.XCloseDisplay(self.display)
@@ -437,10 +500,12 @@ def run(output, layers, motions, settings, vblank=None):
                               bufsize=0)
     held = set()
     pointer = isinstance(output, XTestPointer)
+    mode = PointerMode() if pointer else None
     if pointer:
         # Show the (outlined) icon from the start; keyd listen then reports
         # mouse mode if it's already on.
         indicator("off")
+        indicator("pointer " + mode.label)
     modifiers = set()  # active SCROLL_SPEED_LAYERS (scrolling only)
     buf = b""
     next_tick = None  # monotonic deadline of the next scroll event
@@ -478,6 +543,19 @@ def run(output, layers, motions, settings, vblank=None):
                         # A left Shift tap toggled mouse mode: say so, since keys now
                         # move the pointer instead of typing.
                         indicator("on" if line[0] == "+" else "off")
+                        continue
+                    if pointer and name == "pointermode":
+                        if line[0] == "+":
+                            mode.cycle()
+                        continue
+                    if (pointer and name in POINTER_LAYERS
+                            and POINTER_LAYERS[name][0] in mode.snapping):
+                        if line[0] == "+":
+                            output.snap(POINTER_LAYERS[name][1], settings.values[
+                                "pointer_snap_margin_px"])
+                            for m in motions:  # drop any glide
+                                m.velocity = m.accel = m.remainder = 0.0
+                        held.discard(name)
                         continue
                     if name in SCROLL_SPEED_LAYERS and layers is SCROLL_LAYERS:
                         if line[0] == "+":

@@ -72,6 +72,7 @@ LAYER_NAMES = {
     "arrows": "Hold: arrow keys / fast scroll",
     "mousetype": "Hold: normal keyboard",
     "shift": "Shift",
+    "pointermode": "Cycle pointer mode (move / snap to edges)",
 }
 for _c in ("ijkl", "esdf"):
     for _d in ("up", "left", "down", "right"):
@@ -291,7 +292,8 @@ def category(b):
         return "Windows"
     if b.action in POINTER_ACTIONS or (layer and layer[4:] in
                                         ("up", "down", "left", "right")
-                                        and layer[:4] in ("ijkl", "esdf")):
+                                        and layer[:4] in ("ijkl", "esdf")
+                                        or layer == "pointermode"):
         return "Mouse"
     if layer in ("scrollup", "scrolldown"):
         return "Scroll"

@@ -14,6 +14,9 @@ e = layer(esdfup)
 s = layer(esdfleft)
 d = layer(esdfdown)
 f = layer(esdfright)
+# Pointer mode: x cycles whether each cluster moves the pointer or snaps it to
+# that screen edge (both move / e-s-d-f snap / i-j-k-l snap).
+x = layer(pointermode)
 # Clicks: g and h = left button (tap to click, hold and move to select text or
 # drag), ; and a = right click. Buttons stay down while the key is held.
 g = leftmouse

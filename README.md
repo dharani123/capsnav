@@ -6,6 +6,7 @@ Hold Caps Lock to drive the mouse from i/j/k/l and more, using keyd (v2.6.0, bui
 |--------|-------------|
 | i/j/k/l | Move the mouse pointer up/left/down/right (hold; combine for diagonals) |
 | e/s/d/f | Move the pointer on the left hand too; the same direction on both (e.g. j + s) moves twice as fast |
+| x      | Cycle pointer mode: both move / e/s/d/f snap to screen edges / i/j/k/l snap (notification shows the mode) |
 | g      | Left click; hold g and move to select text or drag, release to drop |
 | h      | Left click (also on g) |
 | ; / a  | Right click (right or left hand) |
@@ -145,7 +146,11 @@ It takes effect on the next scroll with no restart.
 ## Pointer motion (Caps+i/j/k/l)
 Hold Caps, then i/j/k/l (up/left/down/right) to move the pointer; hold two for
 a diagonal. e/s/d/f do the same on the left hand, and held directions add up,
-so the same direction on both hands (e.g. j + s) moves twice as fast. g is the left button (tap to click, hold to select or drag) and ;
+so the same direction on both hands (e.g. j + s) moves twice as fast.
+Caps+x cycles the pointer mode: both clusters move (default), e/s/d/f snap,
+or i/j/k/l snap. A snapping key jumps the pointer to that edge of its screen
+(keeping the other coordinate), `pointer_snap_margin_px` inside it. The mode
+is kept in `~/.config/capsnav/pointer-mode`. g is the left button (tap to click, hold to select or drag) and ;
 right-clicks (keyd sends the buttons itself). A button stays down while its key is held, so hold g with the left
 hand and steer with i/j/k/l to select text or drag, then release g to drop.
 With Space also held, i/j/k/l are arrow keys instead (Caps+Space+i/j/k/l).
@@ -176,7 +181,7 @@ turns it off, clicking first where the pointer is (so the text cursor lands
 there and you can type straight away); holding Shift with a letter types
 capitals as usual. A mouse icon in the top bar next to Wi-Fi
 (`capsnav-indicator`, an AppIndicator) shows the mode at a glance: filled
-while mouse mode is on, outlined while it's off. Clicking the icon opens a menu with **Mappings…** (see below). Hold b for the window switcher: j/l (or s/f) move through it and releasing
+while mouse mode is on, outlined while it's off. Clicking the icon opens a menu that shows the mouse mode and the Caps+x pointer mode, with **Mappings…** (see below). Hold b for the window switcher: j/l (or s/f) move through it and releasing
 b picks; a quick tap of b jumps to the previous window. This uses a small
 patch to the bundled keyd (`layerm()` runs its macro after the layer is on,
 so Alt stays held).
