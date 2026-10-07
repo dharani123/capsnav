@@ -66,7 +66,7 @@ For smooth Caps+n/m scrolling in VS Code, add these to your VS Code
 - `default.conf`: the keyd config. The live copy is `/etc/keyd/default.conf`.
 - `capsnav-nav`: the Caps-layer bindings, included by `default.conf` (live copy `/etc/keyd/capsnav-nav`).
 - `keyd-src/`: keyd source used for the install.
-- `icons/capsnav-mouse.svg`: that icon (a filled white mouse), installed to `/usr/local/share/capsnav/icons/`.
+- `icons/capsnav-mouse.svg`: that icon (a filled white mouse), installed to `/usr/local/share/icons/hicolor/scalable/status/`.
 - `capsnav-indicator.py`: the mouse-mode top-bar icon (filled = on, outlined = off; `icons/`), installed as `/usr/local/bin/capsnav-indicator` (started by the mouse helper).
 - `capsnav-mappings.py`: the mappings window (icon menu → Mappings…), installed as `/usr/local/bin/capsnav-mappings`. Tests: `python3 -m unittest discover tests`.
 - `check.sh`: read-only diagnostics for the whole setup (see below).

@@ -52,6 +52,15 @@ if ! id -nG "$USER" | grep -qw keyd; then
 	sudo usermod -aG keyd "$USER"
 	need_reboot=1
 fi
+# Top-bar mouse icon: filled while mouse mode is on, outlined while off
+# (AppIndicator, GTK 3). Installed before the mouse helper restarts, since
+# the helper starts it.
+sudo install -m755 capsnav-indicator.py /usr/local/bin/capsnav-indicator
+sudo install -m755 capsnav-mappings.py /usr/local/bin/capsnav-mappings
+for icon in capsnav-mouse capsnav-mouse-off; do
+	sudo install -Dm644 "icons/$icon.svg" "/usr/local/share/icons/hicolor/scalable/status/$icon.svg"
+done
+sudo rm -rf /usr/local/share/capsnav/icons  # old location (indicator now finds them by name)
 install -Dm644 capsnav-mouse.service "$HOME/.config/systemd/user/capsnav-mouse.service"
 # Per-app overrides (app.conf, e.g. VS Code code navigation) via keyd's
 # application mapper, run as a user service.
@@ -70,12 +79,6 @@ install -Dm644 capsnav-focus-follow.service "$HOME/.config/systemd/user/capsnav-
 systemctl --user daemon-reload
 systemctl --user enable capsnav-focus-follow
 systemctl --user restart capsnav-focus-follow
-# Top-bar mouse icon: filled while mouse mode is on, outlined while off
-# (AppIndicator, GTK 3).
-sudo install -m755 capsnav-indicator.py /usr/local/bin/capsnav-indicator
-sudo install -m755 capsnav-mappings.py /usr/local/bin/capsnav-mappings
-sudo install -Dm644 icons/capsnav-mouse.svg /usr/local/share/capsnav/icons/capsnav-mouse.svg
-sudo install -Dm644 icons/capsnav-mouse-off.svg /usr/local/share/capsnav/icons/capsnav-mouse-off.svg
 
 # GNOME custom shortcuts for Caps keys that run a program: keyd (root, no X
 # access) sends a key combo, and GNOME runs the command. Runs as you, not root:

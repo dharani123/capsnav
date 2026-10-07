@@ -19,9 +19,14 @@ gi.require_version("AyatanaAppIndicator3", "0.1")
 from gi.repository import AyatanaAppIndicator3 as AppIndicator  # noqa: E402
 from gi.repository import GLib, Gtk  # noqa: E402
 
-# Filled / outlined white mouse (icons/, installed by install.sh); falls back
-# to the theme's mouse icon if they're missing.
-ICON_DIR = "/usr/local/share/capsnav/icons"
+# Filled / outlined white mouse (icons/, installed by install.sh into the
+# hicolor icon theme); falls back to the theme's mouse icon if they're missing.
+# They must be found by name in the icon theme, not through an icon theme path
+# on the indicator: Ubuntu's AppIndicator extension (v58) never clears its
+# "still loading" mark for an icon loaded from such a path, so once the icon
+# cache drops the unused icon (~2 min), switching back to it is ignored and
+# the top-bar icon sticks while the menu text changes.
+ICON_DIR = "/usr/local/share/icons/hicolor/scalable/status"
 ICON_ON, ICON_OFF = "capsnav-mouse", "capsnav-mouse-off"
 if not os.path.exists(os.path.join(ICON_DIR, ICON_ON + ".svg")):
     ICON_ON = ICON_OFF = "input-mouse-symbolic"
@@ -30,9 +35,9 @@ LABEL_OFF = "Mouse mode off (tap left Shift to turn on)"
 
 
 def main():
-    ind = AppIndicator.Indicator.new_with_path(
+    ind = AppIndicator.Indicator.new(
         "capsnav-mouse-mode", ICON_OFF,
-        AppIndicator.IndicatorCategory.HARDWARE, ICON_DIR)
+        AppIndicator.IndicatorCategory.HARDWARE)
     ind.set_title("capsnav mouse mode")
     # The menu names the mode and opens the mappings window.
     menu = Gtk.Menu()
