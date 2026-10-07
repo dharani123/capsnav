@@ -152,7 +152,7 @@ class TabsTest(unittest.TestCase):
                          ("p", "Mouse"), ("n", "Scroll"), ("m", "Scroll"),
                          ("q", "Browser"), ("w", "Browser"), ("t", "Browser"),
                          ("y", "Browser"), ("0", "Windows"), ("7", "Windows"),
-                         ("c", "Scroll"), ("v", "Scroll")]:
+                         ("c", "Scroll"), ("v", "Scroll"), ("o", "Text")]:
             self.assertEqual(self.tab_of(*nav, key), tab, key)
         dc = "default.conf"
         self.assertEqual(self.tab_of(dc, "nav", "b"), "Windows")
@@ -189,7 +189,8 @@ class TabsTest(unittest.TestCase):
         self.assertEqual([s.title for s in text], ["Caps layer / mouse mode"])
         rows = [(cm.prefix(b, self.sections), b.key, b.action)
                 for _h, bs in text[0].groups for b in bs]
-        self.assertEqual(rows, [("Space + ", "i", "up"),
+        self.assertEqual(rows, [("", "o", "backspace"),
+                                ("Space + ", "i", "up"),
                                 ("Space + ", "j", "left"),
                                 ("Space + ", "k", "down"),
                                 ("Space + ", "l", "right"),

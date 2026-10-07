@@ -26,6 +26,8 @@ q = C-pageup
 w = C-pagedown
 t = C-t
 y = C-w
+# Backspace on o, so deleting doesn't mean leaving the home row
+o = backspace
 # Lock the screen (GNOME's Super+L)
 0 = M-l
 # PrtSc (screenshot). The physical PrtSc key sends KEY_SYSRQ.

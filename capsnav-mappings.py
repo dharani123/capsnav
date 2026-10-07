@@ -274,6 +274,7 @@ POINTER_ACTIONS = {"leftmouse", "rightmouse", "middlemouse",
                    "M-A-o"}    # pointer + focus to the other monitor
 BROWSER_ACTIONS = {"C-pageup", "C-pagedown", "C-t", "C-w"}
 WINDOW_ACTIONS = {"M-l", "togglem(mousemode, M-l)", "sysrq"}
+TEXT_ACTIONS = {"backspace"}
 
 
 def category(b):
@@ -294,7 +295,8 @@ def category(b):
         return "Mouse"
     if layer in ("scrollup", "scrolldown"):
         return "Scroll"
-    if b.section == "arrows" or layer == "arrows":     # Caps+Space
+    if b.section == "arrows" or layer == "arrows" \
+            or b.action in TEXT_ACTIONS:     # Caps+Space, Caps+o
         return "Text"
     if b.action in BROWSER_ACTIONS:
         return "Browser"
