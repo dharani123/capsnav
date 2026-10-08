@@ -275,7 +275,8 @@ POINTER_ACTIONS = {"leftmouse", "rightmouse", "middlemouse",
                    "M-A-u",    # centre the pointer (capsnav-switch-monitor)
                    "M-A-o"}    # pointer + focus to the other monitor
 BROWSER_ACTIONS = {"C-pageup", "C-pagedown", "C-t", "C-w"}
-WINDOW_ACTIONS = {"M-l", "togglem(mousemode, M-l)", "sysrq"}
+WINDOW_ACTIONS = {"M-l", "togglem(mousemode, M-l)", "sysrq",
+                  "M-A-x"}    # other workspace (capsnav-switch-workspace)
 TEXT_ACTIONS = {"backspace"}
 
 

@@ -76,7 +76,7 @@ SCROLL_LAYERS = {"scrolldown": (-1,), "scrollup": (1,)}
 # once (eased by the spring).
 SCROLL_SPEED_LAYERS = {"arrows": 6.0}
 # Pointer keys: two clusters, Caps+i/j/k/l and Caps+e/s/d/f, each turning on
-# its own layers. Depending on the pointer mode (Caps+x cycles it), a cluster
+# its own layers. Depending on the pointer mode (Caps+z cycles it), a cluster
 # either moves the pointer smoothly or snaps it to that edge of its screen.
 # Moving directions add up, so the same direction on both clusters moves
 # twice as fast.
@@ -86,7 +86,7 @@ for _cluster in ("ijkl", "esdf"):
                         ("up", (0, -1)), ("down", (0, 1))):
         POINTER_LAYERS[_cluster + _side] = (_cluster, _dir)
 MOUSE_LAYERS = {name: d for name, (_, d) in POINTER_LAYERS.items()}
-# (label, clusters that snap); Caps+x cycles through these.
+# (label, clusters that snap); Caps+z cycles through these.
 POINTER_MODES = [("both move", set()),
                  ("e/s/d/f snap, i/j/k/l move", {"esdf"}),
                  ("i/j/k/l snap, e/s/d/f move", {"ijkl"})]

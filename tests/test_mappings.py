@@ -220,9 +220,9 @@ class MoveTest(unittest.TestCase):
 
     def test_move_to_free_key(self):
         b = find(self.sections, "Caps", "t")      # new tab
-        new = cm.move(self.texts, b, "z")
+        new = cm.move(self.texts, b, "8")
         nav = new["capsnav-nav"]
-        self.assertIn("\nz = C-t\n", nav)
+        self.assertIn("\n8 = C-t\n", nav)
         self.assertNotRegex(nav, r"(?m)^t = ")
         # Only that line changed in capsnav-nav.
         old_lines = self.texts["capsnav-nav"].splitlines()
@@ -231,10 +231,10 @@ class MoveTest(unittest.TestCase):
         self.assertEqual(sum(a != c for a, c in zip(old_lines, new_lines)), 1)
         # Linked lists follow.
         mt = new["capsnav-mousetype"]
-        self.assertRegex(mt, r"(?m)^z = z$")
+        self.assertRegex(mt, r"(?m)^8 = 8$")
         self.assertNotRegex(mt, r"(?m)^t = t$")
         ctrl = section_lines(new["default.conf"], "mousemode+control")
-        self.assertIn("z = C-z", ctrl)
+        self.assertIn("8 = C-8", ctrl)
         self.assertNotIn("t = C-t", ctrl)
 
     def test_overwrite_makes_unbound(self):

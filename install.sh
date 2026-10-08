@@ -77,6 +77,7 @@ systemctl --user enable capsnav-appmap
 systemctl --user restart capsnav-appmap
 
 sudo install -m755 capsnav-switch-monitor.sh /usr/local/bin/capsnav-switch-monitor
+sudo install -m755 capsnav-switch-workspace.sh /usr/local/bin/capsnav-switch-workspace
 # Pointer follows keyboard focus (user service: needs the X session).
 sudo install -m755 capsnav-focus-follow.sh /usr/local/bin/capsnav-focus-follow
 install -Dm644 capsnav-focus-follow.service "$HOME/.config/systemd/user/capsnav-focus-follow.service"
@@ -111,12 +112,14 @@ gnome_shortcut() { # name command binding
 }
 
 if gsettings list-schemas 2>/dev/null | grep -qx "$schema"; then
-	# Caps+p sends Super+Alt+O, Caps+u sends Super+Alt+U.
+	# Caps+p sends Super+Alt+O, Caps+u Super+Alt+U, Caps+x Super+Alt+X.
 	gnome_shortcut 'capsnav: switch monitor' /usr/local/bin/capsnav-switch-monitor '<Super><Alt>o'
 	gnome_shortcut 'capsnav: center pointer' '/usr/local/bin/capsnav-switch-monitor --center' '<Super><Alt>u'
+	gnome_shortcut 'capsnav: switch workspace' /usr/local/bin/capsnav-switch-workspace '<Super><Alt>x'
 else
 	echo "GNOME not found: bind Super+Alt+O to /usr/local/bin/capsnav-switch-monitor"
-	echo "and Super+Alt+U to 'capsnav-switch-monitor --center' yourself for Caps+p/u."
+	echo "and Super+Alt+U to 'capsnav-switch-monitor --center' yourself for Caps+p/u,"
+	echo "and Super+Alt+X to capsnav-switch-workspace for Caps+x."
 fi
 
 sleep 1
