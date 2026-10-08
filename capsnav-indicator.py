@@ -32,8 +32,8 @@ ICON_DIR = "/usr/local/share/icons/hicolor/scalable/status"
 ICON_ON, ICON_OFF = "capsnav-mouse", "capsnav-keyboard"
 if not os.path.exists(os.path.join(ICON_DIR, ICON_OFF + ".svg")):
     ICON_ON, ICON_OFF = "input-mouse-symbolic", "input-keyboard-symbolic"
-LABEL_ON = "Mouse mode on (tap left Shift to leave)"
-LABEL_OFF = "Mouse mode off (tap left Shift to turn on)"
+LABEL_ON = "Mouse mode on (tap left Alt to leave)"
+LABEL_OFF = "Mouse mode off (tap left Alt to turn on)"
 POINTER_LABEL = "Pointer keys: %s (Caps+x to change)"
 
 

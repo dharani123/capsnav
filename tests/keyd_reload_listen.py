@@ -3,7 +3,7 @@
 mouse mode went off, or the top-bar icon stays filled after the Mappings
 window saves (capsnav-indicator only knows what keyd listen reports).
 
-Taps left Shift on a throwaway uinput keyboard (keyd grabs it, [ids] *), so
+Taps left Alt on a throwaway uinput keyboard (keyd grabs it, [ids] *), so
 it needs root for /dev/uinput:  sudo python3 -I tests/keyd_reload_listen.py
 Not part of the unittest suite: it reloads the installed keyd.
 """
@@ -18,7 +18,7 @@ import threading
 import time
 
 EV_SYN, EV_KEY, SYN_REPORT = 0x00, 0x01, 0
-KEY_LEFTSHIFT = 42
+KEY_LEFTALT = 56
 UI_SET_EVBIT, UI_SET_KEYBIT = 0x40045564, 0x40045565
 UI_DEV_SETUP, UI_DEV_CREATE, UI_DEV_DESTROY = 0x405C5503, 0x5501, 0x5502
 
@@ -35,7 +35,7 @@ def keyboard():
 
 
 def key(fd, value):
-    for etype, code, val in ((EV_KEY, KEY_LEFTSHIFT, value),
+    for etype, code, val in ((EV_KEY, KEY_LEFTALT, value),
                              (EV_SYN, SYN_REPORT, 0)):
         os.write(fd, struct.pack("llHHi", 0, 0, etype, code, val))
 

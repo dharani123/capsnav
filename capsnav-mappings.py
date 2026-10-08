@@ -55,6 +55,7 @@ KEY_LABELS = {
     "apostrophe": "'", "leftbrace": "[", "rightbrace": "]", "minus": "-",
     "equal": "=", "grave": "`", "backslash": "\\", "space": "Space",
     "capslock": "Caps", "leftshift": "Left Shift", "rightshift": "Right Shift",
+    "leftalt": "Left Alt",
     "tab": "Tab", "esc": "Esc", "enter": "Enter",
 }
 KEY_NAMES = dict(KEY_LABELS, **{
@@ -313,9 +314,9 @@ navigate things faster.
 
 Use all these mappings by holding Caps Lock.
 
-Or tap left Shift to toggle mouse mode, and use the same bindings without \
+Or tap left Alt to toggle mouse mode, and use the same bindings without \
 holding Caps Lock. The top-bar icon is a mouse while mouse mode \
-is on and a keyboard while it's off; tap left Shift again to leave it."""
+is on and a keyboard while it's off; tap left Alt again to leave it."""
 
 # Sections shown inside another in the tabs: Caps+Space keys sit under the
 # layer that holds Space, each with a "Space + " prefix (see prefix()).
