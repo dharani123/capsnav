@@ -22,9 +22,14 @@ if [ -n "$center" ]; then
 fi
 read -r w h x y <<<"${mons[(cur + 1) % n]}"
 
-# Topmost visible, non-minimised window whose centre is on the target monitor
+# Topmost visible, non-minimised window whose centre is on the target monitor,
+# on the current workspace (or on all of them: 4294967295), since activating
+# a window on another workspace switches to it.
+desk=$(xdotool get_desktop)
 stack=$(xprop -root _NET_CLIENT_LIST_STACKING | grep -o '0x[0-9a-f]*' | tac)
 for win in $stack; do
+    wdesk=$(xprop -id "$win" _NET_WM_DESKTOP | awk '{print $3}')
+    [ "$wdesk" = "$desk" ] || [ "$wdesk" = 4294967295 ] || continue
     xprop -id "$win" _NET_WM_STATE | grep -q HIDDEN && continue
     xprop -id "$win" _NET_WM_WINDOW_TYPE | grep -q -e DESKTOP -e DOCK && continue
     eval "$(xdotool getwindowgeometry --shell "$win")"   # sets X Y WIDTH HEIGHT
