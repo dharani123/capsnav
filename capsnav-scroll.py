@@ -540,7 +540,7 @@ def run(output, layers, motions, settings, vblank=None):
                     line = line.decode(errors="replace").strip()
                     name = line[1:]
                     if pointer and name == "mousemode":
-                        # A left Shift tap toggled mouse mode: say so, since keys now
+                        # A Caps tap toggled mouse mode: say so, since keys now
                         # move the pointer instead of typing.
                         indicator("on" if line[0] == "+" else "off")
                         continue

@@ -160,7 +160,6 @@ class TabsTest(unittest.TestCase):
         self.assertEqual(self.tab_of(dc, "winswitch:A", "j"), "Windows")
         self.assertEqual(self.tab_of(dc, "mousemode", "0"), "Windows")
         self.assertEqual(self.tab_of(dc, "arrows", "i"), "Text")
-        self.assertEqual(self.tab_of(dc, "mousemode", "leftshift"), "Other")
         self.assertEqual(self.tab_of(dc, "mousemode", "capslock"), "Other")
         self.assertEqual(self.tab_of("app.conf", "code", "s"), "VS Code")
 
@@ -277,8 +276,8 @@ class MoveTest(unittest.TestCase):
         self.assertEqual(new["capsnav-mousetype"],
                          self.texts["capsnav-mousetype"])
 
-    def test_mousemode_leftshift_skips_lists(self):
-        b = find(self.sections, "Mouse mode only", "leftshift")
+    def test_mousemode_capslock_skips_lists(self):
+        b = find(self.sections, "Mouse mode only", "capslock")
         new = cm.move(self.texts, b, "rightshift")
         self.assertEqual(new["capsnav-mousetype"],
                          self.texts["capsnav-mousetype"])

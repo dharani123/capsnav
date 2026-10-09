@@ -1,5 +1,5 @@
-# capsnav key bindings, shared by [nav] (hold Caps) and [mousemode] (a left
-# Shift tap locks them on) in default.conf, which includes this file. Installed next to
+# capsnav key bindings, shared by [nav] (hold Caps) and [mousemode] (a Caps
+# tap locks them on) in default.conf, which includes this file. Installed next to
 # it as /etc/keyd/capsnav-nav (no .conf, so keyd doesn't load it on its own).
 
 # Mouse: i/j/k/l move the pointer (up/left/down/right). The empty layers are
