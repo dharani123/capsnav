@@ -4,7 +4,7 @@ mouse while mouse mode is on and a filled keyboard while it's off.
 
 Started by capsnav-scroll --mouse, which writes "off" at startup and then
 "on" / "off" lines to its stdin when mouse mode turns on or off, and
-"pointer <mode>" lines with the Caps+z pointer mode. Uses AppIndicator
+"pointer <mode>" lines with the Caps+x pointer mode. Uses AppIndicator
 (Ubuntu's ubuntu-appindicators extension shows it). Its menu names both
 modes and opens the mappings window. Exits when stdin closes.
 """
@@ -34,7 +34,7 @@ if not os.path.exists(os.path.join(ICON_DIR, ICON_OFF + ".svg")):
     ICON_ON, ICON_OFF = "input-mouse-symbolic", "input-keyboard-symbolic"
 LABEL_ON = "Mouse mode on (tap Caps to leave)"
 LABEL_OFF = "Mouse mode off (tap Caps to turn on)"
-POINTER_LABEL = "Pointer keys: %s (Caps+z to change)"
+POINTER_LABEL = "Pointer keys: %s (Caps+x to change)"
 
 
 def main():

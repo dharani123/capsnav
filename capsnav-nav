@@ -14,9 +14,9 @@ e = layer(esdfup)
 s = layer(esdfleft)
 d = layer(esdfdown)
 f = layer(esdfright)
-# Pointer mode: z cycles whether each cluster moves the pointer or snaps it to
+# Pointer mode: x cycles whether each cluster moves the pointer or snaps it to
 # that screen edge (both move / e-s-d-f snap / i-j-k-l snap).
-z = layer(pointermode)
+x = layer(pointermode)
 # Clicks: g and h = left button (tap to click, hold and move to select text or
 # drag), ; and a = right click. Buttons stay down while the key is held.
 g = leftmouse
@@ -41,14 +41,11 @@ p = M-A-o
 r = M-A-o
 # Centre the pointer on the current monitor (GNOME shortcut -> capsnav-switch-monitor --center)
 u = M-A-u
-# Switch to the other workspace (GNOME shortcut -> capsnav-switch-workspace);
-# next to b, the window switcher
-v = M-A-x
-# Smooth scroll: n/m on the right hand, x/c on the left (up/down). These
+# Smooth scroll: n/m on the right hand, c/v on the left (up/down). These
 # layers are watched by capsnav-scroll.py.
 n = layer(scrollup)
 m = layer(scrolldown)
-x = layer(scrollup)
-c = layer(scrolldown)
+c = layer(scrollup)
+v = layer(scrolldown)
 # Caps+Space: hold Space for arrow keys on i/j/k/l and fast scrolling on n/m
 space = layer(arrows)

@@ -6,7 +6,7 @@ Hold Caps Lock to drive the mouse from i/j/k/l and more, using keyd (v2.6.0, bui
 |--------|-------------|
 | i/j/k/l | Move the mouse pointer up/left/down/right (hold; combine for diagonals) |
 | e/s/d/f | Move the pointer on the left hand too; the same direction on both (e.g. j + s) moves twice as fast |
-| z      | Cycle pointer mode: both move / e/s/d/f snap to screen edges / i/j/k/l snap (notification shows the mode) |
+| x      | Cycle pointer mode: both move / e/s/d/f snap to screen edges / i/j/k/l snap (notification shows the mode) |
 | g      | Left click; hold g and move to select text or drag, release to drop |
 | h      | Left click (also on g) |
 | ; / a  | Right click (right or left hand) |
@@ -20,12 +20,11 @@ Hold Caps Lock to drive the mouse from i/j/k/l and more, using keyd (v2.6.0, bui
 | t / y  | New tab / close tab (Ctrl+T / Ctrl+W) |
 | n      | Smooth scroll up (hold)   |
 | m      | Smooth scroll down (hold) |
-| x / c  | Smooth scroll up / down on the left hand (same as n / m) |
-| Space+n/m, Space+x/c | Smooth scroll at 6x speed (press or release Space mid-scroll to switch) |
+| c / v  | Smooth scroll up / down on the left hand (same as n / m) |
+| Space+n/m, Space+c/v | Smooth scroll at 6x speed (press or release Space mid-scroll to switch) |
 | 7      | PrtSc (screenshot) |
 | p / r  | Move pointer + focus to the other monitor (right or left hand) |
 | u      | Centre the pointer on the current monitor |
-| v      | Switch to the other workspace (wraps around with more than two) |
 | b      | Window switcher (Alt+Tab): hold Caps, tap b to cycle, j/l or s/f to move, release to pick |
 
 ## Install
@@ -80,13 +79,12 @@ For smooth Caps+n/m scrolling in VS Code, add these to your VS Code
 - `capsnav-mouse.service`: systemd user unit that runs the same helper with `--mouse` for pointer motion.
 - `mouse.conf`: scroll and pointer speed, easing and event rate. The live copy is `/etc/capsnav/mouse.conf`.
 - `capsnav-switch-monitor.sh`: Caps+p helper, installed as `/usr/local/bin/capsnav-switch-monitor` (see below).
-- `capsnav-switch-workspace.sh`: Caps+v helper, installed as `/usr/local/bin/capsnav-switch-workspace`.
 - `tools/scroll-curve.py`: previews scroll settings as a speed curve; no root needed.
 - `system/keyd-restart.conf`: systemd drop-in that restarts keyd if it crashes (not after the emergency stop).
 - `system/capsnav.quirks`, `system/50-capsnav-scroll.conf`: the libinput and X settings for continuous scrolling (see below).
 
 ## Smooth scrolling
-Caps+n / Caps+m (and Caps+x / Caps+c) send no keys of their own. They switch on the empty keyd layers
+Caps+n / Caps+m (and Caps+c / Caps+v) send no keys of their own. They switch on the empty keyd layers
 `scrollup` / `scrolldown`. `capsnav-scroll` watches those layers via
 `keyd listen`, and while one is active it sends small scroll steps at
 `tick_hz` from a virtual pointer. Speed eases in on press and glides to a stop
@@ -149,7 +147,7 @@ It takes effect on the next scroll with no restart.
 Hold Caps, then i/j/k/l (up/left/down/right) to move the pointer; hold two for
 a diagonal. e/s/d/f do the same on the left hand, and held directions add up,
 so the same direction on both hands (e.g. j + s) moves twice as fast.
-Caps+z cycles the pointer mode: both clusters move (default), e/s/d/f snap,
+Caps+x cycles the pointer mode: both clusters move (default), e/s/d/f snap,
 or i/j/k/l snap. A snapping key jumps the pointer to that edge of its screen
 (keeping the other coordinate), `pointer_snap_margin_px` inside it. The mode
 is kept in `~/.config/capsnav/pointer-mode`. g is the left button (tap to click, hold to select or drag) and ;
@@ -183,7 +181,7 @@ turns it off, clicking first where the pointer is (so the text cursor lands
 there and you can type straight away); holding Caps works
 as before. An icon in the top bar next to Wi-Fi
 (`capsnav-indicator`, an AppIndicator) shows the mode at a glance: a filled
-mouse while mouse mode is on, a filled keyboard while it's off. Clicking the icon opens a menu that shows the mouse mode and the Caps+z pointer mode, with **Mappings…** (see below). Hold b for the window switcher: j/l (or s/f) move through it and releasing
+mouse while mouse mode is on, a filled keyboard while it's off. Clicking the icon opens a menu that shows the mouse mode and the Caps+x pointer mode, with **Mappings…** (see below). Hold b for the window switcher: j/l (or s/f) move through it and releasing
 b picks; a quick tap of b jumps to the previous window. This uses a small
 patch to the bundled keyd (`layerm()` runs its macro after the layer is on,
 so Alt stays held).
@@ -261,11 +259,6 @@ Caps+u works the same way (Super+Alt+U, shortcut "capsnav: center pointer")
 and runs `capsnav-switch-monitor --center`, which only moves the pointer to the
 centre of the monitor it's on. To reach a far corner quickly: Caps+u, then
 i/j/k/l.
-
-Caps+v also works this way (Super+Alt+X, shortcut "capsnav: switch
-workspace") and runs `capsnav-switch-workspace`, which moves to the next
-workspace, wrapping from the last to the first; with two workspaces it
-toggles between them.
 
 ## Checking the setup
 `./check.sh` checks everything `install.sh` sets up and prints `[ OK ]`,
