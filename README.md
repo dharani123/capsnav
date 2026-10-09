@@ -278,7 +278,7 @@ the whole output.
 
 ## Common tasks
 - Apply config edits: `sudo cp capsnav-nav capsnav-mousetype default.conf /etc/keyd/ && sudo systemctl restart keyd`
-- Uninstall: `sudo systemctl disable --now capsnav-scroll keyd && sudo rm -r /etc/systemd/system/capsnav-scroll.service /usr/local/bin/capsnav-scroll /etc/capsnav /etc/X11/xorg.conf.d/50-capsnav-scroll.conf /usr/local/bin/capsnav-switch-monitor /usr/local/bin/capsnav-switch-workspace /usr/local/bin/capsnav-focus-follow /usr/local/bin/capsnav-indicator /usr/local/bin/capsnav-mappings /usr/local/share/capsnav && systemctl --user disable --now capsnav-mouse capsnav-appmap capsnav-focus-follow && rm ~/.config/systemd/user/capsnav-mouse.service ~/.config/systemd/user/capsnav-appmap.service ~/.config/systemd/user/capsnav-focus-follow.service ~/.config/keyd/app.conf && sudo gpasswd -d $USER keyd && sudo rm -r /etc/systemd/system/keyd.service.d/capsnav-restart.conf && sudo make -C keyd-src uninstall`, then delete the `[capsnav smooth scroll]` section from `/etc/libinput/local-overrides.quirks` and the "capsnav: switch monitor", "capsnav: center pointer" and "capsnav: switch workspace" shortcuts in Settings → Keyboard → Custom Shortcuts
+- Uninstall: run `./uninstall.sh` from this folder, as the user who ran `install.sh`, then reboot once. It removes keyd, the capsnav helpers and services, the libinput quirk and the GNOME shortcuts; system packages stay installed.
 - If the keyboard locks up: press Backspace+Escape+Enter together to stop keyd.
 
 ## keyd version
