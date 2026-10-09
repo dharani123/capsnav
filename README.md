@@ -173,15 +173,15 @@ session, so this part runs as you rather than root, and `install.sh` adds you
 to the `keyd` group so it can read `keyd listen` (takes effect at next login).
 X11 only.
 
-## Mouse mode (tap left Alt)
-Tap left Alt on its own (released within 200 ms, no other key) to lock the
+## Mouse mode (tap left Shift)
+Tap left Shift on its own (released within 200 ms, no other key) to lock the
 Caps layer on, for stretches of mouse-only use: every Caps binding (mouse
 keys, clicks, n/m and x/c scroll with Space for fast, q/w tabs, and the rest)
 works without holding Caps. Letters without a Caps binding type normally, but
-Space acts as in Caps+Space (arrows / fast scroll). Another left Alt tap
+Space acts as in Caps+Space (arrows / fast scroll). Another left Shift tap
 turns it off, clicking first where the pointer is (so the text cursor lands
-there and you can type straight away); holding left Alt with another key
-works as a normal Alt. An icon in the top bar next to Wi-Fi
+there and you can type straight away); holding Shift with a letter types
+capitals as usual. An icon in the top bar next to Wi-Fi
 (`capsnav-indicator`, an AppIndicator) shows the mode at a glance: a filled
 mouse while mouse mode is on, a filled keyboard while it's off. Clicking the icon opens a menu that shows the mouse mode and the Caps+z pointer mode, with **Mappings…** (see below). Hold b for the window switcher: j/l (or s/f) move through it and releasing
 b picks; a quick tap of b jumps to the previous window. This uses a small

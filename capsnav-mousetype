@@ -32,4 +32,4 @@ n = n
 m = m
 space = space
 b = b
-leftalt = layer(alt)
+leftshift = layer(shift)
