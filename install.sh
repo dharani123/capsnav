@@ -112,14 +112,14 @@ gnome_shortcut() { # name command binding
 }
 
 if gsettings list-schemas 2>/dev/null | grep -qx "$schema"; then
-	# Caps+p sends Super+Alt+O, Caps+u Super+Alt+U, Caps+x Super+Alt+X.
+	# Caps+p sends Super+Alt+O, Caps+u Super+Alt+U, Caps+v Super+Alt+X.
 	gnome_shortcut 'capsnav: switch monitor' /usr/local/bin/capsnav-switch-monitor '<Super><Alt>o'
 	gnome_shortcut 'capsnav: center pointer' '/usr/local/bin/capsnav-switch-monitor --center' '<Super><Alt>u'
 	gnome_shortcut 'capsnav: switch workspace' /usr/local/bin/capsnav-switch-workspace '<Super><Alt>x'
 else
 	echo "GNOME not found: bind Super+Alt+O to /usr/local/bin/capsnav-switch-monitor"
 	echo "and Super+Alt+U to 'capsnav-switch-monitor --center' yourself for Caps+p/u,"
-	echo "and Super+Alt+X to capsnav-switch-workspace for Caps+x."
+	echo "and Super+Alt+X to capsnav-switch-workspace for Caps+v."
 fi
 
 sleep 1

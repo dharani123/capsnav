@@ -20,12 +20,12 @@ Hold Caps Lock to drive the mouse from i/j/k/l and more, using keyd (v2.6.0, bui
 | t / y  | New tab / close tab (Ctrl+T / Ctrl+W) |
 | n      | Smooth scroll up (hold)   |
 | m      | Smooth scroll down (hold) |
-| c / v  | Smooth scroll up / down on the left hand (same as n / m) |
-| Space+n/m, Space+c/v | Smooth scroll at 6x speed (press or release Space mid-scroll to switch) |
+| x / c  | Smooth scroll up / down on the left hand (same as n / m) |
+| Space+n/m, Space+x/c | Smooth scroll at 6x speed (press or release Space mid-scroll to switch) |
 | 7      | PrtSc (screenshot) |
 | p / r  | Move pointer + focus to the other monitor (right or left hand) |
 | u      | Centre the pointer on the current monitor |
-| x      | Switch to the other workspace (wraps around with more than two) |
+| v      | Switch to the other workspace (wraps around with more than two) |
 | b      | Window switcher (Alt+Tab): hold Caps, tap b to cycle, j/l or s/f to move, release to pick |
 
 ## Install
@@ -80,13 +80,13 @@ For smooth Caps+n/m scrolling in VS Code, add these to your VS Code
 - `capsnav-mouse.service`: systemd user unit that runs the same helper with `--mouse` for pointer motion.
 - `mouse.conf`: scroll and pointer speed, easing and event rate. The live copy is `/etc/capsnav/mouse.conf`.
 - `capsnav-switch-monitor.sh`: Caps+p helper, installed as `/usr/local/bin/capsnav-switch-monitor` (see below).
-- `capsnav-switch-workspace.sh`: Caps+x helper, installed as `/usr/local/bin/capsnav-switch-workspace`.
+- `capsnav-switch-workspace.sh`: Caps+v helper, installed as `/usr/local/bin/capsnav-switch-workspace`.
 - `tools/scroll-curve.py`: previews scroll settings as a speed curve; no root needed.
 - `system/keyd-restart.conf`: systemd drop-in that restarts keyd if it crashes (not after the emergency stop).
 - `system/capsnav.quirks`, `system/50-capsnav-scroll.conf`: the libinput and X settings for continuous scrolling (see below).
 
 ## Smooth scrolling
-Caps+n / Caps+m (and Caps+c / Caps+v) send no keys of their own. They switch on the empty keyd layers
+Caps+n / Caps+m (and Caps+x / Caps+c) send no keys of their own. They switch on the empty keyd layers
 `scrollup` / `scrolldown`. `capsnav-scroll` watches those layers via
 `keyd listen`, and while one is active it sends small scroll steps at
 `tick_hz` from a virtual pointer. Speed eases in on press and glides to a stop
@@ -176,7 +176,7 @@ X11 only.
 ## Mouse mode (tap left Alt)
 Tap left Alt on its own (released within 200 ms, no other key) to lock the
 Caps layer on, for stretches of mouse-only use: every Caps binding (mouse
-keys, clicks, n/m and c/v scroll with Space for fast, q/w tabs, and the rest)
+keys, clicks, n/m and x/c scroll with Space for fast, q/w tabs, and the rest)
 works without holding Caps. Letters without a Caps binding type normally, but
 Space acts as in Caps+Space (arrows / fast scroll). Another left Alt tap
 turns it off, clicking first where the pointer is (so the text cursor lands
@@ -262,7 +262,7 @@ and runs `capsnav-switch-monitor --center`, which only moves the pointer to the
 centre of the monitor it's on. To reach a far corner quickly: Caps+u, then
 i/j/k/l.
 
-Caps+x also works this way (Super+Alt+X, shortcut "capsnav: switch
+Caps+v also works this way (Super+Alt+X, shortcut "capsnav: switch
 workspace") and runs `capsnav-switch-workspace`, which moves to the next
 workspace, wrapping from the last to the first; with two workspaces it
 toggles between them.

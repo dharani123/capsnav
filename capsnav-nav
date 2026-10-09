@@ -41,13 +41,14 @@ p = M-A-o
 r = M-A-o
 # Centre the pointer on the current monitor (GNOME shortcut -> capsnav-switch-monitor --center)
 u = M-A-u
-# Switch to the other workspace (GNOME shortcut -> capsnav-switch-workspace)
-x = M-A-x
-# Smooth scroll: n/m on the right hand, c/v on the left (up/down). These
+# Switch to the other workspace (GNOME shortcut -> capsnav-switch-workspace);
+# next to b, the window switcher
+v = M-A-x
+# Smooth scroll: n/m on the right hand, x/c on the left (up/down). These
 # layers are watched by capsnav-scroll.py.
 n = layer(scrollup)
 m = layer(scrolldown)
-c = layer(scrollup)
-v = layer(scrolldown)
+x = layer(scrollup)
+c = layer(scrolldown)
 # Caps+Space: hold Space for arrow keys on i/j/k/l and fast scrolling on n/m
 space = layer(arrows)
