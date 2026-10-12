@@ -41,11 +41,11 @@ u = M-A-o
 r = M-A-o
 # Centre the pointer on the current monitor (GNOME shortcut -> capsnav-switch-monitor --center)
 p = M-A-u
-# Smooth scroll: n/m on the right hand, c/v on the left (up/down). These
+# Smooth scroll: n/m on the right hand, v/c on the left (up/down). These
 # layers are watched by capsnav-scroll.py.
 n = layer(scrollup)
 m = layer(scrolldown)
-c = layer(scrollup)
-v = layer(scrolldown)
+c = layer(scrolldown)
+v = layer(scrollup)
 # Caps+Space: hold Space for arrow keys on i/j/k/l and fast scrolling on n/m
 space = layer(arrows)

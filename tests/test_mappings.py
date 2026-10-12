@@ -171,8 +171,8 @@ class TabsTest(unittest.TestCase):
                          b.group)
 
     def test_scroll_combo(self):
-        rows = [("Space + ", "n, c", "Scroll up, 6x faster"),
-                ("Space + ", "m, v", "Scroll down, 6x faster")]
+        rows = [("Space + ", "n, v", "Scroll up, 6x faster"),
+                ("Space + ", "m, c", "Scroll down, 6x faster")]
         self.assertEqual(cm.combos(self.sections),
                          {"Scroll": rows, "Text": rows})
 
@@ -180,8 +180,8 @@ class TabsTest(unittest.TestCase):
         texts = repo_texts()
         b = find(self.sections, "Caps", "n")
         secs = cm.parse_all(cm.move(texts, b, "z"))
-        self.assertEqual(cm.combos(secs)["Scroll"][0][1], "z, c")
-        self.assertEqual(cm.combos(secs)["Text"][0][1], "z, c")
+        self.assertEqual(cm.combos(secs)["Scroll"][0][1], "z, v")
+        self.assertEqual(cm.combos(secs)["Text"][0][1], "z, v")
 
     def test_text_tab_is_one_section_with_space_prefix(self):
         text = dict(self.tabs)["Text"]
