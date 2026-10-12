@@ -23,12 +23,12 @@ Hold Caps Lock to drive the mouse from i/j/k/l and more, using keyd (v2.6.0, bui
 | c / v  | Smooth scroll up / down on the left hand (same as n / m) |
 | Space+n/m, Space+c/v | Smooth scroll at 6x speed (press or release Space mid-scroll to switch) |
 | 7      | PrtSc (screenshot) |
-| p / r  | Move pointer + focus to the other monitor (right or left hand) |
-| u      | Centre the pointer on the current monitor |
+| u / r  | Move pointer + focus to the other monitor (right or left hand) |
+| p      | Centre the pointer on the current monitor |
 | b      | Window switcher (Alt+Tab): hold Caps, tap b to cycle, j/l or s/f to move, release to pick |
 
 ## Install
-Requires Linux with systemd; Caps+p and the mouse keys need GNOME on X11.
+Requires Linux with systemd; Caps+u and the mouse keys need GNOME on X11.
 Ubuntu/Debian and Fedora are supported:
 
 ```bash
@@ -39,7 +39,7 @@ cd capsnav && ./install.sh
 Run it as your normal user; it asks for your `sudo` password. It installs the
 system packages (build tools, python3, xdotool), builds keyd, installs the
 config, the smooth-scroll and pointer helper and the switch-monitor script,
-starts the services, and adds the GNOME shortcut for Caps+p.
+starts the services, and adds the GNOME shortcut for Caps+u.
 Reboot once when it says so. Re-running it is safe and applies any changes.
 
 On other distros, install the equivalent of the apt package list at the top of
@@ -78,7 +78,7 @@ For smooth Caps+n/m scrolling in VS Code, add these to your VS Code
 - `capsnav-focus-follow.sh`, `capsnav-focus-follow.service`: pointer-follows-focus script and its user unit.
 - `capsnav-mouse.service`: systemd user unit that runs the same helper with `--mouse` for pointer motion.
 - `mouse.conf`: scroll and pointer speed, easing and event rate. The live copy is `/etc/capsnav/mouse.conf`.
-- `capsnav-switch-monitor.sh`: Caps+p helper, installed as `/usr/local/bin/capsnav-switch-monitor` (see below).
+- `capsnav-switch-monitor.sh`: Caps+u/p helper, installed as `/usr/local/bin/capsnav-switch-monitor` (see below).
 - `tools/scroll-curve.py`: previews scroll settings as a speed curve; no root needed.
 - `system/keyd-restart.conf`: systemd drop-in that restarts keyd if it crashes (not after the emergency stop).
 - `system/capsnav.quirks`, `system/50-capsnav-scroll.conf`: the libinput and X settings for continuous scrolling (see below).
@@ -247,7 +247,7 @@ never moves the pointer, since it's already inside. `capsnav-focus-follow`
 `xprop -spy`. To turn it off: `systemctl --user disable --now capsnav-focus-follow`.
 
 ## Switching monitors
-keyd runs as root with no access to your X session, so Caps+p can't run the
+keyd runs as root with no access to your X session, so Caps+u can't run the
 script directly. It sends Super+Alt+O instead, and `install.sh` adds a GNOME
 custom shortcut ("capsnav: switch monitor") that runs
 `capsnav-switch-monitor`. The script moves the pointer to the centre of the
@@ -255,9 +255,9 @@ next monitor and focuses the topmost window there. It reads the layout from
 `xrandr` each time, so it follows monitor changes. X11 only; on another
 desktop, bind Super+Alt+O to the script yourself.
 
-Caps+u works the same way (Super+Alt+U, shortcut "capsnav: center pointer")
+Caps+p works the same way (Super+Alt+U, shortcut "capsnav: center pointer")
 and runs `capsnav-switch-monitor --center`, which only moves the pointer to the
-centre of the monitor it's on. To reach a far corner quickly: Caps+u, then
+centre of the monitor it's on. To reach a far corner quickly: Caps+p, then
 i/j/k/l.
 
 ## Checking the setup

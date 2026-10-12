@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Move the pointer to the next monitor and focus the topmost window on it.
 # With --center, just move the pointer to the centre of the current monitor.
-# X11 only. Caps+p sends Super+Alt+O and Caps+u Super+Alt+U, which install.sh
+# X11 only. Caps+u sends Super+Alt+O and Caps+p Super+Alt+U, which install.sh
 # binds to this script as GNOME custom shortcuts.
 center=
 [ "$1" = --center ] && center=1

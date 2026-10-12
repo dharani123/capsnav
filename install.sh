@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # Install everything capsnav needs: system packages, keyd (built from
-# keyd-src) and its config, the smooth-scroll and pointer-motion helper, the Caps+p
+# keyd-src) and its config, the smooth-scroll and pointer-motion helper, the Caps+u/p
 # switch-monitor script, and its GNOME shortcut.
 # Run as your normal user; it uses sudo where needed. Safe to re-run.
 set -e
 cd "$(dirname "$0")"
 need_reboot=
 
-# System packages: build tools, python3, xdotool/xprop/xrandr (Caps+p).
+# System packages: build tools, python3, xdotool/xprop/xrandr (Caps+u/p).
 if command -v apt-get >/dev/null; then
 	# A broken third-party repo shouldn't stop the install.
 	sudo apt-get update || true
@@ -111,12 +111,12 @@ gnome_shortcut() { # name command binding
 }
 
 if gsettings list-schemas 2>/dev/null | grep -qx "$schema"; then
-	# Caps+p sends Super+Alt+O, Caps+u sends Super+Alt+U.
+	# Caps+u sends Super+Alt+O, Caps+p sends Super+Alt+U.
 	gnome_shortcut 'capsnav: switch monitor' /usr/local/bin/capsnav-switch-monitor '<Super><Alt>o'
 	gnome_shortcut 'capsnav: center pointer' '/usr/local/bin/capsnav-switch-monitor --center' '<Super><Alt>u'
 else
 	echo "GNOME not found: bind Super+Alt+O to /usr/local/bin/capsnav-switch-monitor"
-	echo "and Super+Alt+U to 'capsnav-switch-monitor --center' yourself for Caps+p/u."
+	echo "and Super+Alt+U to 'capsnav-switch-monitor --center' yourself for Caps+u/p."
 fi
 
 sleep 1
