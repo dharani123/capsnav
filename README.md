@@ -34,6 +34,7 @@ typing keys do nothing in Caps mode):
 | u / d | Page up / page down |
 | q / w | Previous / next word (Ctrl+Left / Ctrl+Right) |
 | o | Backspace |
+| Space (hold) + any of the above | Select while moving (adds Shift), e.g. Space+q selects the previous word |
 | 7      | PrtSc (screenshot) |
 | u / r  | Move pointer + focus to the other monitor (right or left hand) |
 | p      | Centre the pointer on the current monitor |
