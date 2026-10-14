@@ -215,16 +215,12 @@ Changes go to the live files only, not to this repo: running `install.sh`
 again puts the repo's bindings back.
 
 ## Per-app keys (VS Code)
-In VS Code, some left-hand Caps keys (and their mouse-mode versions) do code
-navigation instead:
+In VS Code, Caps+q/w (and their mouse-mode versions) do code navigation
+instead; the pointer keys stay as pointer keys:
 
 | Caps + | In VS Code | Elsewhere |
 |---|---|---|
 | q / w | Go back / forward | Previous / next tab |
-| s | Search in this file (Ctrl+F) | Pointer left |
-| d | Go to definition (F12) | Pointer down |
-| f | Find all references (Shift+Alt+F12) | Pointer right |
-| e | Search all files (Ctrl+Shift+F) | Pointer up |
 
 These live in `app.conf` (installed to `~/.config/keyd/app.conf`) and are
 applied by keyd's `keyd-application-mapper`, run as the user service

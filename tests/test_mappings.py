@@ -93,7 +93,7 @@ class ParseTest(unittest.TestCase):
         code = [b for s in self.sections for _h, bs in s.groups for b in bs
                 if b.file == "app.conf"]
         self.assertEqual(sorted(b.key for b in code),
-                         sorted(["q", "w", "s", "d", "f", "e"]))
+                         sorted(["q", "w"]))
 
     def test_group_heading_is_comment_above(self):
         b = find(self.sections, "Caps", "t")
@@ -161,7 +161,7 @@ class TabsTest(unittest.TestCase):
         self.assertEqual(self.tab_of(dc, "mousemode", "0"), "Windows")
         self.assertEqual(self.tab_of(dc, "arrows", "i"), "Text")
         self.assertEqual(self.tab_of(dc, "mousemode", "capslock"), "Other")
-        self.assertEqual(self.tab_of("app.conf", "code", "s"), "VS Code")
+        self.assertEqual(self.tab_of("app.conf", "code", "q"), "VS Code")
 
     def test_clicks_grouped(self):
         b = find(self.sections, "Caps", "g")
@@ -262,11 +262,11 @@ class MoveTest(unittest.TestCase):
 
     def test_vscode_pair_moves_together(self):
         b = next(b for s in self.sections for _h, bs in s.groups for b in bs
-                 if b.file == "app.conf" and b.key == "s")
+                 if b.file == "app.conf" and b.key == "q")
         new = cm.move(self.texts, b, "z")["app.conf"]
-        self.assertRegex(new, r"(?m)^nav\.z = C-f$")
-        self.assertRegex(new, r"(?m)^mousemode\.z = C-f$")
-        self.assertNotRegex(new, r"(?m)^(nav|mousemode)\.s = ")
+        self.assertRegex(new, r"(?m)^nav\.z = C-A-minus$")
+        self.assertRegex(new, r"(?m)^mousemode\.z = C-A-minus$")
+        self.assertNotRegex(new, r"(?m)^(nav|mousemode)\.q = ")
 
     def test_section_local_move(self):
         b = find(self.sections, "Caps+Space", "i")
