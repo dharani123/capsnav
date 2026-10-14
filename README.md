@@ -4,7 +4,7 @@ Drive the mouse and edit text from the home row with Caps Lock, using keyd (v2.6
 
 - **Keyboard mode**: the normal keyboard. This is where you start.
 - **Mouse mode**: tap Caps to turn it on (and tap again to go back). i/j/k/l and more drive the mouse.
-- **Caps mode**: while Caps is held, in keyboard or mouse mode. Only the text keys work (arrows, Home/End, Backspace and so on).
+- **Text mode**: while Caps is held, in keyboard or mouse mode. Only the text keys work (arrows, Home/End, Backspace and so on).
 
 Ctrl shortcuts work normally in every mode.
 
@@ -23,10 +23,10 @@ Ctrl shortcuts work normally in every mode.
 | v / c  | Smooth scroll up / down on the left hand (same as n / m) |
 | Space+n/m, Space+v/c | Smooth scroll at 6x speed (press or release Space mid-scroll to switch) |
 
-Hold Caps for **Caps mode**, in keyboard or mouse mode: the text keys (other
-typing keys do nothing in Caps mode):
+Hold Caps for **text mode**, in keyboard or mouse mode: the text keys (other
+typing keys do nothing in text mode):
 
-| Caps mode (hold Caps) + | Sends |
+| Text mode (hold Caps) + | Sends |
 |---|---|
 | i/j/k/l | Arrow keys up/left/down/right |
 | t / b | Top / bottom of the file (Ctrl+Home / Ctrl+End) |
@@ -78,7 +78,7 @@ For smooth n/m scrolling (mouse mode) in VS Code, add these to your VS Code
 
 ## Files
 - `default.conf`: the keyd config. The live copy is `/etc/keyd/default.conf`.
-- `capsnav-capsblock`: typing keys that do nothing in Caps mode, included by `[capsmode]` (live copy `/etc/keyd/capsnav-capsblock`).
+- `capsnav-capsblock`: typing keys that do nothing in text mode, included by `[textmode]` (live copy `/etc/keyd/capsnav-capsblock`).
 - `capsnav-nav`: the mouse-mode bindings, included by `default.conf` (live copy `/etc/keyd/capsnav-nav`).
 - `keyd-src/`: keyd source used for the install.
 - `icons/capsnav-mouse.svg`, `icons/capsnav-keyboard.svg`: the top-bar icons (a filled white mouse / keyboard), installed to `/usr/local/share/icons/hicolor/scalable/status/`.
@@ -164,7 +164,7 @@ so the same direction on both hands (e.g. j + s) moves twice as fast.
 g is the left button (tap to click, hold to select or drag) and ;
 right-clicks (keyd sends the buttons itself). A button stays down while its key is held, so hold g with the left
 hand and steer with i/j/k/l to select text or drag, then release g to drop.
-In Caps mode (hold Caps), i/j/k/l are arrow keys instead.
+In text mode (hold Caps), i/j/k/l are arrow keys instead.
 It eases in and glides to a stop on the same spring as scrolling.
 In `mouse.conf`, `pointer_speed` sets the top speed in pixels per second,
 `pointer_ease_in_ms` the ease-in (slower than scrolling's by default, so a quick
@@ -189,7 +189,7 @@ Letters without a binding type normally, but Space only speeds up
 scrolling. Another Caps tap (released within 200 ms, no other
 key) turns it off, clicking first where the pointer is (so the text cursor
 lands there and you can type straight away). Holding Caps never toggles; it
-turns on Caps mode, the text keys (`[capsmode]` in `default.conf`), and other typing keys
+turns on text mode, the text keys (`[textmode]` in `default.conf`), and other typing keys
 do nothing while it's held (`capsnav-capsblock`). An icon in the top bar next to Wi-Fi
 (`capsnav-indicator`, an AppIndicator) shows the mode at a glance: a filled
 mouse while mouse mode is on, a filled keyboard while it's off. Clicking the icon opens a menu that shows the mouse mode, with **Mappings…** (see below). Hold b for the window switcher: j/l (or s/f) move through it and releasing
