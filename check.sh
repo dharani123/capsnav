@@ -76,6 +76,16 @@ if have keyd && id -nG | grep -qw keyd; then
 	[[ "$out" == *"Failed to connect"* ]] && bad "can't read keyd socket: $out" || pass "keyd socket readable"
 fi
 
+section "Installed copies match the repo"
+for pair in capsnav-nav:/etc/keyd/capsnav-nav capsnav-capsblock:/etc/keyd/capsnav-capsblock \
+	capsnav-mappings.py:/usr/local/bin/capsnav-mappings capsnav-indicator.py:/usr/local/bin/capsnav-indicator \
+	capsnav-switch-monitor.sh:/usr/local/bin/capsnav-switch-monitor capsnav-focus-follow.sh:/usr/local/bin/capsnav-focus-follow; do
+	src=${pair%%:*} dst=${pair#*:}
+	if [ ! -e "$dst" ]; then bad "$dst missing: run ./install.sh"
+	elif cmp -s "$src" "$dst"; then pass "$dst matches repo"
+	else warn "$dst differs from repo $src (not reinstalled): run ./install.sh"; fi
+done
+
 section "Smooth scroll (capsnav-scroll, root service)"
 cmp -s capsnav-scroll.py /usr/local/bin/capsnav-scroll && pass "capsnav-scroll installed and matches repo" \
 	|| { [ -f /usr/local/bin/capsnav-scroll ] && warn "/usr/local/bin/capsnav-scroll differs from repo (not reinstalled)" || bad "capsnav-scroll not installed: run ./install.sh"; }
