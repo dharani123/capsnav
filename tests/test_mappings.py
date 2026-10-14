@@ -75,7 +75,7 @@ class ParseTest(unittest.TestCase):
 
     def test_every_shown_default_section_binding_once(self):
         shown = self.shown()
-        for sec in ("mousemode", "capshold", "winswitch:A"):
+        for sec in ("mousemode", "capsmode", "winswitch:A"):
             for line in section_lines(self.texts["default.conf"], sec):
                 m = BINDING.match(line)
                 if m and not line.strip().startswith("include"):
@@ -157,7 +157,7 @@ class TabsTest(unittest.TestCase):
         self.assertEqual(self.tab_of(dc, "mousemode", "b"), "Windows")
         self.assertEqual(self.tab_of(dc, "winswitch:A", "j"), "Windows")
         self.assertEqual(self.tab_of(dc, "mousemode", "0"), "Windows")
-        self.assertEqual(self.tab_of(dc, "capshold", "i"), "Text")
+        self.assertEqual(self.tab_of(dc, "capsmode", "i"), "Text")
         self.assertEqual(self.tab_of(dc, "mousemode", "capslock"), "Other")
         self.assertEqual(self.tab_of("app.conf", "code", "q"), "VS Code")
 
@@ -181,7 +181,7 @@ class TabsTest(unittest.TestCase):
 
     def test_text_tab_has_caps_prefix(self):
         text = dict(self.tabs)["Text"]
-        self.assertEqual([s.title for s in text], ["Mouse mode", "Hold Caps"])
+        self.assertEqual([s.title for s in text], ["Mouse mode", "Caps mode"])
         rows = [(cm.prefix(b, self.sections), b.key, b.action)
                 for s in text for _h, bs in s.groups for b in bs]
         self.assertEqual(rows, [("", "o", "backspace"),
@@ -264,9 +264,9 @@ class MoveTest(unittest.TestCase):
         self.assertNotRegex(new, r"(?m)^(nav|mousemode)\.q = ")
 
     def test_section_local_move(self):
-        b = find(self.sections, "Hold Caps", "i")
+        b = find(self.sections, "Caps mode", "i")
         new = cm.move(self.texts, b, "u")
-        self.assertIn("u = up", section_lines(new["default.conf"], "capshold"))
+        self.assertIn("u = up", section_lines(new["default.conf"], "capsmode"))
         # Not a mouse-mode key: lists untouched.
         self.assertEqual(section_lines(new["default.conf"], "mousemode+control"),
                          section_lines(self.texts["default.conf"],

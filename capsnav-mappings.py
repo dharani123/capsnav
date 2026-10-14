@@ -32,7 +32,7 @@ KEYD_FILES = ("default.conf", "capsnav-nav", "capsnav-capsblock")
 SHOWN = [
     (("capsnav-nav", None), "Mouse mode"),
     (("default.conf", "mousemode"), "Mouse mode extras"),
-    (("default.conf", "capshold"), "Hold Caps"),
+    (("default.conf", "capsmode"), "Caps mode"),
     (("default.conf", "winswitch:A"), "Window switcher (while open)"),
 ]
 APP_TITLES = {"code": "VS Code"}
@@ -69,7 +69,7 @@ LAYER_NAMES = {
     "scrollup": "Scroll up (hold)",
     "scrolldown": "Scroll down (hold)",
     "fastscroll": "Hold: fast scroll",
-    "capshold": "text keys",
+    "capsmode": "Caps mode",
     "shift": "Shift",
 }
 for _c in ("ijkl", "esdf"):
@@ -292,7 +292,7 @@ def category(b):
         return "Mouse"
     if layer in ("scrollup", "scrolldown"):
         return "Scroll"
-    if b.section == "capshold" or b.action in TEXT_ACTIONS:  # Caps held, o
+    if b.section == "capsmode" or b.action in TEXT_ACTIONS:  # Caps mode, o
         return "Text"
     if b.action in BROWSER_ACTIONS:
         return "Browser"
@@ -305,9 +305,18 @@ In my opinion the Caps Lock key is wasted, since we hardly use it. capsnav \
 uses it as a super key that turns the keyboard into a mouse and helps you \
 navigate things faster.
 
-Tap Caps Lock to toggle mouse mode, and use these mappings while it's on. \
-The top-bar icon is a mouse while mouse mode \
-is on and a keyboard while it's off; tap it again to leave it."""
+capsnav has three modes:
+
+Keyboard mode: the normal keyboard.
+
+Mouse mode: tap Caps Lock to turn it on, and tap again to go back to \
+keyboard mode. The top-bar icon is a mouse while mouse mode is on and a \
+keyboard while it's off.
+
+Caps mode: hold Caps Lock, in keyboard or mouse mode, for the text keys \
+(arrows, Home/End, Backspace and so on). Other typing keys do nothing.
+
+Ctrl shortcuts work normally in every mode."""
 
 # Sections shown inside another in the tabs (none at present).
 FOLD_INTO = {}
@@ -316,7 +325,7 @@ FOLD_INTO = {}
 def prefix(b, sections):
     """Text shown before a binding's key button: "Caps + " for the keys held
     with Caps."""
-    if (b.file, b.section) == ("default.conf", "capshold"):
+    if (b.file, b.section) == ("default.conf", "capsmode"):
         return "Caps + "
     return ""
 

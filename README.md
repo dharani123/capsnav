@@ -1,6 +1,12 @@
 # capsnav
 
-Tap Caps Lock to turn on mouse mode, then drive the mouse from i/j/k/l and more, using keyd (v2.6.0, built from source). Tap Caps again to go back to typing. Below, "Caps+x" means x while mouse mode is on.
+Drive the mouse and edit text from the home row with Caps Lock, using keyd (v2.6.0, built from source). capsnav has three modes:
+
+- **Keyboard mode**: the normal keyboard. This is where you start.
+- **Mouse mode**: tap Caps to turn it on (and tap again to go back). i/j/k/l and more drive the mouse.
+- **Caps mode**: while Caps is held, in keyboard or mouse mode. Only the text keys work (arrows, Home/End, Backspace and so on).
+
+Ctrl shortcuts work normally in every mode.
 
 | Key (mouse mode) | Sends |
 |--------|-------------|
@@ -17,10 +23,10 @@ Tap Caps Lock to turn on mouse mode, then drive the mouse from i/j/k/l and more,
 | v / c  | Smooth scroll up / down on the left hand (same as n / m) |
 | Space+n/m, Space+v/c | Smooth scroll at 6x speed (press or release Space mid-scroll to switch) |
 
-Hold Caps, in or out of mouse mode, for the text keys (other typing keys do
-nothing while Caps is held):
+Hold Caps for **Caps mode**, in keyboard or mouse mode: the text keys (other
+typing keys do nothing in Caps mode):
 
-| Hold Caps + | Sends |
+| Caps mode (hold Caps) + | Sends |
 |---|---|
 | i/j/k/l | Arrow keys up/left/down/right |
 | t / b | Top / bottom of the file (Ctrl+Home / Ctrl+End) |
@@ -34,7 +40,7 @@ nothing while Caps is held):
 | b      | Window switcher (Alt+Tab): hold b, j/l or s/f to move, release to pick; a quick tap jumps to the previous window |
 
 ## Install
-Requires Linux with systemd; Caps+u and the mouse keys need GNOME on X11.
+Requires Linux with systemd; mouse-mode u and the mouse keys need GNOME on X11.
 Ubuntu/Debian and Fedora are supported:
 
 ```bash
@@ -45,7 +51,7 @@ cd capsnav && ./install.sh
 Run it as your normal user; it asks for your `sudo` password. It installs the
 system packages (build tools, python3, xdotool), builds keyd, installs the
 config, the smooth-scroll and pointer helper and the switch-monitor script,
-starts the services, and adds the GNOME shortcut for Caps+u.
+starts the services, and adds the GNOME shortcut for mouse-mode u.
 Reboot once when it says so. Re-running it is safe and applies any changes.
 
 On other distros, install the equivalent of the apt package list at the top of
@@ -60,7 +66,7 @@ Before installing:
   together to stop keyd.
 
 ### Recommended VS Code settings
-For smooth Caps+n/m scrolling in VS Code, add these to your VS Code
+For smooth n/m scrolling (mouse mode) in VS Code, add these to your VS Code
 `settings.json`:
 
 ```json
@@ -71,7 +77,7 @@ For smooth Caps+n/m scrolling in VS Code, add these to your VS Code
 
 ## Files
 - `default.conf`: the keyd config. The live copy is `/etc/keyd/default.conf`.
-- `capsnav-capsblock`: typing keys that do nothing while Caps is held, included by `[capshold]` (live copy `/etc/keyd/capsnav-capsblock`).
+- `capsnav-capsblock`: typing keys that do nothing in Caps mode, included by `[capsmode]` (live copy `/etc/keyd/capsnav-capsblock`).
 - `capsnav-nav`: the mouse-mode bindings, included by `default.conf` (live copy `/etc/keyd/capsnav-nav`).
 - `keyd-src/`: keyd source used for the install.
 - `icons/capsnav-mouse.svg`, `icons/capsnav-keyboard.svg`: the top-bar icons (a filled white mouse / keyboard), installed to `/usr/local/share/icons/hicolor/scalable/status/`.
@@ -85,13 +91,13 @@ For smooth Caps+n/m scrolling in VS Code, add these to your VS Code
 - `capsnav-focus-follow.sh`, `capsnav-focus-follow.service`: pointer-follows-focus script and its user unit.
 - `capsnav-mouse.service`: systemd user unit that runs the same helper with `--mouse` for pointer motion.
 - `mouse.conf`: scroll and pointer speed, easing and event rate. The live copy is `/etc/capsnav/mouse.conf`.
-- `capsnav-switch-monitor.sh`: Caps+u/p helper, installed as `/usr/local/bin/capsnav-switch-monitor` (see below).
+- `capsnav-switch-monitor.sh`: mouse-mode u/p helper, installed as `/usr/local/bin/capsnav-switch-monitor` (see below).
 - `tools/scroll-curve.py`: previews scroll settings as a speed curve; no root needed.
 - `system/keyd-restart.conf`: systemd drop-in that restarts keyd if it crashes (not after the emergency stop).
 - `system/capsnav.quirks`, `system/50-capsnav-scroll.conf`: the libinput and X settings for continuous scrolling (see below).
 
 ## Smooth scrolling
-Caps+n / Caps+m (and Caps+c / Caps+v) send no keys of their own. They switch on the empty keyd layers
+In mouse mode, n / m (and c / v) send no keys of their own. They switch on the empty keyd layers
 `scrollup` / `scrolldown`. `capsnav-scroll` watches those layers via
 `keyd listen`, and while one is active it sends small scroll steps at
 `tick_hz` from a virtual pointer. Speed eases in on press and glides to a stop
@@ -150,14 +156,14 @@ Then edit `mouse.conf` and copy it into place:
 `sudo cp mouse.conf /etc/capsnav/mouse.conf`
 It takes effect on the next scroll with no restart.
 
-## Pointer motion (Caps+i/j/k/l)
+## Pointer motion (mouse-mode i/j/k/l)
 In mouse mode, hold i/j/k/l (up/left/down/right) to move the pointer; hold two for
 a diagonal. e/s/d/f do the same on the left hand, and held directions add up,
 so the same direction on both hands (e.g. j + s) moves twice as fast.
 g is the left button (tap to click, hold to select or drag) and ;
 right-clicks (keyd sends the buttons itself). A button stays down while its key is held, so hold g with the left
 hand and steer with i/j/k/l to select text or drag, then release g to drop.
-Holding Caps instead makes i/j/k/l arrow keys (Caps+i/j/k/l).
+In Caps mode (hold Caps), i/j/k/l are arrow keys instead.
 It eases in and glides to a stop on the same spring as scrolling.
 In `mouse.conf`, `pointer_speed` sets the top speed in pixels per second,
 `pointer_ease_in_ms` the ease-in (slower than scrolling's by default, so a quick
@@ -182,7 +188,7 @@ Letters without a binding type normally, but Space only speeds up
 scrolling. Another Caps tap (released within 200 ms, no other
 key) turns it off, clicking first where the pointer is (so the text cursor
 lands there and you can type straight away). Holding Caps never toggles; it
-gives the text keys (`[capshold]` in `default.conf`), and other typing keys
+turns on Caps mode, the text keys (`[capsmode]` in `default.conf`), and other typing keys
 do nothing while it's held (`capsnav-capsblock`). An icon in the top bar next to Wi-Fi
 (`capsnav-indicator`, an AppIndicator) shows the mode at a glance: a filled
 mouse while mouse mode is on, a filled keyboard while it's off. Clicking the icon opens a menu that shows the mouse mode, with **Mappings…** (see below). Hold b for the window switcher: j/l (or s/f) move through it and releasing
@@ -237,7 +243,7 @@ add a `[class]` section (`journalctl --user -u capsnav-appmap` shows each
 focused window's class) and run `systemctl --user restart capsnav-appmap`.
 
 ## Pointer follows focus
-When another window becomes active (Caps+b, a new window or dialog, closing a
+When another window becomes active (mouse-mode b, a new window or dialog, closing a
 window) and the pointer isn't already inside it, the pointer jumps to that
 window's centre, so it's always near what you're working on. Clicking a window
 never moves the pointer, since it's already inside. `capsnav-focus-follow`
@@ -245,7 +251,7 @@ never moves the pointer, since it's already inside. `capsnav-focus-follow`
 `xprop -spy`. To turn it off: `systemctl --user disable --now capsnav-focus-follow`.
 
 ## Switching monitors
-keyd runs as root with no access to your X session, so Caps+u can't run the
+keyd runs as root with no access to your X session, so mouse-mode u can't run the
 script directly. It sends Super+Alt+O instead, and `install.sh` adds a GNOME
 custom shortcut ("capsnav: switch monitor") that runs
 `capsnav-switch-monitor`. The script moves the pointer to the centre of the
@@ -253,9 +259,9 @@ next monitor and focuses the topmost window there. It reads the layout from
 `xrandr` each time, so it follows monitor changes. X11 only; on another
 desktop, bind Super+Alt+O to the script yourself.
 
-Caps+p works the same way (Super+Alt+U, shortcut "capsnav: center pointer")
+Mouse-mode p works the same way (Super+Alt+U, shortcut "capsnav: center pointer")
 and runs `capsnav-switch-monitor --center`, which only moves the pointer to the
-centre of the monitor it's on. To reach a far corner quickly: Caps+p, then
+centre of the monitor it's on. To reach a far corner quickly: p, then
 i/j/k/l.
 
 ## Checking the setup

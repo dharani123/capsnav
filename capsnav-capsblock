@@ -1,5 +1,5 @@
-# Typing keys that do nothing while Caps is held, in either mode, so only the
-# Caps bindings in [capshold] work. Included first by [capshold] in
+# Typing keys that do nothing in Caps mode (Caps held, in either mode), so only the
+# Caps bindings in [capsmode] work. Included first by [capsmode] in
 # default.conf, whose bindings then override these. Installed next to it as
 # /etc/keyd/capsnav-capsblock. Modifiers, Esc, F-keys and the arrow/nav
 # cluster are left alone (Caps+Shift+i still selects upwards).
