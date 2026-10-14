@@ -187,14 +187,10 @@ b picks; a quick tap of b jumps to the previous window. This uses a small
 patch to the bundled keyd (`layerm()` runs its macro after the layer is on,
 so Alt stays held).
 
-Hold Caps in mouse mode to get the normal keyboard back for as long as Caps
-is down (apart from the text keys), e.g. Caps+Ctrl+Shift+t or Caps+Ctrl+s,
-without leaving mouse mode.
-Holding Ctrl does the same on its own: Ctrl+c, Ctrl+s or Ctrl+Shift+t type
-as plain shortcuts instead of the mouse-mode keys. `capsnav-mousetype` maps
-each mouse-mode key back to itself for `[capshold]`, and
-`[mousemode+control]` in `default.conf` maps it to Ctrl+itself, so keep both
-in step when you add a binding to `capsnav-nav`.
+Hold Ctrl in mouse mode to type shortcuts: Ctrl+c, Ctrl+s or Ctrl+Shift+t
+type as plain shortcuts instead of the mouse-mode keys.
+`[mousemode+control]` in `default.conf` maps each mouse-mode key to
+Ctrl+itself, so keep it in step when you add a binding to `capsnav-nav`.
 
 The bindings live in `capsnav-nav`, which `default.conf` includes in mouse
 mode (`[mousemode]`); `install.sh` copies it
@@ -212,8 +208,8 @@ Each key is a drop-down: pick another key and press **Apply** to move that
 action there. Keys already in use are labelled with what they do; moving onto
 one overwrites it, and the old action is kept as `# unbound: KEY = ACTION`
 under **Unbound**, where you can give it a key again. Moving a mouse-mode
-key also updates `capsnav-mousetype` and `[mousemode+control]`, so holding
-Caps or Ctrl in mouse mode still types it. Saving checks the result with
+key also updates `[mousemode+control]`, so holding Ctrl in mouse mode
+still types it. Saving checks the result with
 `keyd check`, installs it with sudo (your `SUDO_ASKPASS` or
 `~/.local/bin/sudo-askpass` if set up, otherwise `pkexec`) and reloads keyd.
 
@@ -269,7 +265,7 @@ in a terminal inside the desktop session; if something doesn't work, share
 the whole output.
 
 ## Common tasks
-- Apply config edits: `sudo cp capsnav-nav capsnav-mousetype default.conf /etc/keyd/ && sudo systemctl restart keyd`
+- Apply config edits: `sudo cp capsnav-nav default.conf /etc/keyd/ && sudo systemctl restart keyd`
 - Uninstall: run `./uninstall.sh` from this folder, as the user who ran `install.sh`, then reboot once. It removes keyd, the capsnav helpers and services, the libinput quirk and the GNOME shortcuts; system packages stay installed.
 - If the keyboard locks up: press Backspace+Escape+Enter together to stop keyd.
 

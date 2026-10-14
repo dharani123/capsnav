@@ -23,7 +23,8 @@ fi
 
 make -C keyd-src
 sudo make -C keyd-src install
-sudo cp capsnav-nav capsnav-mousetype /etc/keyd/  # included by default.conf
+sudo cp capsnav-nav /etc/keyd/  # included by default.conf
+sudo rm -f /etc/keyd/capsnav-mousetype  # no longer used
 sudo cp default.conf /etc/keyd/default.conf
 sudo install -Dm644 system/keyd-restart.conf /etc/systemd/system/keyd.service.d/capsnav-restart.conf
 sudo systemctl daemon-reload

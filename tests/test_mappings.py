@@ -26,8 +26,7 @@ BINDING = re.compile(r"^\s*([^#\s=][^=]*?)\s*=\s*(.+?)\s*$")
 
 def repo_texts():
     texts = {}
-    for name in ("capsnav-nav", "default.conf", "capsnav-mousetype",
-                         "app.conf"):
+    for name in ("capsnav-nav", "default.conf", "app.conf"):
         with open(os.path.join(ROOT, name)) as f:
             texts[name] = f.read()
     return texts
@@ -85,9 +84,8 @@ class ParseTest(unittest.TestCase):
 
     def test_hidden_sections_not_shown(self):
         secs = {s for (_f, s, _k) in self.shown()}
-        for hidden in ("mousemode+control", "mousetype", "main", "global"):
+        for hidden in ("mousemode+control", "main", "global"):
             self.assertNotIn(hidden, secs)
-        self.assertNotIn("capsnav-mousetype", {f for (f, _s, _k) in self.shown()})
 
     def test_vscode_pairs_are_one_row(self):
         code = [b for s in self.sections for _h, bs in s.groups for b in bs
@@ -226,10 +224,7 @@ class MoveTest(unittest.TestCase):
         new_lines = nav.splitlines()
         self.assertEqual(len(old_lines), len(new_lines))
         self.assertEqual(sum(a != c for a, c in zip(old_lines, new_lines)), 1)
-        # Linked lists follow.
-        mt = new["capsnav-mousetype"]
-        self.assertRegex(mt, r"(?m)^8 = 8$")
-        self.assertNotRegex(mt, r"(?m)^t = t$")
+        # The linked list follows.
         ctrl = section_lines(new["default.conf"], "mousemode+control")
         self.assertIn("8 = C-8", ctrl)
         self.assertNotIn("t = C-t", ctrl)
@@ -243,9 +238,10 @@ class MoveTest(unittest.TestCase):
         secs = cm.parse_all(new)
         u = find(secs, "Unbound", "q", unbound=True)
         self.assertEqual(u.action, "C-pageup")
-        # t is free now, q still typed by mouse mode: lists drop t, keep q.
-        self.assertNotRegex(new["capsnav-mousetype"], r"(?m)^t = t$")
-        self.assertRegex(new["capsnav-mousetype"], r"(?m)^q = q$")
+        # t is free now, q still typed by mouse mode: list drops t, keeps q.
+        ctrl = section_lines(new["default.conf"], "mousemode+control")
+        self.assertNotIn("t = C-t", ctrl)
+        self.assertIn("q = C-q", ctrl)
 
     def test_rebind_from_unbound(self):
         b = find(self.sections, "Mouse mode", "t")
@@ -256,7 +252,8 @@ class MoveTest(unittest.TestCase):
         self.assertRegex(nav, r"(?m)^t = C-pageup$")
         self.assertRegex(nav, r"(?m)^q = C-t$")
         self.assertNotIn("# unbound:", nav)
-        self.assertRegex(step2["capsnav-mousetype"], r"(?m)^t = t$")
+        self.assertIn("t = C-t",
+                      section_lines(step2["default.conf"], "mousemode+control"))
 
     def test_vscode_pair_moves_together(self):
         b = next(b for s in self.sections for _h, bs in s.groups for b in bs
@@ -270,21 +267,23 @@ class MoveTest(unittest.TestCase):
         new = cm.move(self.texts, b, "u")
         self.assertIn("u = up", section_lines(new["default.conf"], "capshold"))
         # Not a mouse-mode key: lists untouched.
-        self.assertEqual(new["capsnav-mousetype"],
-                         self.texts["capsnav-mousetype"])
+        self.assertEqual(section_lines(new["default.conf"], "mousemode+control"),
+                         section_lines(self.texts["default.conf"],
+                                       "mousemode+control"))
 
     def test_mousemode_capslock_skips_lists(self):
         b = find(self.sections, "Mouse mode extras", "capslock")
         new = cm.move(self.texts, b, "rightshift")
-        self.assertEqual(new["capsnav-mousetype"],
-                         self.texts["capsnav-mousetype"])
+        self.assertEqual(section_lines(new["default.conf"], "mousemode+control"),
+                         section_lines(self.texts["default.conf"],
+                                       "mousemode+control"))
 
     @unittest.skipUnless(shutil.which("keyd"), "keyd not installed")
     def test_staged_result_passes_keyd_check(self):
         b = find(self.sections, "Mouse mode", "t")
         new = cm.move(self.texts, b, "q")
         with tempfile.TemporaryDirectory() as d:
-            for name in ("default.conf", "capsnav-nav", "capsnav-mousetype"):
+            for name in ("default.conf", "capsnav-nav"):
                 with open(os.path.join(d, name), "w") as f:
                     f.write(new[name])
             r = subprocess.run(["keyd", "check", os.path.join(d, "default.conf")],

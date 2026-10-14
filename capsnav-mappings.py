@@ -7,8 +7,7 @@ Opened from the mouse-mode icon in the top bar (Mappings…), or run directly.
 
 Reads the live configs each time: /etc/keyd/capsnav-nav, /etc/keyd/default.conf
 and ~/.config/keyd/app.conf. Saving writes only those live files (plus the
-linked /etc/keyd/capsnav-mousetype and [mousemode+control] lists) and reloads
-keyd; the repo is not touched, so install.sh puts its defaults back.
+linked [mousemode+control] list) and reloads keyd; the repo is not touched, so install.sh puts its defaults back.
 
 A key moved onto one that's already bound overwrites it: the old line becomes
 `# unbound: KEY = ACTION` and shows up under Unbound, where it can be given a
@@ -24,7 +23,7 @@ from dataclasses import dataclass, field
 
 KEYD_DIR = "/etc/keyd"
 APP_CONF = os.path.expanduser("~/.config/keyd/app.conf")
-KEYD_FILES = ("default.conf", "capsnav-nav", "capsnav-mousetype")
+KEYD_FILES = ("default.conf", "capsnav-nav")
 
 # --- Model (no GTK) ---------------------------------------------------------
 
@@ -40,7 +39,7 @@ APP_TITLES = {"code": "VS Code"}
 APP_LAYERS = ("mousemode",)
 
 # Keys in [mousemode] that are layer/modifier keys, not typed keys, so they
-# stay out of capsnav-mousetype and [mousemode+control].
+# stay out of [mousemode+control].
 NOT_TYPED = {"capslock", "leftshift", "rightshift", "leftcontrol",
              "rightcontrol", "leftalt", "rightalt", "leftmeta", "rightmeta"}
 
@@ -462,19 +461,10 @@ def move(texts, b, new_key):
         and b.key not in NOT_TYPED)
     if linked:
         typed = _typed_keys(texts)
-        mt = texts["capsnav-mousetype"].split("\n")
         dc = texts["default.conf"].split("\n")
         for key in (b.key, new_key):
-            want = key in typed
-            _sync_list(mt, (0, len(mt)), key, key, want)
             _sync_list(dc, _section_range(dc, "mousemode+control"), key,
-                       "C-" + key, want)
-        # Keep a single trailing newline in capsnav-mousetype.
-        while len(mt) > 1 and mt[-1] == "" and mt[-2] == "":
-            mt.pop()
-        if mt[-1] != "":
-            mt.append("")
-        texts["capsnav-mousetype"] = "\n".join(mt)
+                       "C-" + key, key in typed)
         texts["default.conf"] = "\n".join(dc)
     return texts
 
