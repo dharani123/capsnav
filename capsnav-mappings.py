@@ -23,7 +23,7 @@ from dataclasses import dataclass, field
 
 KEYD_DIR = "/etc/keyd"
 APP_CONF = os.path.expanduser("~/.config/keyd/app.conf")
-KEYD_FILES = ("default.conf", "capsnav-nav")
+KEYD_FILES = ("default.conf", "capsnav-nav", "capsnav-capsblock")
 
 # --- Model (no GTK) ---------------------------------------------------------
 

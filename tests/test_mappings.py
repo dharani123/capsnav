@@ -26,7 +26,8 @@ BINDING = re.compile(r"^\s*([^#\s=][^=]*?)\s*=\s*(.+?)\s*$")
 
 def repo_texts():
     texts = {}
-    for name in ("capsnav-nav", "default.conf", "app.conf"):
+    for name in ("capsnav-nav", "default.conf", "capsnav-capsblock",
+                 "app.conf"):
         with open(os.path.join(ROOT, name)) as f:
             texts[name] = f.read()
     return texts
@@ -283,7 +284,7 @@ class MoveTest(unittest.TestCase):
         b = find(self.sections, "Mouse mode", "t")
         new = cm.move(self.texts, b, "q")
         with tempfile.TemporaryDirectory() as d:
-            for name in ("default.conf", "capsnav-nav"):
+            for name in ("default.conf", "capsnav-nav", "capsnav-capsblock"):
                 with open(os.path.join(d, name), "w") as f:
                     f.write(new[name])
             r = subprocess.run(["keyd", "check", os.path.join(d, "default.conf")],

@@ -17,7 +17,8 @@ Tap Caps Lock to turn on mouse mode, then drive the mouse from i/j/k/l and more,
 | v / c  | Smooth scroll up / down on the left hand (same as n / m) |
 | Space+n/m, Space+v/c | Smooth scroll at 6x speed (press or release Space mid-scroll to switch) |
 
-Hold Caps, in or out of mouse mode, for the text keys:
+Hold Caps, in or out of mouse mode, for the text keys (other typing keys do
+nothing while Caps is held):
 
 | Hold Caps + | Sends |
 |---|---|
@@ -70,6 +71,7 @@ For smooth Caps+n/m scrolling in VS Code, add these to your VS Code
 
 ## Files
 - `default.conf`: the keyd config. The live copy is `/etc/keyd/default.conf`.
+- `capsnav-capsblock`: typing keys that do nothing while Caps is held, included by `[capshold]` (live copy `/etc/keyd/capsnav-capsblock`).
 - `capsnav-nav`: the mouse-mode bindings, included by `default.conf` (live copy `/etc/keyd/capsnav-nav`).
 - `keyd-src/`: keyd source used for the install.
 - `icons/capsnav-mouse.svg`, `icons/capsnav-keyboard.svg`: the top-bar icons (a filled white mouse / keyboard), installed to `/usr/local/share/icons/hicolor/scalable/status/`.
@@ -180,7 +182,8 @@ Letters without a binding type normally, but Space only speeds up
 scrolling. Another Caps tap (released within 200 ms, no other
 key) turns it off, clicking first where the pointer is (so the text cursor
 lands there and you can type straight away). Holding Caps never toggles; it
-gives the text keys (`[capshold]` in `default.conf`). An icon in the top bar next to Wi-Fi
+gives the text keys (`[capshold]` in `default.conf`), and other typing keys
+do nothing while it's held (`capsnav-capsblock`). An icon in the top bar next to Wi-Fi
 (`capsnav-indicator`, an AppIndicator) shows the mode at a glance: a filled
 mouse while mouse mode is on, a filled keyboard while it's off. Clicking the icon opens a menu that shows the mouse mode, with **Mappings…** (see below). Hold b for the window switcher: j/l (or s/f) move through it and releasing
 b picks; a quick tap of b jumps to the previous window. This uses a small
@@ -265,7 +268,7 @@ in a terminal inside the desktop session; if something doesn't work, share
 the whole output.
 
 ## Common tasks
-- Apply config edits: `sudo cp capsnav-nav default.conf /etc/keyd/ && sudo systemctl restart keyd`
+- Apply config edits: `sudo cp capsnav-nav capsnav-capsblock default.conf /etc/keyd/ && sudo systemctl restart keyd`
 - Uninstall: run `./uninstall.sh` from this folder, as the user who ran `install.sh`, then reboot once. It removes keyd, the capsnav helpers and services, the libinput quirk and the GNOME shortcuts; system packages stay installed.
 - If the keyboard locks up: press Backspace+Escape+Enter together to stop keyd.
 

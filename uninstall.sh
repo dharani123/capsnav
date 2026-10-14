@@ -41,7 +41,7 @@ fi
 sudo systemctl disable --now capsnav-scroll 2>/dev/null
 sudo rm -f /etc/systemd/system/capsnav-scroll.service
 sudo systemctl disable --now keyd 2>/dev/null
-sudo rm -f /etc/keyd/default.conf /etc/keyd/capsnav-nav /etc/keyd/capsnav-mousetype
+sudo rm -f /etc/keyd/default.conf /etc/keyd/capsnav-nav /etc/keyd/capsnav-mousetype /etc/keyd/capsnav-capsblock
 sudo rmdir /etc/keyd 2>/dev/null
 sudo rm -f /etc/systemd/system/keyd.service.d/capsnav-restart.conf
 sudo rmdir /etc/systemd/system/keyd.service.d 2>/dev/null

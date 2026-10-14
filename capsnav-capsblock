@@ -1,0 +1,56 @@
+# Typing keys that do nothing while Caps is held, in either mode, so only the
+# Caps bindings in [capshold] work. Included first by [capshold] in
+# default.conf, whose bindings then override these. Installed next to it as
+# /etc/keyd/capsnav-capsblock. Modifiers, Esc, F-keys and the arrow/nav
+# cluster are left alone (Caps+Shift+i still selects upwards).
+a = noop
+b = noop
+c = noop
+d = noop
+e = noop
+f = noop
+g = noop
+h = noop
+i = noop
+j = noop
+k = noop
+l = noop
+m = noop
+n = noop
+o = noop
+p = noop
+q = noop
+r = noop
+s = noop
+t = noop
+u = noop
+v = noop
+w = noop
+x = noop
+y = noop
+z = noop
+0 = noop
+1 = noop
+2 = noop
+3 = noop
+4 = noop
+5 = noop
+6 = noop
+7 = noop
+8 = noop
+9 = noop
+minus = noop
+equal = noop
+leftbrace = noop
+rightbrace = noop
+backslash = noop
+semicolon = noop
+apostrophe = noop
+grave = noop
+comma = noop
+dot = noop
+slash = noop
+space = noop
+enter = noop
+tab = noop
+backspace = noop
