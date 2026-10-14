@@ -75,7 +75,7 @@ class ParseTest(unittest.TestCase):
 
     def test_every_shown_default_section_binding_once(self):
         shown = self.shown()
-        for sec in ("mousemode", "arrows", "winswitch:A"):
+        for sec in ("mousemode", "capshold", "arrows", "winswitch:A"):
             for line in section_lines(self.texts["default.conf"], sec):
                 m = BINDING.match(line)
                 if m and not line.strip().startswith("include"):
@@ -184,7 +184,7 @@ class TabsTest(unittest.TestCase):
 
     def test_text_tab_is_one_section_with_space_prefix(self):
         text = dict(self.tabs)["Text"]
-        self.assertEqual([s.title for s in text], ["Mouse mode"])
+        self.assertEqual([s.title for s in text], ["Mouse mode", "Hold Caps (typing)"])
         rows = [(cm.prefix(b, self.sections), b.key, b.action)
                 for _h, bs in text[0].groups for b in bs]
         self.assertEqual(rows, [("", "o", "backspace"),

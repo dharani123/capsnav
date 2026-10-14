@@ -33,6 +33,7 @@ KEYD_FILES = ("default.conf", "capsnav-nav", "capsnav-mousetype")
 SHOWN = [
     (("capsnav-nav", None), "Mouse mode"),
     (("default.conf", "mousemode"), "Mouse mode extras"),
+    (("default.conf", "capshold"), "Hold Caps (typing)"),
     (("default.conf", "arrows"), "Space layer"),
     (("default.conf", "winswitch:A"), "Window switcher (while open)"),
 ]

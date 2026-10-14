@@ -48,7 +48,7 @@ Before installing:
 - **Existing keyd config is replaced.** `/etc/keyd/default.conf` is
   overwritten, so back it up if you already use keyd. If keyd came from your
   distro's packages, remove that first so two versions don't conflict.
-- **Caps Lock no longer toggles capitals.** It toggles mouse mode.
+- **Caps Lock no longer toggles capitals.** A tap toggles mouse mode.
 - **Emergency stop:** if the keyboard misbehaves, press Backspace+Escape+Enter
   together to stop keyd.
 
@@ -174,7 +174,7 @@ Letters without a binding type normally, but Space holds the arrows layer
 (arrows / fast scroll). Another Caps tap (released within 200 ms, no other
 key) turns it off, clicking first where the pointer is (so the text cursor
 lands there and you can type straight away). Outside mouse mode, holding Caps
-does nothing. An icon in the top bar next to Wi-Fi
+never toggles; Caps+o is Backspace (`[capshold]` in `default.conf`). An icon in the top bar next to Wi-Fi
 (`capsnav-indicator`, an AppIndicator) shows the mode at a glance: a filled
 mouse while mouse mode is on, a filled keyboard while it's off. Clicking the icon opens a menu that shows the mouse mode, with **Mappings…** (see below). Hold b for the window switcher: j/l (or s/f) move through it and releasing
 b picks; a quick tap of b jumps to the previous window. This uses a small
