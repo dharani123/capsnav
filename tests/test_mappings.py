@@ -75,7 +75,7 @@ class ParseTest(unittest.TestCase):
 
     def test_every_shown_default_section_binding_once(self):
         shown = self.shown()
-        for sec in ("nav", "mousemode", "arrows", "winswitch:A"):
+        for sec in ("mousemode", "arrows", "winswitch:A"):
             for line in section_lines(self.texts["default.conf"], sec):
                 m = BINDING.match(line)
                 if m and not line.strip().startswith("include"):
@@ -96,10 +96,10 @@ class ParseTest(unittest.TestCase):
                          sorted(["q", "w", "h"]))
 
     def test_group_heading_is_comment_above(self):
-        b = find(self.sections, "Caps", "t")
+        b = find(self.sections, "Mouse mode", "t")
         self.assertIn("Tabs", b.group)
         # The file header isn't glued onto the first group.
-        b = find(self.sections, "Caps", "i")
+        b = find(self.sections, "Mouse mode", "i")
         self.assertTrue(b.group.startswith("Mouse:"), b.group)
 
     def test_describe(self):
@@ -155,7 +155,6 @@ class TabsTest(unittest.TestCase):
                          ("c", "Scroll"), ("v", "Scroll"), ("o", "Text")]:
             self.assertEqual(self.tab_of(*nav, key), tab, key)
         dc = "default.conf"
-        self.assertEqual(self.tab_of(dc, "nav", "b"), "Windows")
         self.assertEqual(self.tab_of(dc, "mousemode", "b"), "Windows")
         self.assertEqual(self.tab_of(dc, "winswitch:A", "j"), "Windows")
         self.assertEqual(self.tab_of(dc, "mousemode", "0"), "Windows")
@@ -164,10 +163,10 @@ class TabsTest(unittest.TestCase):
         self.assertEqual(self.tab_of("app.conf", "code", "q"), "VS Code")
 
     def test_clicks_grouped(self):
-        b = find(self.sections, "Caps", "g")
+        b = find(self.sections, "Mouse mode", "g")
         self.assertTrue(b.group.startswith("Clicks"), b.group)
-        self.assertEqual(find(self.sections, "Caps", "h").group, b.group)
-        self.assertEqual(find(self.sections, "Caps", "semicolon").group,
+        self.assertEqual(find(self.sections, "Mouse mode", "h").group, b.group)
+        self.assertEqual(find(self.sections, "Mouse mode", "semicolon").group,
                          b.group)
 
     def test_scroll_combo(self):
@@ -178,14 +177,14 @@ class TabsTest(unittest.TestCase):
 
     def test_scroll_combo_follows_moved_keys(self):
         texts = repo_texts()
-        b = find(self.sections, "Caps", "n")
+        b = find(self.sections, "Mouse mode", "n")
         secs = cm.parse_all(cm.move(texts, b, "z"))
         self.assertEqual(cm.combos(secs)["Scroll"][0][1], "z, v")
         self.assertEqual(cm.combos(secs)["Text"][0][1], "z, v")
 
     def test_text_tab_is_one_section_with_space_prefix(self):
         text = dict(self.tabs)["Text"]
-        self.assertEqual([s.title for s in text], ["Caps layer / mouse mode"])
+        self.assertEqual([s.title for s in text], ["Mouse mode"])
         rows = [(cm.prefix(b, self.sections), b.key, b.action)
                 for _h, bs in text[0].groups for b in bs]
         self.assertEqual(rows, [("", "o", "backspace"),
@@ -204,7 +203,7 @@ class TabsTest(unittest.TestCase):
 
     def test_unbound_tab(self):
         texts = repo_texts()
-        b = find(self.sections, "Caps", "t")
+        b = find(self.sections, "Mouse mode", "t")
         tabs = cm.tabs(cm.parse_all(cm.move(texts, b, "q")))
         self.assertEqual(tabs[-1][0], "Unbound")
         self.assertEqual(
@@ -218,7 +217,7 @@ class MoveTest(unittest.TestCase):
         self.sections = cm.parse_all(self.texts)
 
     def test_move_to_free_key(self):
-        b = find(self.sections, "Caps", "t")      # new tab
+        b = find(self.sections, "Mouse mode", "t")      # new tab
         new = cm.move(self.texts, b, "8")
         nav = new["capsnav-nav"]
         self.assertIn("\n8 = C-t\n", nav)
@@ -237,7 +236,7 @@ class MoveTest(unittest.TestCase):
         self.assertNotIn("t = C-t", ctrl)
 
     def test_overwrite_makes_unbound(self):
-        b = find(self.sections, "Caps", "t")
+        b = find(self.sections, "Mouse mode", "t")
         new = cm.move(self.texts, b, "q")          # q was previous tab
         nav = new["capsnav-nav"]
         self.assertRegex(nav, r"(?m)^q = C-t$")
@@ -250,7 +249,7 @@ class MoveTest(unittest.TestCase):
         self.assertRegex(new["capsnav-mousetype"], r"(?m)^q = q$")
 
     def test_rebind_from_unbound(self):
-        b = find(self.sections, "Caps", "t")
+        b = find(self.sections, "Mouse mode", "t")
         step1 = cm.move(self.texts, b, "q")
         u = find(cm.parse_all(step1), "Unbound", "q", unbound=True)
         step2 = cm.move(step1, u, "t")
@@ -264,12 +263,11 @@ class MoveTest(unittest.TestCase):
         b = next(b for s in self.sections for _h, bs in s.groups for b in bs
                  if b.file == "app.conf" and b.key == "q")
         new = cm.move(self.texts, b, "z")["app.conf"]
-        self.assertRegex(new, r"(?m)^nav\.z = C-A-minus$")
         self.assertRegex(new, r"(?m)^mousemode\.z = C-A-minus$")
         self.assertNotRegex(new, r"(?m)^(nav|mousemode)\.q = ")
 
     def test_section_local_move(self):
-        b = find(self.sections, "Caps+Space", "i")
+        b = find(self.sections, "Space layer", "i")
         new = cm.move(self.texts, b, "u")
         self.assertIn("u = up", section_lines(new["default.conf"], "arrows"))
         # Not a mouse-mode key: lists untouched.
@@ -277,14 +275,14 @@ class MoveTest(unittest.TestCase):
                          self.texts["capsnav-mousetype"])
 
     def test_mousemode_capslock_skips_lists(self):
-        b = find(self.sections, "Mouse mode only", "capslock")
+        b = find(self.sections, "Mouse mode extras", "capslock")
         new = cm.move(self.texts, b, "rightshift")
         self.assertEqual(new["capsnav-mousetype"],
                          self.texts["capsnav-mousetype"])
 
     @unittest.skipUnless(shutil.which("keyd"), "keyd not installed")
     def test_staged_result_passes_keyd_check(self):
-        b = find(self.sections, "Caps", "t")
+        b = find(self.sections, "Mouse mode", "t")
         new = cm.move(self.texts, b, "q")
         with tempfile.TemporaryDirectory() as d:
             for name in ("default.conf", "capsnav-nav", "capsnav-mousetype"):

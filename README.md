@@ -1,8 +1,8 @@
 # capsnav
 
-Hold Caps Lock to drive the mouse from i/j/k/l and more, using keyd (v2.6.0, built from source).
+Tap Caps Lock to turn on mouse mode, then drive the mouse from i/j/k/l and more, using keyd (v2.6.0, built from source). Tap Caps again to go back to typing. Below, "Caps+x" means x while mouse mode is on.
 
-| Caps + | Sends       |
+| Key (mouse mode) | Sends |
 |--------|-------------|
 | i/j/k/l | Move the mouse pointer up/left/down/right (hold; combine for diagonals) |
 | e/s/d/f | Move the pointer on the left hand too; the same direction on both (e.g. j + s) moves twice as fast |
@@ -24,7 +24,7 @@ Hold Caps Lock to drive the mouse from i/j/k/l and more, using keyd (v2.6.0, bui
 | 7      | PrtSc (screenshot) |
 | u / r  | Move pointer + focus to the other monitor (right or left hand) |
 | p      | Centre the pointer on the current monitor |
-| b      | Window switcher (Alt+Tab): hold Caps, tap b to cycle, j/l or s/f to move, release to pick |
+| b      | Window switcher (Alt+Tab): hold b, j/l or s/f to move, release to pick; a quick tap jumps to the previous window |
 
 ## Install
 Requires Linux with systemd; Caps+u and the mouse keys need GNOME on X11.
@@ -48,7 +48,7 @@ Before installing:
 - **Existing keyd config is replaced.** `/etc/keyd/default.conf` is
   overwritten, so back it up if you already use keyd. If keyd came from your
   distro's packages, remove that first so two versions don't conflict.
-- **Caps Lock no longer toggles capitals.** It becomes the navigation key.
+- **Caps Lock no longer toggles capitals.** It toggles mouse mode.
 - **Emergency stop:** if the keyboard misbehaves, press Backspace+Escape+Enter
   together to stop keyd.
 
@@ -64,7 +64,7 @@ For smooth Caps+n/m scrolling in VS Code, add these to your VS Code
 
 ## Files
 - `default.conf`: the keyd config. The live copy is `/etc/keyd/default.conf`.
-- `capsnav-nav`: the Caps-layer bindings, included by `default.conf` (live copy `/etc/keyd/capsnav-nav`).
+- `capsnav-nav`: the mouse-mode bindings, included by `default.conf` (live copy `/etc/keyd/capsnav-nav`).
 - `keyd-src/`: keyd source used for the install.
 - `icons/capsnav-mouse.svg`, `icons/capsnav-keyboard.svg`: the top-bar icons (a filled white mouse / keyboard), installed to `/usr/local/share/icons/hicolor/scalable/status/`.
 - `capsnav-indicator.py`: the mouse-mode top-bar icon (mouse = on, keyboard = off; `icons/`), installed as `/usr/local/bin/capsnav-indicator` (started by the mouse helper).
@@ -143,13 +143,13 @@ Then edit `mouse.conf` and copy it into place:
 It takes effect on the next scroll with no restart.
 
 ## Pointer motion (Caps+i/j/k/l)
-Hold Caps, then i/j/k/l (up/left/down/right) to move the pointer; hold two for
+In mouse mode, hold i/j/k/l (up/left/down/right) to move the pointer; hold two for
 a diagonal. e/s/d/f do the same on the left hand, and held directions add up,
 so the same direction on both hands (e.g. j + s) moves twice as fast.
 g is the left button (tap to click, hold to select or drag) and ;
 right-clicks (keyd sends the buttons itself). A button stays down while its key is held, so hold g with the left
 hand and steer with i/j/k/l to select text or drag, then release g to drop.
-With Space also held, i/j/k/l are arrow keys instead (Caps+Space+i/j/k/l).
+With Space also held, i/j/k/l are arrow keys instead (Space+i/j/k/l).
 It eases in and glides to a stop on the same spring as scrolling.
 In `mouse.conf`, `pointer_speed` sets the top speed in pixels per second,
 `pointer_ease_in_ms` the ease-in (slower than scrolling's by default, so a quick
@@ -168,14 +168,13 @@ to the `keyd` group so it can read `keyd listen` (takes effect at next login).
 X11 only.
 
 ## Mouse mode (tap Caps)
-Tap Caps Lock on its own (released within 200 ms, no other key) to lock the
-Caps layer on, for stretches of mouse-only use: every Caps binding (mouse
-keys, clicks, n/m and x/c scroll with Space for fast, q/w tabs, and the rest)
-works without holding Caps. Letters without a Caps binding type normally, but
-Space acts as in Caps+Space (arrows / fast scroll). Another Caps tap
-turns it off, clicking first where the pointer is (so the text cursor lands
-there and you can type straight away); holding Caps works
-as before. An icon in the top bar next to Wi-Fi
+Tap Caps Lock to turn mouse mode on: every binding (mouse keys, clicks, n/m
+and v/c scroll with Space for fast, q/w tabs, and the rest) works on its own.
+Letters without a binding type normally, but Space holds the arrows layer
+(arrows / fast scroll). Another Caps tap (released within 200 ms, no other
+key) turns it off, clicking first where the pointer is (so the text cursor
+lands there and you can type straight away). Outside mouse mode, holding Caps
+does nothing. An icon in the top bar next to Wi-Fi
 (`capsnav-indicator`, an AppIndicator) shows the mode at a glance: a filled
 mouse while mouse mode is on, a filled keyboard while it's off. Clicking the icon opens a menu that shows the mouse mode, with **Mappings…** (see below). Hold b for the window switcher: j/l (or s/f) move through it and releasing
 b picks; a quick tap of b jumps to the previous window. This uses a small
@@ -190,8 +189,8 @@ each mouse-mode key back to itself for `[mousetype]`, and
 `[mousemode+control]` in `default.conf` maps it to Ctrl+itself, so keep both
 in step when you add a binding to `capsnav-nav`.
 
-The bindings live in `capsnav-nav`, which `default.conf` includes in both the
-Caps layer (`[nav]`) and mouse mode (`[mousemode]`); `install.sh` copies it
+The bindings live in `capsnav-nav`, which `default.conf` includes in mouse
+mode (`[mousemode]`); `install.sh` copies it
 to `/etc/keyd/capsnav-nav`.
 
 ### Mappings window
@@ -205,8 +204,8 @@ terminal.
 Each key is a drop-down: pick another key and press **Apply** to move that
 action there. Keys already in use are labelled with what they do; moving onto
 one overwrites it, and the old action is kept as `# unbound: KEY = ACTION`
-under **Unbound**, where you can give it a key again. Moving a Caps / mouse
-mode key also updates `capsnav-mousetype` and `[mousemode+control]`, so holding
+under **Unbound**, where you can give it a key again. Moving a mouse-mode
+key also updates `capsnav-mousetype` and `[mousemode+control]`, so holding
 Caps or Ctrl in mouse mode still types it. Saving checks the result with
 `keyd check`, installs it with sudo (your `SUDO_ASKPASS` or
 `~/.local/bin/sudo-askpass` if set up, otherwise `pkexec`) and reloads keyd.
@@ -215,11 +214,10 @@ Changes go to the live files only, not to this repo: running `install.sh`
 again puts the repo's bindings back.
 
 ## Per-app keys (VS Code)
-In VS Code, Caps+q/w/h (and their mouse-mode versions) do code navigation
-instead; the pointer keys stay as pointer keys. Hover a name and tap h to
+In VS Code, mouse-mode q/w/h do code navigation instead; the pointer keys stay as pointer keys. Hover a name and tap h to
 jump to its definition (g still clicks and drags):
 
-| Caps + | In VS Code | Elsewhere |
+| Key (mouse mode) | In VS Code | Elsewhere |
 |---|---|---|
 | q / w | Go back / forward | Previous / next tab |
 | h | Click, then go to definition (F12) | Left click (hold to drag) |

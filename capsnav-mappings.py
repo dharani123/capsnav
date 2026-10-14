@@ -31,14 +31,13 @@ KEYD_FILES = ("default.conf", "capsnav-nav", "capsnav-mousetype")
 # Sections shown, in order: (file, section) -> title. capsnav-nav has no
 # section header (section None).
 SHOWN = [
-    (("capsnav-nav", None), "Caps layer / mouse mode"),
-    (("default.conf", "nav"), "Caps layer only"),
-    (("default.conf", "mousemode"), "Mouse mode only"),
-    (("default.conf", "arrows"), "Caps+Space"),
+    (("capsnav-nav", None), "Mouse mode"),
+    (("default.conf", "mousemode"), "Mouse mode extras"),
+    (("default.conf", "arrows"), "Space layer"),
     (("default.conf", "winswitch:A"), "Window switcher (while open)"),
 ]
 APP_TITLES = {"code": "VS Code"}
-APP_LAYERS = ("nav", "mousemode")
+APP_LAYERS = ("mousemode",)
 
 # Keys in [mousemode] that are layer/modifier keys, not typed keys, so they
 # stay out of capsnav-mousetype and [mousemode+control].
@@ -204,7 +203,7 @@ def _parse_file(text, file):
 
 
 def _app_rows(groups):
-    """Merge app.conf nav.X / mousemode.X lines into one Binding per key."""
+    """One Binding per app.conf mousemode.X line."""
     rows = {}
     order = []
     for heading, binds in groups:
@@ -219,8 +218,6 @@ def _app_rows(groups):
                 order.append(ident)
             r = rows[ident]
             r.lines += b.lines
-            if layer == "nav":
-                r.action = b.action
     return [rows[i] for i in order]
 
 
@@ -310,15 +307,13 @@ In my opinion the Caps Lock key is wasted, since we hardly use it. capsnav \
 uses it as a super key that turns the keyboard into a mouse and helps you \
 navigate things faster.
 
-Use all these mappings by holding Caps Lock.
-
-Or tap Caps Lock to toggle mouse mode, and use the same bindings without \
-holding Caps Lock. The top-bar icon is a mouse while mouse mode \
+Tap Caps Lock to toggle mouse mode, and use these mappings while it's on. \
+The top-bar icon is a mouse while mouse mode \
 is on and a keyboard while it's off; tap it again to leave it."""
 
 # Sections shown inside another in the tabs: Caps+Space keys sit under the
 # layer that holds Space, each with a "Space + " prefix (see prefix()).
-FOLD_INTO = {("default.conf", "arrows"): "Caps layer / mouse mode"}
+FOLD_INTO = {("default.conf", "arrows"): "Mouse mode"}
 
 
 def prefix(b, sections):
