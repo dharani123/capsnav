@@ -93,7 +93,7 @@ class ParseTest(unittest.TestCase):
         code = [b for s in self.sections for _h, bs in s.groups for b in bs
                 if b.file == "app.conf"]
         self.assertEqual(sorted(b.key for b in code),
-                         sorted(["q", "w"]))
+                         sorted(["q", "w", "h"]))
 
     def test_group_heading_is_comment_above(self):
         b = find(self.sections, "Caps", "t")
