@@ -75,7 +75,7 @@ class ParseTest(unittest.TestCase):
 
     def test_every_shown_default_section_binding_once(self):
         shown = self.shown()
-        for sec in ("mousemode", "capshold", "arrows", "winswitch:A"):
+        for sec in ("mousemode", "capshold", "winswitch:A"):
             for line in section_lines(self.texts["default.conf"], sec):
                 m = BINDING.match(line)
                 if m and not line.strip().startswith("include"):
@@ -134,7 +134,7 @@ class TabsTest(unittest.TestCase):
         for s in self.sections:
             for _h, bs in s.groups:
                 for b in bs:
-                    if b.action != "layer(arrows)":   # hidden: Space
+                    if b.action != "layer(fastscroll)":   # hidden: Space
                         self.tab_of(b.file, b.section, b.key)
 
     def test_tab_order_and_no_empty_tabs(self):
@@ -158,7 +158,7 @@ class TabsTest(unittest.TestCase):
         self.assertEqual(self.tab_of(dc, "mousemode", "b"), "Windows")
         self.assertEqual(self.tab_of(dc, "winswitch:A", "j"), "Windows")
         self.assertEqual(self.tab_of(dc, "mousemode", "0"), "Windows")
-        self.assertEqual(self.tab_of(dc, "arrows", "i"), "Text")
+        self.assertEqual(self.tab_of(dc, "capshold", "i"), "Text")
         self.assertEqual(self.tab_of(dc, "mousemode", "capslock"), "Other")
         self.assertEqual(self.tab_of("app.conf", "code", "q"), "VS Code")
 
@@ -172,34 +172,33 @@ class TabsTest(unittest.TestCase):
     def test_scroll_combo(self):
         rows = [("Space + ", "n, v", "Scroll up, 6x faster"),
                 ("Space + ", "m, c", "Scroll down, 6x faster")]
-        self.assertEqual(cm.combos(self.sections),
-                         {"Scroll": rows, "Text": rows})
+        self.assertEqual(cm.combos(self.sections), {"Scroll": rows})
 
     def test_scroll_combo_follows_moved_keys(self):
         texts = repo_texts()
         b = find(self.sections, "Mouse mode", "n")
         secs = cm.parse_all(cm.move(texts, b, "z"))
         self.assertEqual(cm.combos(secs)["Scroll"][0][1], "z, v")
-        self.assertEqual(cm.combos(secs)["Text"][0][1], "z, v")
 
-    def test_text_tab_is_one_section_with_space_prefix(self):
+    def test_text_tab_has_caps_prefix(self):
         text = dict(self.tabs)["Text"]
-        self.assertEqual([s.title for s in text], ["Mouse mode", "Hold Caps (typing)"])
+        self.assertEqual([s.title for s in text], ["Mouse mode", "Hold Caps"])
         rows = [(cm.prefix(b, self.sections), b.key, b.action)
-                for _h, bs in text[0].groups for b in bs]
+                for s in text for _h, bs in s.groups for b in bs]
         self.assertEqual(rows, [("", "o", "backspace"),
-                                ("Space + ", "i", "up"),
-                                ("Space + ", "j", "left"),
-                                ("Space + ", "k", "down"),
-                                ("Space + ", "l", "right"),
-                                ("Space + ", "t", "C-home"),
-                                ("Space + ", "b", "C-end"),
-                                ("Space + ", "h", "home"),
-                                ("Space + ", "semicolon", "end"),
-                                ("Space + ", "u", "pageup"),
-                                ("Space + ", "d", "pagedown"),
-                                ("Space + ", "q", "C-left"),
-                                ("Space + ", "w", "C-right")])
+                                ("Caps + ", "o", "backspace"),
+                                ("Caps + ", "i", "up"),
+                                ("Caps + ", "j", "left"),
+                                ("Caps + ", "k", "down"),
+                                ("Caps + ", "l", "right"),
+                                ("Caps + ", "t", "C-home"),
+                                ("Caps + ", "b", "C-end"),
+                                ("Caps + ", "h", "home"),
+                                ("Caps + ", "semicolon", "end"),
+                                ("Caps + ", "u", "pageup"),
+                                ("Caps + ", "d", "pagedown"),
+                                ("Caps + ", "q", "C-left"),
+                                ("Caps + ", "w", "C-right")])
 
     def test_unbound_tab(self):
         texts = repo_texts()
@@ -267,9 +266,9 @@ class MoveTest(unittest.TestCase):
         self.assertNotRegex(new, r"(?m)^(nav|mousemode)\.q = ")
 
     def test_section_local_move(self):
-        b = find(self.sections, "Space layer", "i")
+        b = find(self.sections, "Hold Caps", "i")
         new = cm.move(self.texts, b, "u")
-        self.assertIn("u = up", section_lines(new["default.conf"], "arrows"))
+        self.assertIn("u = up", section_lines(new["default.conf"], "capshold"))
         # Not a mouse-mode key: lists untouched.
         self.assertEqual(new["capsnav-mousetype"],
                          self.texts["capsnav-mousetype"])

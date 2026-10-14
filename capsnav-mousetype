@@ -1,5 +1,5 @@
 # Every key mouse mode takes over, mapped back to itself. Included by
-# [mousetype] (Caps held in mouse mode) in default.conf. Installed next to it
+# [capshold] (Caps held) in default.conf. Installed next to it
 # as /etc/keyd/capsnav-mousetype. Keep in step with capsnav-nav, [mousemode]
 # and [mousemode+control].
 i = i

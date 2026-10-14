@@ -44,5 +44,5 @@ n = layer(scrollup)
 m = layer(scrolldown)
 c = layer(scrolldown)
 v = layer(scrollup)
-# Caps+Space: hold Space for arrow keys on i/j/k/l and fast scrolling on n/m
-space = layer(arrows)
+# Hold Space to scroll 6x faster on n/m (and v/c)
+space = layer(fastscroll)

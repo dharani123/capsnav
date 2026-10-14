@@ -9,11 +9,6 @@ Tap Caps Lock to turn on mouse mode, then drive the mouse from i/j/k/l and more,
 | g      | Left click; hold g and move to select text or drag, release to drop |
 | h      | Left click (also on g) |
 | ; / a  | Right click (right or left hand) |
-| Space+i/j/k/l | Arrow keys up/left/down/right |
-| Space+t / Space+b | Top / bottom of the file (Ctrl+Home / Ctrl+End) |
-| Space+h / Space+; | Start / end of the line (Home / End) |
-| Space+u / Space+d | Page up / page down |
-| Space+q / Space+w | Previous / next word (Ctrl+Left / Ctrl+Right) |
 | o      | Backspace |
 | q / w  | Previous / next tab (Ctrl+PageUp / Ctrl+PageDown) |
 | t / y  | New tab / close tab (Ctrl+T / Ctrl+W) |
@@ -21,6 +16,17 @@ Tap Caps Lock to turn on mouse mode, then drive the mouse from i/j/k/l and more,
 | m      | Smooth scroll down (hold) |
 | v / c  | Smooth scroll up / down on the left hand (same as n / m) |
 | Space+n/m, Space+v/c | Smooth scroll at 6x speed (press or release Space mid-scroll to switch) |
+
+Hold Caps, in or out of mouse mode, for the text keys:
+
+| Hold Caps + | Sends |
+|---|---|
+| i/j/k/l | Arrow keys up/left/down/right |
+| t / b | Top / bottom of the file (Ctrl+Home / Ctrl+End) |
+| h / ; | Start / end of the line (Home / End) |
+| u / d | Page up / page down |
+| q / w | Previous / next word (Ctrl+Left / Ctrl+Right) |
+| o | Backspace |
 | 7      | PrtSc (screenshot) |
 | u / r  | Move pointer + focus to the other monitor (right or left hand) |
 | p      | Centre the pointer on the current monitor |
@@ -149,7 +155,7 @@ so the same direction on both hands (e.g. j + s) moves twice as fast.
 g is the left button (tap to click, hold to select or drag) and ;
 right-clicks (keyd sends the buttons itself). A button stays down while its key is held, so hold g with the left
 hand and steer with i/j/k/l to select text or drag, then release g to drop.
-With Space also held, i/j/k/l are arrow keys instead (Space+i/j/k/l).
+Holding Caps instead makes i/j/k/l arrow keys (Caps+i/j/k/l).
 It eases in and glides to a stop on the same spring as scrolling.
 In `mouse.conf`, `pointer_speed` sets the top speed in pixels per second,
 `pointer_ease_in_ms` the ease-in (slower than scrolling's by default, so a quick
@@ -170,11 +176,11 @@ X11 only.
 ## Mouse mode (tap Caps)
 Tap Caps Lock to turn mouse mode on: every binding (mouse keys, clicks, n/m
 and v/c scroll with Space for fast, q/w tabs, and the rest) works on its own.
-Letters without a binding type normally, but Space holds the arrows layer
-(arrows / fast scroll). Another Caps tap (released within 200 ms, no other
+Letters without a binding type normally, but Space only speeds up
+scrolling. Another Caps tap (released within 200 ms, no other
 key) turns it off, clicking first where the pointer is (so the text cursor
-lands there and you can type straight away). Outside mouse mode, holding Caps
-never toggles; Caps+o is Backspace (`[capshold]` in `default.conf`). An icon in the top bar next to Wi-Fi
+lands there and you can type straight away). Holding Caps never toggles; it
+gives the text keys (`[capshold]` in `default.conf`). An icon in the top bar next to Wi-Fi
 (`capsnav-indicator`, an AppIndicator) shows the mode at a glance: a filled
 mouse while mouse mode is on, a filled keyboard while it's off. Clicking the icon opens a menu that shows the mouse mode, with **Mappings…** (see below). Hold b for the window switcher: j/l (or s/f) move through it and releasing
 b picks; a quick tap of b jumps to the previous window. This uses a small
@@ -182,10 +188,11 @@ patch to the bundled keyd (`layerm()` runs its macro after the layer is on,
 so Alt stays held).
 
 Hold Caps in mouse mode to get the normal keyboard back for as long as Caps
-is down, e.g. Caps+Ctrl+Shift+t or Caps+Ctrl+s, without leaving mouse mode.
+is down (apart from the text keys), e.g. Caps+Ctrl+Shift+t or Caps+Ctrl+s,
+without leaving mouse mode.
 Holding Ctrl does the same on its own: Ctrl+c, Ctrl+s or Ctrl+Shift+t type
 as plain shortcuts instead of the mouse-mode keys. `capsnav-mousetype` maps
-each mouse-mode key back to itself for `[mousetype]`, and
+each mouse-mode key back to itself for `[capshold]`, and
 `[mousemode+control]` in `default.conf` maps it to Ctrl+itself, so keep both
 in step when you add a binding to `capsnav-nav`.
 

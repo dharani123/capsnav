@@ -69,10 +69,10 @@ T90_FACTOR = 3.89
 # Layer -> direction vector. Scroll: (wheel,), +1 = up. Mouse: (x, y) in
 # screen pixels, +y = down.
 SCROLL_LAYERS = {"scrolldown": (-1,), "scrollup": (1,)}
-# While scrolling, holding Space (keyd layer "arrows") scrolls 6x as fast.
+# While scrolling, holding Space (keyd layer "fastscroll") scrolls 6x as fast.
 # Checked every tick, so pressing or releasing it mid-scroll changes speed at
 # once (eased by the spring).
-SCROLL_SPEED_LAYERS = {"arrows": 6.0}
+SCROLL_SPEED_LAYERS = {"fastscroll": 6.0}
 # Pointer keys: two clusters, Caps+i/j/k/l and Caps+e/s/d/f, each turning on
 # its own layers. Directions add up, so the same direction on both clusters
 # moves twice as fast.

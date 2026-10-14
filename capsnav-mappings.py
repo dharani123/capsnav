@@ -33,8 +33,7 @@ KEYD_FILES = ("default.conf", "capsnav-nav", "capsnav-mousetype")
 SHOWN = [
     (("capsnav-nav", None), "Mouse mode"),
     (("default.conf", "mousemode"), "Mouse mode extras"),
-    (("default.conf", "capshold"), "Hold Caps (typing)"),
-    (("default.conf", "arrows"), "Space layer"),
+    (("default.conf", "capshold"), "Hold Caps"),
     (("default.conf", "winswitch:A"), "Window switcher (while open)"),
 ]
 APP_TITLES = {"code": "VS Code"}
@@ -70,8 +69,8 @@ MODS = {"C": "Ctrl", "S": "Shift", "A": "Alt", "M": "Super", "G": "AltGr"}
 LAYER_NAMES = {
     "scrollup": "Scroll up (hold)",
     "scrolldown": "Scroll down (hold)",
-    "arrows": "Hold: arrow keys / fast scroll",
-    "mousetype": "Hold: normal keyboard",
+    "fastscroll": "Hold: fast scroll",
+    "capshold": "text keys",
     "shift": "Shift",
 }
 for _c in ("ijkl", "esdf"):
@@ -280,7 +279,7 @@ def category(b):
     """Which tab a binding belongs in, decided by what it does (so a moved
     key keeps its tab); None for one not shown in the tabs."""
     fn, args = _split_call(b.action)
-    if b.action == "layer(arrows)":
+    if b.action == "layer(fastscroll)":
         return None      # Space: shown through its "Space + " rows instead
     layer = args[0] if fn == "layer" else None
     if b.file == "app.conf":
@@ -294,8 +293,7 @@ def category(b):
         return "Mouse"
     if layer in ("scrollup", "scrolldown"):
         return "Scroll"
-    if b.section == "arrows" or layer == "arrows" \
-            or b.action in TEXT_ACTIONS:     # Caps+Space, Caps+o
+    if b.section == "capshold" or b.action in TEXT_ACTIONS:  # Caps held, o
         return "Text"
     if b.action in BROWSER_ACTIONS:
         return "Browser"
@@ -312,21 +310,15 @@ Tap Caps Lock to toggle mouse mode, and use these mappings while it's on. \
 The top-bar icon is a mouse while mouse mode \
 is on and a keyboard while it's off; tap it again to leave it."""
 
-# Sections shown inside another in the tabs: Caps+Space keys sit under the
-# layer that holds Space, each with a "Space + " prefix (see prefix()).
-FOLD_INTO = {("default.conf", "arrows"): "Mouse mode"}
+# Sections shown inside another in the tabs (none at present).
+FOLD_INTO = {}
 
 
 def prefix(b, sections):
-    """Text shown before a binding's key button: "Space + " for the
-    Caps+Space keys (whatever key holds the arrows layer)."""
-    if (b.file, b.section) not in FOLD_INTO:
-        return ""
-    for sec in sections:
-        for _h, bs in sec.groups:
-            for x in bs:
-                if x.file == "capsnav-nav" and x.action == "layer(arrows)":
-                    return key_label(x.key).capitalize() + " + "
+    """Text shown before a binding's key button: "Caps + " for the keys held
+    with Caps."""
+    if (b.file, b.section) == ("default.conf", "capshold"):
+        return "Caps + "
     return ""
 
 
@@ -379,13 +371,13 @@ def combos(sections):
             for b in bs:
                 keys.setdefault(b.action, []).append(key_label(b.key))
     up, down = keys.get("layer(scrollup)"), keys.get("layer(scrolldown)")
-    boost = keys.get("layer(arrows)")
+    boost = keys.get("layer(fastscroll)")
     if not (up and down and boost):
         return {}
     pre = boost[0] + " + "
     rows = [(pre, ", ".join(up), "Scroll up, %dx faster" % SCROLL_BOOST),
             (pre, ", ".join(down), "Scroll down, %dx faster" % SCROLL_BOOST)]
-    return {"Scroll": rows, "Text": rows}
+    return {"Scroll": rows}
 
 
 def _section_range(lines, name):
