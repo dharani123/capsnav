@@ -99,7 +99,8 @@ For smooth n/m scrolling (mouse mode) in VS Code, add these to your VS Code
 
 ## Smooth scrolling
 In mouse mode, n / m (and c / v) send no keys of their own. They switch on the empty keyd layers
-`scrollup` / `scrolldown`. `capsnav-scroll` watches those layers via
+`scrollup` / `scrolldown` (holding Caps, n / m switch on `scrollleft` /
+`scrollright` for horizontal scrolling). `capsnav-scroll` watches those layers via
 `keyd listen`, and while one is active it sends small scroll steps at
 `tick_hz` from a virtual pointer. Speed eases in on press and glides to a stop
 on release, like a touchpad.

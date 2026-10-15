@@ -66,13 +66,16 @@ POSITIVE = {"scroll_speed", "pointer_speed", "tick_hz"}
 # A critically damped spring reaches ~90% of its target at t = 3.89 / omega.
 T90_FACTOR = 3.89
 
-# Layer -> direction vector. Scroll: (wheel,), +1 = up. Mouse: (x, y) in
-# screen pixels, +y = down.
-SCROLL_LAYERS = {"scrolldown": (-1,), "scrollup": (1,)}
-# While scrolling, holding Space (keyd layer "fastscroll") scrolls 6x as fast.
+# Layer -> direction vector. Scroll: (wheel, hwheel), +1 = up / left
+# (hwheel: Caps+n/m in text mode; on this setup a positive REL_HWHEEL moves
+# the view left). Mouse: (x, y) in screen pixels, +y = down.
+SCROLL_LAYERS = {"scrolldown": (-1, 0), "scrollup": (1, 0),
+                 "scrollleft": (0, 1), "scrollright": (0, -1)}
+# While scrolling, holding Space scrolls 6x as fast: keyd layer "fastscroll" in
+# mouse mode, "textshift" (Caps+Space, which also adds Shift) in text mode.
 # Checked every tick, so pressing or releasing it mid-scroll changes speed at
 # once (eased by the spring).
-SCROLL_SPEED_LAYERS = {"fastscroll": 6.0}
+SCROLL_SPEED_LAYERS = {"fastscroll": 6.0, "textshift": 6.0}
 # Pointer keys: two clusters, Caps+i/j/k/l and Caps+e/s/d/f, each turning on
 # its own layers. Directions add up, so the same direction on both clusters
 # moves twice as fast.
@@ -103,6 +106,7 @@ def indicator(state):
 EV_SYN, EV_KEY, EV_REL = 0x00, 0x01, 0x02
 SYN_REPORT = 0
 REL_X, REL_Y, REL_WHEEL, REL_WHEEL_HI_RES = 0x00, 0x01, 0x08, 0x0B
+REL_HWHEEL, REL_HWHEEL_HI_RES = 0x06, 0x0C
 BTN_LEFT = 0x110
 BUS_VIRTUAL = 0x06
 
@@ -168,36 +172,41 @@ class VirtualWheel:
         fcntl.ioctl(self.fd, UI_SET_EVBIT, EV_REL)
         # Without REL_WHEEL_HI_RES, libinput flushes every event at once;
         # the quirk then turns our REL_WHEEL values into continuous scroll.
-        codes = [REL_X, REL_Y, REL_WHEEL]
+        codes = [REL_X, REL_Y, REL_WHEEL, REL_HWHEEL]
         if not continuous:
-            codes.append(REL_WHEEL_HI_RES)
+            codes += [REL_WHEEL_HI_RES, REL_HWHEEL_HI_RES]
         for code in codes:
             fcntl.ioctl(self.fd, UI_SET_RELBIT, code)
         setup = struct.pack("HHHH80sI", BUS_VIRTUAL, 0x1, 0x1, 1,
                             DEVICE_NAME.encode(), 0)
         fcntl.ioctl(self.fd, UI_DEV_SETUP, setup)
         fcntl.ioctl(self.fd, UI_DEV_CREATE)
-        self.notch_acc = 0
+        self.notch_acc = [0, 0]  # per axis: vertical, horizontal
 
     def _event(self, etype, code, value):
         os.write(self.fd, struct.pack("llHHi", 0, 0, etype, code, value))
 
-    def scroll(self, units):
-        """Send `units` (see units_per_click) of scroll."""
+    def scroll(self, units, axis=0):
+        """Queue `units` (see units_per_click) of scroll on `axis` (0 =
+        vertical, 1 = horizontal); send() ends the report."""
+        wheel, hi_res = ((REL_WHEEL, REL_WHEEL_HI_RES) if axis == 0
+                         else (REL_HWHEEL, REL_HWHEEL_HI_RES))
         if self.continuous:
-            self._event(EV_REL, REL_WHEEL, units)
+            self._event(EV_REL, wheel, units)
         else:
             # Hi-res units; a legacy notch accompanies every 120.
-            self._event(EV_REL, REL_WHEEL_HI_RES, units)
-            self.notch_acc += units
-            notches = int(self.notch_acc / WHEEL_UNITS)  # toward zero
+            self._event(EV_REL, hi_res, units)
+            self.notch_acc[axis] += units
+            notches = int(self.notch_acc[axis] / WHEEL_UNITS)  # toward zero
             if notches:
-                self.notch_acc -= notches * WHEEL_UNITS
-                self._event(EV_REL, REL_WHEEL, notches)
-        self._event(EV_SYN, SYN_REPORT, 0)
+                self.notch_acc[axis] -= notches * WHEEL_UNITS
+                self._event(EV_REL, wheel, notches)
 
     def send(self, units):
-        self.scroll(units[0])
+        for axis, u in enumerate(units):
+            if u:
+                self.scroll(u, axis)
+        self._event(EV_SYN, SYN_REPORT, 0)
 
     def close(self):
         fcntl.ioctl(self.fd, UI_DEV_DESTROY)
@@ -545,7 +554,8 @@ def main():
               file=sys.stderr, flush=True)
         output = VirtualWheel(continuous)
         layers = SCROLL_LAYERS
-        motions = [Motion(settings, output.units_per_click)]
+        motions = [Motion(settings, output.units_per_click)
+                   for _ in range(2)]
     vblank = None
     if "--mouse" not in sys.argv[1:]:
         try:

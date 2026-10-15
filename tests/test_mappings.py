@@ -198,7 +198,9 @@ class TabsTest(unittest.TestCase):
                                 ("Caps + ", "d", "pagedown"),
                                 ("Caps + ", "q", "C-left"),
                                 ("Caps + ", "w", "C-right"),
-                                ("Caps + ", "space", "layer(shift)")])
+                                ("Caps + ", "c", "C-c"),
+                                ("Caps + ", "v", "C-v"),
+                                ("Caps + ", "space", "layer(textshift)")])
 
     def test_unbound_tab(self):
         texts = repo_texts()

@@ -68,9 +68,12 @@ MODS = {"C": "Ctrl", "S": "Shift", "A": "Alt", "M": "Super", "G": "AltGr"}
 LAYER_NAMES = {
     "scrollup": "Scroll up (hold)",
     "scrolldown": "Scroll down (hold)",
+    "scrollleft": "Scroll left (hold)",
+    "scrollright": "Scroll right (hold)",
     "fastscroll": "Hold: fast scroll",
     "textmode": "Text mode",
     "shift": "Shift",
+    "textshift": "Shift (select), 6x side scroll",
 }
 for _c in ("ijkl", "esdf"):
     for _d in ("up", "left", "down", "right"):
@@ -290,7 +293,7 @@ def category(b):
                                         ("up", "down", "left", "right")
                                         and layer[:4] in ("ijkl", "esdf")):
         return "Mouse"
-    if layer in ("scrollup", "scrolldown"):
+    if layer in ("scrollup", "scrolldown", "scrollleft", "scrollright"):
         return "Scroll"
     if b.section == "textmode" or b.action in TEXT_ACTIONS:  # Text mode, o
         return "Text"
