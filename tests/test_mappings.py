@@ -151,10 +151,10 @@ class TabsTest(unittest.TestCase):
                          ("p", "Mouse"), ("n", "Scroll"), ("m", "Scroll"),
                          ("q", "Browser"), ("w", "Browser"), ("t", "Browser"),
                          ("y", "Browser"), ("0", "Windows"), ("7", "Windows"),
-                         ("c", "Scroll"), ("v", "Scroll"), ("o", "Text")]:
+                         ("c", "Scroll"), ("v", "Scroll"), ("b", "Text")]:
             self.assertEqual(self.tab_of(*nav, key), tab, key)
         dc = "default.conf"
-        self.assertEqual(self.tab_of(dc, "mousemode", "b"), "Windows")
+        self.assertEqual(self.tab_of(dc, "mousemode", "space"), "Windows")
         self.assertEqual(self.tab_of(dc, "winswitch:A", "j"), "Windows")
         self.assertEqual(self.tab_of(dc, "mousemode", "0"), "Windows")
         self.assertEqual(self.tab_of(dc, "textmode", "i"), "Text")
@@ -169,8 +169,8 @@ class TabsTest(unittest.TestCase):
                          b.group)
 
     def test_scroll_combo(self):
-        rows = [("Space + ", "n, v", "Scroll up, 6x faster"),
-                ("Space + ", "m, c", "Scroll down, 6x faster")]
+        rows = [("", "n, v", "Scroll up, then Space: 6x faster"),
+                ("", "m, c", "Scroll down, then Space: 6x faster")]
         self.assertEqual(cm.combos(self.sections), {"Scroll": rows})
 
     def test_scroll_combo_follows_moved_keys(self):
@@ -184,14 +184,14 @@ class TabsTest(unittest.TestCase):
         self.assertEqual([s.title for s in text], ["Mouse mode", "Text mode"])
         rows = [(cm.prefix(b, self.sections), b.key, b.action)
                 for s in text for _h, bs in s.groups for b in bs]
-        self.assertEqual(rows, [("", "o", "backspace"),
-                                ("Caps + ", "o", "backspace"),
+        self.assertEqual(rows, [("", "b", "backspace"),
+                                ("Caps + ", "b", "backspace"),
                                 ("Caps + ", "i", "up"),
                                 ("Caps + ", "j", "left"),
                                 ("Caps + ", "k", "down"),
                                 ("Caps + ", "l", "right"),
                                 ("Caps + ", "t", "C-home"),
-                                ("Caps + ", "b", "C-end"),
+                                ("Caps + ", "g", "C-end"),
                                 ("Caps + ", "h", "home"),
                                 ("Caps + ", "semicolon", "end"),
                                 ("Caps + ", "u", "pageup"),
@@ -199,8 +199,12 @@ class TabsTest(unittest.TestCase):
                                 ("Caps + ", "q", "C-left"),
                                 ("Caps + ", "w", "C-right"),
                                 ("Caps + ", "c", "C-c"),
+                                ("Caps + ", "x", "C-x"),
                                 ("Caps + ", "v", "C-v"),
-                                ("Caps + ", "space", "layer(textshift)")])
+                                ("Caps + ", "a", "C-a"),
+                                ("Caps + ", "z", "C-z"),
+                                ("Caps + ", "f", "C-f"),
+                                ("Caps + ", "space", "overload(textshift, enter)")])
 
     def test_unbound_tab(self):
         texts = repo_texts()

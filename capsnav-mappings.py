@@ -382,12 +382,13 @@ def combos(sections):
             for b in bs:
                 keys.setdefault(b.action, []).append(key_label(b.key))
     up, down = keys.get("layer(scrollup)"), keys.get("layer(scrolldown)")
-    boost = keys.get("layer(fastscroll)")
-    if not (up and down and boost):
+    if not (up and down):
         return {}
-    pre = boost[0] + " + "
-    rows = [(pre, ", ".join(up), "Scroll up, %dx faster" % SCROLL_BOOST),
-            (pre, ", ".join(down), "Scroll down, %dx faster" % SCROLL_BOOST)]
+    # Space pressed while scrolling: [scrollup]/[scrolldown] in default.conf,
+    # which this window doesn't show or move.
+    then = ", then Space: %dx faster" % SCROLL_BOOST
+    rows = [("", ", ".join(up), "Scroll up" + then),
+            ("", ", ".join(down), "Scroll down" + then)]
     return {"Scroll": rows}
 
 

@@ -26,8 +26,8 @@ q = C-pageup
 w = C-pagedown
 t = C-t
 y = C-w
-# Backspace on o, so deleting doesn't mean leaving the home row
-o = backspace
+# Backspace on b (same as Caps+b in text mode)
+b = backspace
 # Lock the screen (GNOME's Super+L)
 0 = M-l
 # PrtSc (screenshot). The physical PrtSc key sends KEY_SYSRQ.
@@ -44,5 +44,5 @@ n = layer(scrollup)
 m = layer(scrolldown)
 c = layer(scrolldown)
 v = layer(scrollup)
-# Hold Space to scroll 6x faster on n/m (and v/c)
-space = layer(fastscroll)
+# Space: see [mousemode] in default.conf (window switcher; while scrolling,
+# 6x faster scroll via the scroll layers)
