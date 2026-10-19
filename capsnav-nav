@@ -64,16 +64,14 @@ u = M-A-o
 r = M-A-o
 f2 = M-A-o
 f10 = M-A-o
-# Centre the pointer on the current monitor (GNOME shortcut -> capsnav-switch-monitor --center)
-p = M-A-u
 # Smooth scroll: n/m on the right hand, v/c on the left (up/down). These
 # layers are watched by capsnav-scroll.py.
 n = layer(scrollup)
 m = layer(scrolldown)
 c = layer(scrolldown)
 v = layer(scrollup)
-# Controller grip, right hand: [ = up, ] = down.
-leftbrace = layer(scrollup)
-rightbrace = layer(scrolldown)
+# Controller grip, right hand: p = up, [ = down.
+p = layer(scrollup)
+leftbrace = layer(scrolldown)
 # Space: see [mousemode] in default.conf (window switcher; while scrolling,
 # 6x faster scroll via the scroll layers)

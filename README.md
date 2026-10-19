@@ -38,7 +38,6 @@ typing keys do nothing in text mode):
 | Space (hold) + any of the above | Select while moving (adds Shift), e.g. Space+q selects the previous word |
 | 7      | PrtSc (screenshot) |
 | u / r  | Move pointer + focus to the other monitor (right or left hand; also F2, F10) |
-| p      | Centre the pointer on the current monitor |
 | b      | Window switcher (Alt+Tab): hold b, j/l or s/f to move, release to pick; a quick tap jumps to the previous window |
 
 ## Install
@@ -220,7 +219,7 @@ need the keyboard's Fn Lock on.
 | Pointer left / down / right | ` / 1 / 2 | - / = / Backspace |
 | Pointer 2x (hold with a direction) | Esc | Delete |
 | Left click | Tab or 3 | 0 or \ |
-| Scroll up / down | Tab while scrolling: 6x | [ / ] |
+| Scroll up / down | Tab while scrolling: 6x | p / [ |
 | Other monitor | F2 | F10 |
 
 Lock the screen with 9. In the window switcher (hold Space), ` / 2 and - /
@@ -283,10 +282,9 @@ next monitor and focuses the topmost window there. It reads the layout from
 `xrandr` each time, so it follows monitor changes. X11 only; on another
 desktop, bind Super+Alt+O to the script yourself.
 
-Mouse-mode p works the same way (Super+Alt+U, shortcut "capsnav: center pointer")
-and runs `capsnav-switch-monitor --center`, which only moves the pointer to the
-centre of the monitor it's on. To reach a far corner quickly: p, then
-i/j/k/l.
+`capsnav-switch-monitor --center` (Super+Alt+U, shortcut "capsnav: center
+pointer") only moves the pointer to the centre of the monitor it's on; no
+mouse-mode key sends it any more, but the shortcut still works.
 
 ## Checking the setup
 `./check.sh` checks everything `install.sh` sets up and prints `[ OK ]`,
