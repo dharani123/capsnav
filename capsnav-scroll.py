@@ -84,6 +84,12 @@ for _cluster in ("ijkl", "esdf"):
     for _side, _dir in (("left", (-1, 0)), ("right", (1, 0)),
                         ("up", (0, -1)), ("down", (0, 1))):
         MOUSE_LAYERS[_cluster + _side] = _dir
+# Held with pointer keys: Backspace in mouse mode (the controller grip's
+# right hand), or Space pressed while the pointer is moving, doubles the speed.
+POINTER_SPEED_LAYERS = {"pointerboost": 2.0}
+# Fastest the pointer goes on each axis, in units of pointer_speed: both
+# clusters plus a doubler would otherwise reach 4x.
+POINTER_MAX = 2.0
 # capsnav-indicator shows an icon in the top bar, a filled mouse while mouse
 # mode is on and a filled keyboard while off; the pointer helper starts it and feeds it
 # "on" / "off".
@@ -450,7 +456,9 @@ def run(output, layers, motions, settings, vblank=None):
         # Show the (keyboard) icon from the start; keyd listen then reports
         # mouse mode if it's already on.
         indicator("off")
-    modifiers = set()  # active SCROLL_SPEED_LAYERS (scrolling only)
+    speed_layers = (SCROLL_SPEED_LAYERS if layers is SCROLL_LAYERS
+                    else POINTER_SPEED_LAYERS)
+    modifiers = set()  # active speed_layers
     buf = b""
     next_tick = None  # monotonic deadline of the next scroll event
     try:
@@ -488,7 +496,7 @@ def run(output, layers, motions, settings, vblank=None):
                         # move the pointer instead of typing.
                         indicator("on" if line[0] == "+" else "off")
                         continue
-                    if name in SCROLL_SPEED_LAYERS and layers is SCROLL_LAYERS:
+                    if name in speed_layers:
                         if line[0] == "+":
                             modifiers.add(name)
                         else:
@@ -523,10 +531,14 @@ def run(output, layers, motions, settings, vblank=None):
                 continue
             factor = 1.0
             for name in modifiers:
-                factor *= SCROLL_SPEED_LAYERS[name]
-            units = [m.step(sum(layers[n][axis] for n in held) * factor,
-                            period, whole_steps=synced)
-                     for axis, m in enumerate(motions)]
+                factor *= speed_layers[name]
+            targets = [sum(layers[n][axis] for n in held) * factor
+                       for axis in range(len(motions))]
+            if pointer:
+                targets = [max(-POINTER_MAX, min(POINTER_MAX, t))
+                           for t in targets]
+            units = [m.step(t, period, whole_steps=synced)
+                     for t, m in zip(targets, motions)]
             if any(units):
                 output.send(units)
             if synced:

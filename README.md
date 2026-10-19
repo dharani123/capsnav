@@ -12,6 +12,7 @@ Ctrl shortcuts work normally in every mode.
 |--------|-------------|
 | i/j/k/l | Move the mouse pointer up/left/down/right (hold; combine for diagonals) |
 | e/s/d/f | Move the pointer on the left hand too; the same direction on both (e.g. j + s) moves twice as fast |
+| Space or Backspace (while moving) | Pointer 2x; 2x is the top speed, however many keys are held |
 | g      | Left click; hold g and move to select text or drag, release to drop |
 | h      | Left click (also on g) |
 | ; / a  | Right click (right or left hand) |
@@ -21,7 +22,7 @@ Ctrl shortcuts work normally in every mode.
 | n      | Smooth scroll up (hold)   |
 | m      | Smooth scroll down (hold) |
 | v / c  | Smooth scroll up / down on the left hand (same as n / m) |
-| Space+n/m, Space+v/c | Smooth scroll at 6x speed (press or release Space mid-scroll to switch) |
+| Space+n/m, Space+v/c | Smooth scroll at 6x speed (press or release Space, or Tab, mid-scroll to switch) |
 
 Hold Caps for **text mode**, in keyboard or mouse mode: the text keys (other
 typing keys do nothing in text mode):
@@ -37,7 +38,7 @@ typing keys do nothing in text mode):
 | Space (hold) + any of the above | Select while moving (adds Shift), e.g. Space+q selects the previous word |
 | 7      | PrtSc (screenshot) |
 | u / r  | Move pointer + focus to the other monitor (right or left hand; also F2, F10, Delete) |
-| ]      | Centre the pointer on the current monitor |
+| p      | Centre the pointer on the current monitor |
 | b      | Window switcher (Alt+Tab): hold b, j/l or s/f to move, release to pick; a quick tap jumps to the previous window |
 
 ## Install
@@ -209,22 +210,23 @@ to `/etc/keyd/capsnav-nav`.
 
 ### Controller grip
 For lazy moments, hold the keyboard like a game controller by its top
-corners. Both D-pads use the pointer layers (left = esdf, right = ijkl), so the
-same direction on both moves twice as fast. The F-keys need the keyboard's
+corners. The left hand's D-pad moves the pointer (esdf layers, so it adds up with
+i/j/k/l); the right hand holds Backspace to double its speed. The F-keys need the keyboard's
 Fn Lock on.
 
 | Mouse mode | Left hand | Right hand |
 |---|---|---|
-| Pointer up | F1 or Mute | F11 or End |
-| Pointer left / down / right | ` / 1 / 2 | - / = / Backspace |
+| Pointer up | F1 or Mute | |
+| Pointer left / down / right | ` / 1 / 2 | |
+| Pointer 2x (hold with a direction) | | Backspace |
 | Left click | Tab or 3 | \ |
-| Scroll up / down | | p / [ |
+| Scroll up / down | Tab while scrolling: 6x | [ / ] |
 | Other monitor | F2 | F10 or Delete |
 
-In the window switcher (hold Space), ` / 2 and - / Backspace move left and
-right too. Cheap keyboards can't report every key combination: on the HP 350,
-holding both diagonals at once (` 1 and - =) drops - and = and sends a
-phantom Ctrl.
+In the window switcher (hold Space), ` / 2 (and Backspace) move left and
+right too. Cheap keyboards can't report every key combination: on the HP 350, a
+second D-pad on - / = got dropped while ` and 1 were held (with a phantom
+Ctrl), which is why the right hand has a doubler instead.
 
 ### Mappings window
 
@@ -280,9 +282,9 @@ next monitor and focuses the topmost window there. It reads the layout from
 `xrandr` each time, so it follows monitor changes. X11 only; on another
 desktop, bind Super+Alt+O to the script yourself.
 
-Mouse-mode ] works the same way (Super+Alt+U, shortcut "capsnav: center pointer")
+Mouse-mode p works the same way (Super+Alt+U, shortcut "capsnav: center pointer")
 and runs `capsnav-switch-monitor --center`, which only moves the pointer to the
-centre of the monitor it's on. To reach a far corner quickly: ], then
+centre of the monitor it's on. To reach a far corner quickly: p, then
 i/j/k/l.
 
 ## Checking the setup

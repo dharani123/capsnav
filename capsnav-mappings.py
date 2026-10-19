@@ -76,6 +76,7 @@ LAYER_NAMES = {
     "textmode": "Text mode",
     "shift": "Shift",
     "textshift": "Shift (select), 6x side scroll",
+    "pointerboost": "Hold: pointer 2x",
 }
 for _c in ("ijkl", "esdf"):
     for _d in ("up", "left", "down", "right"):
@@ -273,7 +274,8 @@ def parse_all(texts):
 TABS = ["Mouse", "Scroll", "Browser", "VS Code", "Windows", "Text", "Other"]
 POINTER_ACTIONS = {"leftmouse", "rightmouse", "middlemouse",
                    "M-A-u",    # centre the pointer (capsnav-switch-monitor)
-                   "M-A-o"}    # pointer + focus to the other monitor
+                   "M-A-o",    # pointer + focus to the other monitor
+                   "layer(pointerboost)"}  # pointer 2x while held
 BROWSER_ACTIONS = {"C-pageup", "C-pagedown", "C-t", "C-w"}
 WINDOW_ACTIONS = {"M-l", "togglem(mousemode, M-l)", "sysrq"}
 TEXT_ACTIONS = {"backspace"}
@@ -388,10 +390,12 @@ def combos(sections):
         return {}
     # Space pressed while scrolling: [scrollup]/[scrolldown] in default.conf,
     # which this window doesn't show or move.
-    then = ", then Space: %dx faster" % SCROLL_BOOST
+    then = ", then Space or Tab: %dx faster" % SCROLL_BOOST
     rows = [("", ", ".join(up), "Scroll up" + then),
             ("", ", ".join(down), "Scroll down" + then)]
-    return {"Scroll": rows}
+    # Space pressed while the pointer moves: [ijkl…]/[esdf…] in default.conf.
+    return {"Scroll": rows,
+            "Mouse": [("", "Pointer keys", "Moving, then Space: 2x faster")]}
 
 
 def _section_range(lines, name):
@@ -556,7 +560,7 @@ def print_view(sections):
                                             + key_label(b.key),
                                             describe(b.action)))
         if tab in extra:
-            if tab == "Scroll":
+            if tab != "Text":
                 print("== Combinations")
             for pre, keys, does in extra[tab]:
                 print("    %-12s %s" % (pre + keys, does))
@@ -699,8 +703,9 @@ def run_window():
                     key = Gtk.Button(label=keys)
                     key.set_size_request(90, -1)
                     key.set_sensitive(False)
-                    key.set_tooltip_text("Follows the scroll keys; move "
-                                         "those in the Scroll tab.")
+                    if tab == "Scroll":
+                        key.set_tooltip_text("Follows the scroll keys; move "
+                                             "those in the Scroll tab.")
                     box = Gtk.Box(spacing=6)
                     box.pack_start(Gtk.Label(label=pre), False, False, 0)
                     box.pack_start(key, False, False, 0)

@@ -148,7 +148,8 @@ class TabsTest(unittest.TestCase):
         for key in "ijklesdfgh":
             self.assertEqual(self.tab_of(*nav, key), "Mouse", key)
         for key, tab in [("semicolon", "Mouse"), ("u", "Mouse"),
-                         ("p", "Mouse"), ("n", "Scroll"), ("m", "Scroll"),
+                         ("p", "Mouse"), ("rightbrace", "Scroll"),
+                         ("backspace", "Mouse"), ("n", "Scroll"), ("m", "Scroll"),
                          ("q", "Browser"), ("w", "Browser"), ("t", "Browser"),
                          ("y", "Browser"), ("0", "Windows"), ("7", "Windows"),
                          ("c", "Scroll"), ("v", "Scroll"), ("b", "Text")]:
@@ -169,15 +170,15 @@ class TabsTest(unittest.TestCase):
                          b.group)
 
     def test_scroll_combo(self):
-        rows = [("", "n, v", "Scroll up, then Space: 6x faster"),
-                ("", "m, c", "Scroll down, then Space: 6x faster")]
-        self.assertEqual(cm.combos(self.sections), {"Scroll": rows})
+        rows = [("", "n, v, [", "Scroll up, then Space or Tab: 6x faster"),
+                ("", "m, c, ]", "Scroll down, then Space or Tab: 6x faster")]
+        self.assertEqual(cm.combos(self.sections)["Scroll"], rows)
 
     def test_scroll_combo_follows_moved_keys(self):
         texts = repo_texts()
         b = find(self.sections, "Mouse mode", "n")
         secs = cm.parse_all(cm.move(texts, b, "z"))
-        self.assertEqual(cm.combos(secs)["Scroll"][0][1], "z, v")
+        self.assertEqual(cm.combos(secs)["Scroll"][0][1], "z, v, [")
 
     def test_text_tab_has_caps_prefix(self):
         text = dict(self.tabs)["Text"]
