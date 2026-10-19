@@ -12,7 +12,7 @@ Ctrl shortcuts work normally in every mode.
 |--------|-------------|
 | i/j/k/l | Move the mouse pointer up/left/down/right (hold; combine for diagonals) |
 | e/s/d/f | Move the pointer on the left hand too; the same direction on both (e.g. j + s) moves twice as fast |
-| Space or Backspace (while moving) | Pointer 2x; 2x is the top speed, however many keys are held |
+| Esc, Delete, or Space / Ctrl pressed while moving | Pointer 2x; 2x is the top speed, however many keys are held |
 | g      | Left click; hold g and move to select text or drag, release to drop |
 | h      | Left click (also on g) |
 | ; / a  | Right click (right or left hand) |
@@ -37,7 +37,7 @@ typing keys do nothing in text mode):
 | o | Backspace |
 | Space (hold) + any of the above | Select while moving (adds Shift), e.g. Space+q selects the previous word |
 | 7      | PrtSc (screenshot) |
-| u / r  | Move pointer + focus to the other monitor (right or left hand; also F2, F10, Delete) |
+| u / r  | Move pointer + focus to the other monitor (right or left hand; also F2, F10) |
 | p      | Centre the pointer on the current monitor |
 | b      | Window switcher (Alt+Tab): hold b, j/l or s/f to move, release to pick; a quick tap jumps to the previous window |
 
@@ -210,23 +210,24 @@ to `/etc/keyd/capsnav-nav`.
 
 ### Controller grip
 For lazy moments, hold the keyboard like a game controller by its top
-corners. The left hand's D-pad moves the pointer (esdf layers, so it adds up with
-i/j/k/l); the right hand holds Backspace to double its speed. The F-keys need the keyboard's
-Fn Lock on.
+corners. Each hand has a D-pad (left = esdf layers, right = ijkl, so they add
+up) and a doubler to hold; the pointer tops out at 2x either way. The F-keys
+need the keyboard's Fn Lock on.
 
 | Mouse mode | Left hand | Right hand |
 |---|---|---|
-| Pointer up | F1 or Mute | |
-| Pointer left / down / right | ` / 1 / 2 | |
-| Pointer 2x (hold with a direction) | | Backspace |
-| Left click | Tab or 3 | \ |
+| Pointer up | F1 or Mute | F11 or End |
+| Pointer left / down / right | ` / 1 / 2 | - / = / Backspace |
+| Pointer 2x (hold with a direction) | Esc | Delete |
+| Left click | Tab or 3 | 0 or \ |
 | Scroll up / down | Tab while scrolling: 6x | [ / ] |
-| Other monitor | F2 | F10 or Delete |
+| Other monitor | F2 | F10 |
 
-In the window switcher (hold Space), ` / 2 (and Backspace) move left and
-right too. Cheap keyboards can't report every key combination: on the HP 350, a
-second D-pad on - / = got dropped while ` and 1 were held (with a phantom
-Ctrl), which is why the right hand has a doubler instead.
+Lock the screen with 9. In the window switcher (hold Space), ` / 2 and - /
+Backspace move left and right too. Cheap keyboards can't report every
+key combination: on the HP 350, holding a diagonal on both D-pads at once
+can drop the second pair and send a phantom Ctrl, so hold one diagonal with
+the other hand's doubler instead.
 
 ### Mappings window
 

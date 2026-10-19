@@ -395,7 +395,7 @@ def combos(sections):
             ("", ", ".join(down), "Scroll down" + then)]
     # Space pressed while the pointer moves: [ijkl…]/[esdf…] in default.conf.
     return {"Scroll": rows,
-            "Mouse": [("", "Pointer keys", "Moving, then Space: 2x faster")]}
+            "Mouse": [("", "Pointer keys", "Moving, then Space or Ctrl: 2x faster")]}
 
 
 def _section_range(lines, name):

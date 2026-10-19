@@ -151,13 +151,13 @@ class TabsTest(unittest.TestCase):
                          ("p", "Mouse"), ("rightbrace", "Scroll"),
                          ("backspace", "Mouse"), ("n", "Scroll"), ("m", "Scroll"),
                          ("q", "Browser"), ("w", "Browser"), ("t", "Browser"),
-                         ("y", "Browser"), ("0", "Windows"), ("7", "Windows"),
+                         ("y", "Browser"), ("9", "Windows"), ("delete", "Mouse"), ("7", "Windows"),
                          ("c", "Scroll"), ("v", "Scroll"), ("b", "Text")]:
             self.assertEqual(self.tab_of(*nav, key), tab, key)
         dc = "default.conf"
         self.assertEqual(self.tab_of(dc, "mousemode", "space"), "Windows")
         self.assertEqual(self.tab_of(dc, "winswitch:A", "j"), "Windows")
-        self.assertEqual(self.tab_of(dc, "mousemode", "0"), "Windows")
+        self.assertEqual(self.tab_of(dc, "mousemode", "9"), "Windows")
         self.assertEqual(self.tab_of(dc, "textmode", "i"), "Text")
         self.assertEqual(self.tab_of(dc, "mousemode", "capslock"), "Other")
         self.assertEqual(self.tab_of("app.conf", "code", "q"), "VS Code")
