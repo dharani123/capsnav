@@ -36,8 +36,8 @@ typing keys do nothing in text mode):
 | o | Backspace |
 | Space (hold) + any of the above | Select while moving (adds Shift), e.g. Space+q selects the previous word |
 | 7      | PrtSc (screenshot) |
-| u / r  | Move pointer + focus to the other monitor (right or left hand) |
-| p      | Centre the pointer on the current monitor |
+| u / r  | Move pointer + focus to the other monitor (right or left hand; also F2, F10, Delete) |
+| ]      | Centre the pointer on the current monitor |
 | b      | Window switcher (Alt+Tab): hold b, j/l or s/f to move, release to pick; a quick tap jumps to the previous window |
 
 ## Install
@@ -207,6 +207,25 @@ The bindings live in `capsnav-nav`, which `default.conf` includes in mouse
 mode (`[mousemode]`); `install.sh` copies it
 to `/etc/keyd/capsnav-nav`.
 
+### Controller grip
+For lazy moments, hold the keyboard like a game controller by its top
+corners. Both D-pads use the pointer layers (left = esdf, right = ijkl), so the
+same direction on both moves twice as fast. The F-keys need the keyboard's
+Fn Lock on.
+
+| Mouse mode | Left hand | Right hand |
+|---|---|---|
+| Pointer up | F1 or Mute | F11 or End |
+| Pointer left / down / right | ` / 1 / 2 | - / = / Backspace |
+| Left click | Tab or 3 | \ |
+| Scroll up / down | | p / [ |
+| Other monitor | F2 | F10 or Delete |
+
+In the window switcher (hold Space), ` / 2 and - / Backspace move left and
+right too. Cheap keyboards can't report every key combination: on the HP 350,
+holding both diagonals at once (` 1 and - =) drops - and = and sends a
+phantom Ctrl.
+
 ### Mappings window
 
 Mouse-mode icon → **Mappings…** (or run `capsnav-mappings`) lists every
@@ -261,9 +280,9 @@ next monitor and focuses the topmost window there. It reads the layout from
 `xrandr` each time, so it follows monitor changes. X11 only; on another
 desktop, bind Super+Alt+O to the script yourself.
 
-Mouse-mode p works the same way (Super+Alt+U, shortcut "capsnav: center pointer")
+Mouse-mode ] works the same way (Super+Alt+U, shortcut "capsnav: center pointer")
 and runs `capsnav-switch-monitor --center`, which only moves the pointer to the
-centre of the monitor it's on. To reach a far corner quickly: p, then
+centre of the monitor it's on. To reach a far corner quickly: ], then
 i/j/k/l.
 
 ## Checking the setup

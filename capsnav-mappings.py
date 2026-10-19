@@ -54,7 +54,9 @@ KEY_LABELS = {
     "equal": "=", "grave": "`", "backslash": "\\", "space": "Space",
     "capslock": "Caps", "leftshift": "Left Shift", "rightshift": "Right Shift",
     "leftalt": "Left Alt",
-    "tab": "Tab", "esc": "Esc", "enter": "Enter",
+    "tab": "Tab", "esc": "Esc", "enter": "Enter", "mute": "Mute", "end": "End", "f1": "F1", "f2": "F2", "f10": "F10", "f11": "F11", "f12": "F12",
+    "delete": "Delete",
+    "backspace": "Backspace",
 }
 KEY_NAMES = dict(KEY_LABELS, **{
     "pageup": "Page Up", "pagedown": "Page Down", "home": "Home",

@@ -14,12 +14,31 @@ e = layer(esdfup)
 s = layer(esdfleft)
 d = layer(esdfdown)
 f = layer(esdfright)
+# Controller grip (left hand on the top-left corner): a D-pad, F1 (or Mute)
+# = up, ` = left, 1 = down, 2 = right. Same layers as esdf, so the D-pad plus
+# the same direction on ijkl moves twice as fast. (F-keys need Fn Lock on.)
+f1 = layer(esdfup)
+mute = layer(esdfup)
+grave = layer(esdfleft)
+1 = layer(esdfdown)
+2 = layer(esdfright)
+# The same on the right: F11 (or End) = up, - = left, = = down,
+# Backspace = right (ijkl layers, so it doubles with esdf).
+f11 = layer(ijklup)
+end = layer(ijklup)
+minus = layer(ijklleft)
+equal = layer(ijkldown)
+backspace = layer(ijklright)
 # Clicks: g and h = left button (tap to click, hold and move to select text or
 # drag), ; and a = right click. Buttons stay down while the key is held.
 g = leftmouse
 h = leftmouse
 semicolon = rightmouse
 a = rightmouse
+# Controller grip: Tab or 3 by the left D-pad, \ on the right = left click.
+tab = leftmouse
+3 = leftmouse
+backslash = leftmouse
 # Tabs (browsers, VS Code, terminals): q = previous, w = next,
 # t = new tab, y = close tab
 q = C-pageup
@@ -33,16 +52,22 @@ b = backspace
 # PrtSc (screenshot). The physical PrtSc key sends KEY_SYSRQ.
 7 = sysrq
 # Jump pointer + focus to the other monitor (GNOME shortcut -> capsnav-switch-monitor):
-# u on the right hand, r on the left
+# u on the right hand, r on the left; F2, F10 or Delete for the controller grip
 u = M-A-o
 r = M-A-o
+delete = M-A-o
+f2 = M-A-o
+f10 = M-A-o
 # Centre the pointer on the current monitor (GNOME shortcut -> capsnav-switch-monitor --center)
-p = M-A-u
+rightbrace = M-A-u
 # Smooth scroll: n/m on the right hand, v/c on the left (up/down). These
 # layers are watched by capsnav-scroll.py.
 n = layer(scrollup)
 m = layer(scrolldown)
 c = layer(scrolldown)
 v = layer(scrollup)
+# Controller grip, right hand: p = up, [ = down.
+p = layer(scrollup)
+leftbrace = layer(scrolldown)
 # Space: see [mousemode] in default.conf (window switcher; while scrolling,
 # 6x faster scroll via the scroll layers)
