@@ -12,7 +12,7 @@ Ctrl shortcuts work normally in every mode.
 |--------|-------------|
 | i/j/k/l | Move the mouse pointer up/left/down/right (hold; combine for diagonals) |
 | e/s/d/f | Move the pointer on the left hand too; the same direction on both (e.g. j + s) moves twice as fast |
-| Esc, Delete, or Space / Ctrl pressed while moving | Pointer 2x; 2x is the top speed, however many keys are held |
+| Esc, Delete, or Ctrl pressed while moving | Pointer 2x; 2x is the top speed, however many keys are held |
 | g      | Left click; hold g and move to select text or drag, release to drop |
 | h      | Left click (also on g) |
 | ; / a  | Right click (right or left hand) |

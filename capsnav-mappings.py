@@ -393,9 +393,9 @@ def combos(sections):
     then = ", then Space or Tab: %dx faster" % SCROLL_BOOST
     rows = [("", ", ".join(up), "Scroll up" + then),
             ("", ", ".join(down), "Scroll down" + then)]
-    # Space pressed while the pointer moves: [ijkl…]/[esdf…] in default.conf.
+    # Ctrl pressed while the pointer moves: capsnav-scroll's POINTER_SPEED_LAYERS.
     return {"Scroll": rows,
-            "Mouse": [("", "Pointer keys", "Moving, then Space or Ctrl: 2x faster")]}
+            "Mouse": [("", "Pointer keys", "Moving, then Ctrl: 2x faster")]}
 
 
 def _section_range(lines, name):
