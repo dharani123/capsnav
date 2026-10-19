@@ -64,6 +64,9 @@ u = M-A-o
 r = M-A-o
 f2 = M-A-o
 f10 = M-A-o
+# Volume Down and Home switch too (F2 without Fn Lock; Home on the laptop)
+volumedown = M-A-o
+home = M-A-o
 # Smooth scroll: n/m on the right hand, v/c on the left (up/down). These
 # layers are watched by capsnav-scroll.py.
 n = layer(scrollup)

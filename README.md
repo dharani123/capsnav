@@ -220,7 +220,7 @@ need the keyboard's Fn Lock on.
 | Pointer 2x (hold with a direction) | Esc | Delete |
 | Left click | Tab or 3 | 0 or \ |
 | Scroll up / down | Tab while scrolling: 6x | p / [ |
-| Other monitor | F2 | F10 |
+| Other monitor | F2 or Volume Down | F10 or Home |
 
 Lock the screen with 9. In the window switcher (hold Space), ` / 2 and - /
 Backspace move left and right too. Cheap keyboards can't report every
