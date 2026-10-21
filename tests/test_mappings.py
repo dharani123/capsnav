@@ -85,7 +85,8 @@ class ParseTest(unittest.TestCase):
 
     def test_hidden_sections_not_shown(self):
         secs = {s for (_f, s, _k) in self.shown()}
-        for hidden in ("mousemode+control", "main", "global"):
+        for hidden in ("mousemode+control", "mousemode+alt", "main",
+                       "global"):
             self.assertNotIn(hidden, secs)
 
     def test_vscode_pairs_are_one_row(self):
@@ -237,6 +238,9 @@ class MoveTest(unittest.TestCase):
         ctrl = section_lines(new["default.conf"], "mousemode+control")
         self.assertIn("8 = C-8", ctrl)
         self.assertNotIn("t = C-t", ctrl)
+        alt = section_lines(new["default.conf"], "mousemode+alt")
+        self.assertIn("8 = A-8", alt)
+        self.assertNotIn("t = A-t", alt)
 
     def test_overwrite_makes_unbound(self):
         b = find(self.sections, "Mouse mode", "t")
@@ -263,6 +267,14 @@ class MoveTest(unittest.TestCase):
         self.assertNotIn("# unbound:", nav)
         self.assertIn("t = C-t",
                       section_lines(step2["default.conf"], "mousemode+control"))
+
+    def test_alt_list_matches_ctrl_list(self):
+        dc = self.texts["default.conf"]
+        binds = lambda sec: [l for l in section_lines(dc, sec)
+                             if re.match(r"^\S+ = ", l)]
+        ctrl = [l.split(" = ")[0] for l in binds("mousemode+control")]
+        alt = binds("mousemode+alt")
+        self.assertEqual(alt, ["%s = A-%s" % (k, k) for k in ctrl])
 
     def test_vscode_pair_moves_together(self):
         b = next(b for s in self.sections for _h, bs in s.groups for b in bs

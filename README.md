@@ -202,6 +202,8 @@ Hold Ctrl in mouse mode to type shortcuts: Ctrl+c, Ctrl+s or Ctrl+Shift+t
 type as plain shortcuts instead of the mouse-mode keys.
 `[mousemode+control]` in `default.conf` maps each mouse-mode key to
 Ctrl+itself, so keep it in step when you add a binding to `capsnav-nav`.
+Alt works the same way: Alt+b, Alt+Tab or Alt+f type as in keyboard mode
+(`[mousemode+alt]`, the same key list with Alt).
 
 The bindings live in `capsnav-nav`, which `default.conf` includes in mouse
 mode (`[mousemode]`); `install.sh` copies it
@@ -240,8 +242,8 @@ Each key is a drop-down: pick another key and press **Apply** to move that
 action there. Keys already in use are labelled with what they do; moving onto
 one overwrites it, and the old action is kept as `# unbound: KEY = ACTION`
 under **Unbound**, where you can give it a key again. Moving a mouse-mode
-key also updates `[mousemode+control]`, so holding Ctrl in mouse mode
-still types it. Saving checks the result with
+key also updates `[mousemode+control]` and `[mousemode+alt]`, so holding
+Ctrl or Alt in mouse mode still types it. Saving checks the result with
 `keyd check`, installs it with sudo (your `SUDO_ASKPASS` or
 `~/.local/bin/sudo-askpass` if set up, otherwise `pkexec`) and reloads keyd.
 
