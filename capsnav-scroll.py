@@ -84,7 +84,7 @@ for _cluster in ("ijkl", "esdf"):
     for _side, _dir in (("left", (-1, 0)), ("right", (1, 0)),
                         ("up", (0, -1)), ("down", (0, 1))):
         MOUSE_LAYERS[_cluster + _side] = _dir
-# Held with pointer keys: Esc or Delete in mouse mode (the controller grip)
+# Held with pointer keys: Delete in mouse mode (the controller grip)
 # doubles the speed. So does Ctrl pressed while moving (pointer keys pressed
 # after Ctrl type shortcuts instead): the HP keyboard can't send Delete with
 # F11 + Backspace held, and reports a phantom Ctrl, held for as long as

@@ -188,6 +188,7 @@ class TabsTest(unittest.TestCase):
                 for s in text for _h, bs in s.groups for b in bs]
         self.assertEqual(rows, [("", "b", "backspace"),
                                 ("Caps + ", "b", "backspace"),
+                                ("Caps + ", "esc", "esc"),
                                 ("Caps + ", "i", "up"),
                                 ("Caps + ", "j", "left"),
                                 ("Caps + ", "k", "down"),
