@@ -151,7 +151,7 @@ class TabsTest(unittest.TestCase):
         for key, tab in [("semicolon", "Mouse"), ("u", "Mouse"),
                          ("p", "Scroll"),
                          ("backspace", "Mouse"), ("n", "Scroll"), ("m", "Scroll"),
-                         ("q", "Browser"), ("w", "Browser"), ("t", "Browser"),
+                         ("q", "Scroll"), ("w", "Scroll"), ("tab", "Browser"), ("t", "Browser"),
                          ("y", "Browser"), ("9", "Windows"), ("delete", "Mouse"), ("7", "Windows"),
                          ("c", "Scroll"), ("v", "Scroll"), ("b", "Text")]:
             self.assertEqual(self.tab_of(*nav, key), tab, key)
@@ -171,15 +171,15 @@ class TabsTest(unittest.TestCase):
                          b.group)
 
     def test_scroll_combo(self):
-        rows = [("", "n, v, p", "Scroll up, then Space or Tab: 6x faster"),
-                ("", "m, c, [", "Scroll down, then Space or Tab: 6x faster")]
+        rows = [("", "n, v, w, p", "Scroll up, then Space or Tab: 6x faster"),
+                ("", "m, c, q, [", "Scroll down, then Space or Tab: 6x faster")]
         self.assertEqual(cm.combos(self.sections)["Scroll"], rows)
 
     def test_scroll_combo_follows_moved_keys(self):
         texts = repo_texts()
         b = find(self.sections, "Mouse mode", "n")
         secs = cm.parse_all(cm.move(texts, b, "z"))
-        self.assertEqual(cm.combos(secs)["Scroll"][0][1], "z, v, p")
+        self.assertEqual(cm.combos(secs)["Scroll"][0][1], "z, v, w, p")
 
     def test_text_tab_has_caps_prefix(self):
         text = dict(self.tabs)["Text"]
@@ -245,13 +245,13 @@ class MoveTest(unittest.TestCase):
 
     def test_overwrite_makes_unbound(self):
         b = find(self.sections, "Mouse mode", "t")
-        new = cm.move(self.texts, b, "q")          # q was previous tab
+        new = cm.move(self.texts, b, "q")          # q was scroll down
         nav = new["capsnav-nav"]
         self.assertRegex(nav, r"(?m)^q = C-t$")
-        self.assertRegex(nav, r"(?m)^# unbound: q = C-pageup$")
+        self.assertRegex(nav, r"(?m)^# unbound: q = layer\(scrolldown\)$")
         secs = cm.parse_all(new)
         u = find(secs, "Unbound", "q", unbound=True)
-        self.assertEqual(u.action, "C-pageup")
+        self.assertEqual(u.action, "layer(scrolldown)")
         # t is free now, q still typed by mouse mode: list drops t, keeps q.
         ctrl = section_lines(new["default.conf"], "mousemode+control")
         self.assertNotIn("t = C-t", ctrl)
@@ -263,7 +263,7 @@ class MoveTest(unittest.TestCase):
         u = find(cm.parse_all(step1), "Unbound", "q", unbound=True)
         step2 = cm.move(step1, u, "t")
         nav = step2["capsnav-nav"]
-        self.assertRegex(nav, r"(?m)^t = C-pageup$")
+        self.assertRegex(nav, r"(?m)^t = layer\(scrolldown\)$")
         self.assertRegex(nav, r"(?m)^q = C-t$")
         self.assertNotIn("# unbound:", nav)
         self.assertIn("t = C-t",

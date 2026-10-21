@@ -42,16 +42,13 @@ g = leftmouse
 h = leftmouse
 semicolon = rightmouse
 a = rightmouse
-# Controller grip: Tab or 3 by the left D-pad, 0 or \ on the right = left
-# click.
-tab = leftmouse
+# Controller grip: 3 by the left D-pad, 0 or \ on the right = left click.
 3 = leftmouse
 0 = leftmouse
 backslash = leftmouse
-# Tabs (browsers, VS Code, terminals): q = previous, w = next,
-# t = new tab, y = close tab
-q = C-pageup
-w = C-pagedown
+# Tabs (browsers, VS Code, terminals): Tab = next, Shift+Tab = previous
+# ([mousemode+shift] in default.conf), t = new tab, y = close tab
+tab = C-pagedown
 t = C-t
 y = C-w
 # Backspace on b (same as Caps+b in text mode)
@@ -69,12 +66,14 @@ f10 = M-A-o
 # Volume Down and Home switch too (F2 without Fn Lock; Home on the laptop)
 volumedown = M-A-o
 home = M-A-o
-# Smooth scroll: n/m on the right hand, v/c on the left (up/down). These
-# layers are watched by capsnav-scroll.py.
+# Smooth scroll: n/m on the right hand, v/c and w/q on the left (up/down).
+# These layers are watched by capsnav-scroll.py.
 n = layer(scrollup)
 m = layer(scrolldown)
 c = layer(scrolldown)
 v = layer(scrollup)
+q = layer(scrolldown)
+w = layer(scrollup)
 # Controller grip, right hand: p = up, [ = down.
 p = layer(scrollup)
 leftbrace = layer(scrolldown)
