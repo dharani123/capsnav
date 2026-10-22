@@ -3,7 +3,7 @@
 Drive the mouse and edit text from the home row with Caps Lock, using keyd (v2.6.0, built from source). capsnav has three modes:
 
 - **Keyboard mode**: the normal keyboard. This is where you start.
-- **Mouse mode**: tap Caps (or press Esc) to turn it on, and again to go back. i/j/k/l and more drive the mouse. Caps+Esc sends a real Esc.
+- **Mouse mode**: tap Caps (or press `` ` ``) to turn it on, and again to go back. i/j/k/l and more drive the mouse. Caps+`` ` `` types a real backtick.
 - **Text mode**: while Caps is held, in keyboard or mouse mode. Only the text keys work (arrows, Home/End, Backspace and so on).
 
 Ctrl shortcuts work normally in every mode.
@@ -13,7 +13,7 @@ Ctrl shortcuts work normally in every mode.
 | i/j/k/l | Move the mouse pointer up/left/down/right (hold; combine for diagonals) |
 | e/s/d/f | Move the pointer on the left hand too; the same direction on both (e.g. j + s) moves twice as fast |
 | Delete or Ctrl pressed while moving | Pointer 2x; 2x is the top speed, however many keys are held |
-| Esc    | Back to keyboard mode (clicks first, like a Caps tap); in keyboard mode Esc turns mouse mode on. Caps+Esc is a real Esc |
+| `` ` ``    | Back to keyboard mode (clicks first, like a Caps tap); in keyboard mode `` ` `` turns mouse mode on. Caps+`` ` `` is a real backtick, Shift+`` ` `` still types ~ |
 | g      | Left click; hold g and move to select text or drag, release to drop |
 | h      | Left click (also on g) |
 | ; / a  | Right click (right or left hand) |
@@ -64,7 +64,7 @@ Before installing:
   overwritten, so back it up if you already use keyd. If keyd came from your
   distro's packages, remove that first so two versions don't conflict.
 - **Caps Lock no longer toggles capitals.** A tap toggles mouse mode.
-- **Esc toggles mouse mode too.** Use Caps+Esc for a real Esc.
+- **`` ` `` toggles mouse mode too.** Use Caps+`` ` `` for a real backtick (Shift+`` ` `` still types ~).
 - **Emergency stop:** if the keyboard misbehaves, press Backspace+Escape+Enter
   together to stop keyd.
 
@@ -214,26 +214,23 @@ to `/etc/keyd/capsnav-nav`.
 ### Controller grip
 For lazy moments, hold the keyboard like a game controller by its top
 corners. Each hand has a D-pad (left = esdf layers, right = ijkl, so they add
-up), and the right hand has a doubler to hold (the pointer tops out at 2x).
-Esc on the left toggles mouse mode, so you can switch both ways without
+up), and each hand has a doubler to hold (the pointer tops out at 2x).
+`` ` `` on the left toggles mouse mode, so you can switch both ways without
 reaching for Caps. The F-keys
 need the keyboard's Fn Lock on.
 
 | Mouse mode | Left hand | Right hand |
 |---|---|---|
-| Pointer up | F1 or Mute | F11 or End |
-| Pointer left / down / right | ` / 1 / 2 | - / = / Backspace |
-| Pointer 2x (hold with a direction) | | Delete |
-| Back to keyboard mode | Esc | |
-| Left click | Tab or 3 | 0 or \ |
+| Pointer up | F2 or Volume Down | F11 or End |
+| Pointer left / down / right | 1 / 2 / 3 | - / = / Backspace |
+| Pointer 2x (hold with a direction) | Esc | Delete |
+| Back to keyboard mode | `` ` `` | |
+| Left click | 4 | 0 or \ |
 | Scroll up / down | Tab while scrolling: 6x | p / [ |
-| Other monitor | F2 or Volume Down | F10 or Home |
+| Other monitor | F3 or Volume Up | F10 or Home |
 
-Lock the screen with 9. In the window switcher (hold Space), ` / 2 and - /
-Backspace move left and right too. Cheap keyboards can't report every
-key combination: on the HP 350, holding a diagonal on both D-pads at once
-can drop the second pair and send a phantom Ctrl, so hold one diagonal with
-the Delete doubler instead.
+Lock the screen with 9. In the window switcher (hold Space), 1 / 3 and - /
+Backspace move left and right too.
 
 ### Mappings window
 

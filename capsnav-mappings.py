@@ -58,7 +58,7 @@ KEY_LABELS = {
     "equal": "=", "grave": "`", "backslash": "\\", "space": "Space",
     "capslock": "Caps", "leftshift": "Left Shift", "rightshift": "Right Shift",
     "leftalt": "Left Alt",
-    "tab": "Tab", "esc": "Esc", "enter": "Enter", "mute": "Mute", "end": "End", "f1": "F1", "f2": "F2", "f10": "F10", "volumedown": "Volume Down", "home": "Home", "f11": "F11", "f12": "F12",
+    "tab": "Tab", "esc": "Esc", "enter": "Enter", "mute": "Mute", "end": "End", "f1": "F1", "f2": "F2", "f3": "F3", "volumeup": "Volume Up", "f10": "F10", "volumedown": "Volume Down", "home": "Home", "f11": "F11", "f12": "F12",
     "delete": "Delete",
     "backspace": "Backspace",
 }
